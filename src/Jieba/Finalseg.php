@@ -1,28 +1,11 @@
 <?php
-/**
- * Finalseg.php
- *
- * PHP version 5
- *
- * @category PHP
- * @package  /src/class/
- * @author   Fukuball Lin <fukuball@gmail.com>
- * @license  MIT Licence
- * @version  GIT: <fukuball/jieba-php>
- * @link     https://github.com/fukuball/jieba-php
- */
 
 namespace Jieba;
 
 /**
- * Finalseg
+ * Class Finalseg
  *
- * @category PHP
- * @package  /src/class/
- * @author   Fukuball Lin <fukuball@gmail.com>
- * @license  MIT Licence
- * @version  Release: <0.16>
- * @link     https://github.com/fukuball/jieba-php
+ * @package Jieba
  */
 class Finalseg
 {

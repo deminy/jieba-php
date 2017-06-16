@@ -1,32 +1,15 @@
 <?php
-/**
- * Jieba.php
- *
- * PHP version 5
- *
- * @category PHP
- * @package  /src/class/
- * @author   Fukuball Lin <fukuball@gmail.com>
- * @license  MIT Licence
- * @version  GIT: <fukuball/jieba-php>
- * @link     https://github.com/fukuball/jieba-php
- */
 
 namespace Jieba;
 
-use Fukuball\Tebru\MultiArray;
+use Jieba\Tebru\MultiArray;
 
 define("MIN_FLOAT", -3.14e+100);
 
 /**
- * Jieba
+ * Class Jieba
  *
- * @category PHP
- * @package  /src/class/
- * @author   Fukuball Lin <fukuball@gmail.com>
- * @license  MIT Licence
- * @version  Release: <0.16>
- * @link     https://github.com/fukuball/jieba-php
+ * @package Jieba
  */
 class Jieba
 {

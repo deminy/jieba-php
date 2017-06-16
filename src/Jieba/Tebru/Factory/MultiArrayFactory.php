@@ -1,11 +1,8 @@
 <?php
-/**
- * File MultiArrayFactory.php
- */
 
-namespace Fukuball\Tebru\Factory;
+namespace Jieba\Tebru\Factory;
 
-use Fukuball\Tebru\MultiArray;
+use Jieba\Tebru\MultiArray;
 
 /**
  * Class MultiArrayFactory

@@ -1,12 +1,13 @@
 <?php
-use Fukuball\Jieba\Jieba;
-use Fukuball\Jieba\Finalseg;
-use Fukuball\Jieba\JiebaAnalyse;
-use Fukuball\Jieba\Posseg;
 
-class JiebaTest extends PHPUnit_Framework_TestCase
+use Jieba\Finalseg;
+use Jieba\Jieba;
+use Jieba\JiebaAnalyse;
+use Jieba\Posseg;
+use PHPUnit\Framework\TestCase;
+
+class JiebaTest extends TestCase
 {
-
     public function testJiebaInit()
     {
         Jieba::init();
@@ -280,5 +281,4 @@ class JiebaTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($case_array, $seg_list);
 
     }
-
 }
