@@ -20,9 +20,8 @@ class JiebaAnalyse
      *
      * @return void
      */
-    public static function init($options = array())
+    public static function init(array $options = array())
     {
-
         $defaults = array(
             'mode'=>'default'
         );
@@ -41,8 +40,7 @@ class JiebaAnalyse
         fclose($content);
 
         self::$max_idf = max(self::$idf_freq);
-
-    }// end function init
+    }
 
     /**
      * Static method extractTags
@@ -53,11 +51,10 @@ class JiebaAnalyse
      *
      * @return array $tags
      */
-    public static function extractTags($content, $top_k = 20, $options = array())
+    public static function extractTags(string $content, int $top_k = 20, array $options = array()): array
     {
-
         $defaults = array(
-            'mode'=>'default'
+            'mode'=>'default',
         );
 
         $options = array_merge($defaults, $options);

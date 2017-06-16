@@ -29,7 +29,7 @@ class Jieba
      *
      * @return void
      */
-    public static function init($options = array())
+    public static function init(array $options = array())
     {
         $defaults = array(
             'mode'=>'default',
@@ -61,7 +61,7 @@ class Jieba
             echo "loading model cost ".(microtime(true) - $t1)." seconds.\n";
             echo "Trie has been built succesfully.\n";
         }
-    }// end function init
+    }
 
     /**
      * Static method __calcFreq
@@ -76,7 +76,7 @@ class Jieba
             self::$FREQ[$key] = log($value / self::$total);
         }
         self::$min_freq = min(self::$FREQ);
-    }// end function __calcFreq
+    }
 
     /**
      * Static method calc
@@ -87,7 +87,7 @@ class Jieba
      *
      * @return array self::$route
      */
-    public static function calc($sentence, $DAG, $options = array())
+    public static function calc(string $sentence, array $DAG, $options = array()): array
     {
         $N = mb_strlen($sentence, 'UTF-8');
         self::$route = array();
@@ -111,7 +111,7 @@ class Jieba
         }
 
         return self::$route;
-    }// end function calc
+    }
 
     /**
      * Static method genTrie
@@ -121,7 +121,7 @@ class Jieba
      *
      * @return array self::$trie
      */
-    public static function genTrie($f_name, $options = array())
+    public static function genTrie(string $f_name, array $options = array())
     {
         $defaults = array(
             'mode'=>'default'
@@ -156,7 +156,7 @@ class Jieba
         fclose($content);
 
         return self::$trie;
-    }// end function genTrie
+    }
 
     /**
      * Static method loadUserDict
@@ -166,7 +166,7 @@ class Jieba
      *
      * @return array self::$trie
      */
-    public static function loadUserDict($f_name, $options = array())
+    public static function loadUserDict(string $f_name, array $options = array())
     {
         array_push(self::$user_dictname, $f_name);
         $content = fopen($f_name, "r");
@@ -194,7 +194,7 @@ class Jieba
         self::__calcFreq();
 
         return self::$trie;
-    }// end function loadUserDict
+    }
 
     /**
      * Static method __cutAll
@@ -204,7 +204,7 @@ class Jieba
      *
      * @return array $words
      */
-    public static function __cutAll($sentence, $options = array())
+    public static function __cutAll(string $sentence, array $options = array()): array
     {
         $defaults = array(
             'mode'=>'default'
@@ -234,7 +234,7 @@ class Jieba
         }
 
         return $words;
-    }// end function __cutAll
+    }
 
     /**
      * Static method getDAG
@@ -244,7 +244,7 @@ class Jieba
      *
      * @return array $DAG
      */
-    public static function getDAG($sentence, $options = array())
+    public static function getDAG(string $sentence, array $options = array()): array
     {
         $defaults = array(
             'mode'=>'default'
@@ -298,7 +298,7 @@ class Jieba
         }
 
         return $DAG;
-    }// end function getDAG
+    }
 
     /**
      * Static method __cutDAG
@@ -308,7 +308,7 @@ class Jieba
      *
      * @return array $words
      */
-    public static function __cutDAG($sentence, $options = array())
+    public static function __cutDAG(string $sentence, array $options = array()): array
     {
         $defaults = array(
             'mode'=>'default'
@@ -363,7 +363,7 @@ class Jieba
         }
 
         return $words;
-    }// end function __cutDAG
+    }
 
     /**
      * Static method cut
@@ -374,7 +374,7 @@ class Jieba
      *
      * @return array $seg_list
      */
-    public static function cut($sentence, $cut_all = false, $options = array())
+    public static function cut(string $sentence, bool $cut_all = false, array $options = array()): array
     {
         $defaults = array(
             'mode'=>'default'
@@ -407,11 +407,11 @@ class Jieba
                 }
             } else {
                 array_push($seg_list, $blk);
-            }// end else (preg_match('/'.$re_han_pattern.'/u', $blk))
-        }// end foreach ($blocks as $blk)
+            }
+        }
 
         return $seg_list;
-    }// end function cut
+    }
 
     /**
      * Static method cutForSearch
@@ -421,7 +421,7 @@ class Jieba
      *
      * @return array $seg_list
      */
-    public static function cutForSearch($sentence, $options = array())
+    public static function cutForSearch(string $sentence, array $options = array()): array
     {
         $defaults = array(
             'mode'=>'default'
@@ -460,5 +460,5 @@ class Jieba
         }
 
         return $seg_list;
-    }// end function cutForSearch
-}// end of class Jieba
+    }
+}

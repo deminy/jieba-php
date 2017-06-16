@@ -28,7 +28,7 @@ class JiebaCache
      *
      * @return void
      */
-    public static function init($options = array())
+    public static function init(array $options = array())
     {
         $defaults = array(
             'mode'=>'default',
@@ -58,7 +58,7 @@ class JiebaCache
             echo "loading model cost ".(microtime(true) - $t1)." seconds.\n";
             echo "Trie has been built succesfully.\n";
         }
-    }// end function init
+    }
 
     /**
      * Static method calc
@@ -69,7 +69,7 @@ class JiebaCache
      *
      * @return array self::$route
      */
-    public static function calc($sentence, $DAG, $options = array())
+    public static function calc(string $sentence, array $DAG, $options = array()): array
     {
         $N = mb_strlen($sentence, 'UTF-8');
         self::$route = array();
@@ -93,17 +93,17 @@ class JiebaCache
         }
 
         return self::$route;
-    }// end function calc
+    }
 
     /**
      * Static method genTrie
-      *
+     *
      * @param string $f_name  # input f_name
      * @param array  $options # other options
      *
      * @return array self::$trie
      */
-    public static function genTrie($f_name, $options = array())
+    public static function genTrie(string $f_name, array $options = array()): array
     {
         $defaults = array(
             'mode'=>'default'
@@ -135,8 +135,6 @@ class JiebaCache
             $minfreqcache = fopen($cachepath.$minfreqcachefile, 'r');
             $minfreqsize = filesize($cachepath.$minfreqcachefile);
             self::$min_freq = unserialize(fread($minfreqcache, $minfreqsize));
-
-
         } else {
             // 建立树并缓存
             $options = array_merge($defaults, $options);
@@ -160,8 +158,6 @@ class JiebaCache
                 //}
                 //$word_c_key = implode('.', $word_c);
                 //self::$trie->set($word_c_key, array("end"=>""));
-
-
             }
             fclose($content);
 
@@ -186,11 +182,10 @@ class JiebaCache
             $minfreqcontent = serialize(self::$min_freq);
             fwrite($minfreqcache, $minfreqcontent);
             fclose($minfreqcache);
-
         }
 
         return self::$trie;
-    }// end function genTrie
+    }
 
     /**
      * Static method loadUserDict
@@ -200,7 +195,7 @@ class JiebaCache
      *
      * @return array self::$trie
      */
-    public static function loadUserDict($f_name, $options = array())
+    public static function loadUserDict(string $f_name, array $options = array()): array
     {
         array_push(self::$user_dictname, $f_name);
         $content = fopen($f_name, "r");
@@ -224,7 +219,7 @@ class JiebaCache
         fclose($content);
 
         return self::$trie;
-    }// end function loadUserDict
+    }
 
     /**
      * Static method __cutAll
@@ -234,7 +229,7 @@ class JiebaCache
      *
      * @return array $words
      */
-    public static function __cutAll($sentence, $options = array())
+    public static function __cutAll(string $sentence, array $options = array()): array
     {
         $defaults = array(
             'mode'=>'default'
@@ -264,7 +259,7 @@ class JiebaCache
         }
 
         return $words;
-    }// end function __cutAll
+    }
 
     /**
      * Static method getDAG
@@ -274,7 +269,7 @@ class JiebaCache
      *
      * @return array $DAG
      */
-    public static function getDAG($sentence, $options = array())
+    public static function getDAG(string $sentence, array $options = array()): array
     {
         $defaults = array(
             'mode'=>'default'
@@ -328,7 +323,7 @@ class JiebaCache
         }
 
         return $DAG;
-    }// end function getDAG
+    }
 
     /**
      * Static method __cutDAG
@@ -338,7 +333,7 @@ class JiebaCache
      *
      * @return array $words
      */
-    public static function __cutDAG($sentence, $options = array())
+    public static function __cutDAG(string $sentence, array $options = array()): array
     {
         $defaults = array(
             'mode'=>'default'
@@ -393,7 +388,7 @@ class JiebaCache
         }
 
         return $words;
-    }// end function __cutDAG
+    }
 
     /**
      * Static method cut
@@ -404,7 +399,7 @@ class JiebaCache
      *
      * @return array $seg_list
      */
-    public static function cut($sentence, $cut_all = false, $options = array())
+    public static function cut(string $sentence, bool $cut_all = false, array $options = array()): array
     {
         $defaults = array(
             'mode'=>'default'
@@ -437,11 +432,11 @@ class JiebaCache
                 }
             } else {
                 array_push($seg_list, $blk);
-            }// end else (preg_match('/'.$re_han_pattern.'/u', $blk))
-        }// end foreach ($blocks as $blk)
+            }
+        }
 
         return $seg_list;
-    }// end function cut
+    }
 
     /**
      * Static method cutForSearch
@@ -451,10 +446,10 @@ class JiebaCache
      *
      * @return array $seg_list
      */
-    public static function cutForSearch($sentence, $options = array())
+    public static function cutForSearch(string $sentence, array $options = array()): array
     {
         $defaults = array(
-            'mode'=>'default'
+            'mode'=>'default',
         );
 
         $options = array_merge($defaults, $options);
@@ -490,5 +485,5 @@ class JiebaCache
         }
 
         return $seg_list;
-    }// end function cutForSearch
-}// end of class JiebaCache
+    }
+}

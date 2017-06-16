@@ -1,7 +1,4 @@
 <?php
-/**
- * File MultiArray.php
- */
 
 namespace Jieba\Tebru;
 
@@ -11,12 +8,6 @@ use InvalidArgumentException;
 use IteratorAggregate;
 use OutOfBoundsException;
 use Traversable;
-
-interface JsonSerializable {
-
-    public function jsonSerialize();
-
-}
 
 /**
  * Class MultiArray
@@ -231,7 +222,6 @@ class MultiArray implements IteratorAggregate, JsonSerializable, ArrayAccess
                 } else {
                     array_push($element[$checkKey], $value);
                 }
-
             }
 
             return $element[$checkKey];
@@ -246,7 +236,6 @@ class MultiArray implements IteratorAggregate, JsonSerializable, ArrayAccess
         } else {
             return $this->setValue($keys, $element[$checkKey], $value);
         }
-
     }
 
     /**
@@ -298,11 +287,7 @@ class MultiArray implements IteratorAggregate, JsonSerializable, ArrayAccess
     }
 
     /**
-     * (PHP 5 &gt;= 5.4.0)<br/>
-     * Specify data which should be serialized to JSON
-     * @link http://php.net/manual/en/jsonserializable.jsonserialize.php
-     * @return mixed data which can be serialized by <b>json_encode</b>,
-     * which is a value of any type other than a resource.
+     * @inheritdoc
      */
     function jsonSerialize()
     {

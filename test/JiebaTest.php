@@ -26,7 +26,6 @@ class JiebaTest extends TestCase
         Jieba::init();
         JiebaAnalyse::init();
         $this->assertGreaterThan(0, JiebaAnalyse::$max_idf);
-
     }
 
     public function testPossegInit()
@@ -72,7 +71,6 @@ class JiebaTest extends TestCase
 
         $seg_list = Jieba::cut("他来到了网易杭研大厦");
         $this->assertEquals($case_array, $seg_list);
-
     }
 
     public function testJiebaCutAll()
@@ -90,7 +88,6 @@ class JiebaTest extends TestCase
 
         $seg_list = Jieba::cut("我来到北京清华大学", true);
         $this->assertEquals($case_array, $seg_list);
-
     }
 
     public function testJiebaCutForSearch()
@@ -119,7 +116,6 @@ class JiebaTest extends TestCase
 
         $seg_list = Jieba::cutForSEarch("小明硕士毕业于中国科学院计算所，后在日本京都大学深造");
         $this->assertEquals($case_array, $seg_list);
-
     }
 
     public function testFinalsegCut()
@@ -159,7 +155,6 @@ class JiebaTest extends TestCase
 
         $tags = JiebaAnalyse::extractTags($content, $top_k);
         $this->assertEquals($case_array, $tags);
-
     }
 
     public function testLoadUserDict()
@@ -182,7 +177,6 @@ class JiebaTest extends TestCase
 
         $seg_list = Jieba::cut("李小福是创新办主任也是云计算方面的专家");
         $this->assertEquals($case_array, $seg_list);
-
     }
 
     public function testPossegCut()
@@ -279,6 +273,5 @@ class JiebaTest extends TestCase
         $seg_list = Posseg::cut("这是一个伸手不见五指的黑夜。我叫孙悟空，我爱北京，我爱Python和C++。");
 
         $this->assertEquals($case_array, $seg_list);
-
     }
 }

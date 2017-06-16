@@ -23,7 +23,7 @@ class Posseg
      *
      * @return void
      */
-    public static function init($options = array())
+    public static function init(array $options = array())
     {
         $defaults = array(
             'mode'=>'default'
@@ -72,7 +72,7 @@ class Posseg
             self::$pos_tag_readable[$tag] = $meaning;
         }
         fclose($content);
-    }// end function init
+    }
 
     /**
      * Static method loadModel
@@ -80,9 +80,9 @@ class Posseg
      * @param string $f_name # input f_name
      * @param array $options # other options
      *
-     * @return void
+     * @return mixed
      */
-    public static function loadModel($f_name, $options = array())
+    public static function loadModel(string $f_name, array $options = array())
     {
         $defaults = array(
             'mode'=>'default'
@@ -91,7 +91,7 @@ class Posseg
         $options = array_merge($defaults, $options);
 
         return json_decode(file_get_contents($f_name), true);
-    }// end function loadModel
+    }
 
     /**
      * Static method getTopStates
@@ -102,14 +102,14 @@ class Posseg
      *
      * @return array $top_states
      */
-    public static function getTopStates($t_state_v, $top_k = 4, $options = array())
+    public static function getTopStates(array $t_state_v, int $top_k = 4, array $options = array()): array
     {
         arsort($t_state_v);
 
         $top_states = array_slice($t_state_v, 0, $top_k);
 
         return $top_states;
-    }// end function getTopStates
+    }
 
     /**
      * Static method viterbi
@@ -119,7 +119,7 @@ class Posseg
      *
      * @return array $viterbi
      */
-    public static function viterbi($sentence, $options = array())
+    public static function viterbi(string $sentence, array $options = array()): array
     {
         $defaults = array(
             'mode'=>'default'
@@ -253,7 +253,7 @@ class Posseg
         }
 
         return array("prob"=>$return_prob, "pos_list"=>$route);
-    }// end function viterbi
+    }
 
     /**
      * Static method __cut
@@ -263,7 +263,7 @@ class Posseg
      *
      * @return array $words
      */
-    public static function __cut($sentence, $options = array())
+    public static function __cut(string $sentence, array $options = array()): array
     {
         $defaults = array(
             'mode'=>'default'
@@ -321,7 +321,7 @@ class Posseg
         }
 
         return $words;
-    }// end function __cut
+    }
 
     /**
      * Static method __cutDetail
@@ -331,7 +331,7 @@ class Posseg
      *
      * @return array $words
      */
-    public static function __cutDetail($sentence, $options = array())
+    public static function __cutDetail(string $sentence, array $options = array()): array
     {
         $defaults = array(
             'mode'=>'default'
@@ -375,7 +375,7 @@ class Posseg
         }
 
         return $words;
-    }// end function __cutDetail
+    }
 
     /**
      * Static method __cutDAG
@@ -385,7 +385,7 @@ class Posseg
      *
      * @return array $words
      */
-    public static function __cutDAG($sentence, $options = array())
+    public static function __cutDAG(string $sentence, array $options = array()): array
     {
         $defaults = array(
             'mode'=>'default'
@@ -465,7 +465,7 @@ class Posseg
         }
 
         return $words;
-    }// end function __cutDAG
+    }
 
     /**
      * Static method cut
@@ -475,7 +475,7 @@ class Posseg
      *
      * @return array $seg_list
      */
-    public static function cut($sentence, $options = array())
+    public static function cut(string $sentence, array $options = array()): array
     {
         $defaults = array(
             'mode'=>'default'
@@ -520,7 +520,7 @@ class Posseg
         }
 
         return $seg_list;
-    }// end function cut
+    }
 
     /**
      * Static method posTagReadable
@@ -530,7 +530,7 @@ class Posseg
      *
      * @return array $new_seg_list
      */
-    public static function posTagReadable($seg_list, $options = array())
+    public static function posTagReadable(array $seg_list, array $options = array()): array
     {
         $defaults = array(
             'mode'=>'default'
@@ -546,5 +546,5 @@ class Posseg
         }
 
         return $new_seg_list;
-    }// end function posTagReadable
+    }
 }

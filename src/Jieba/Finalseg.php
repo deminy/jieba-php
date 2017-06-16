@@ -20,9 +20,8 @@ class Finalseg
      *
      * @return void
      */
-    public static function init($options = array())
+    public static function init(array $options = array())
     {
-
         $defaults = array(
             'mode'=>'default'
         );
@@ -32,8 +31,7 @@ class Finalseg
         self::$prob_start = self::loadModel(dirname(dirname(__FILE__)).'/model/prob_start.json');
         self::$prob_trans = self::loadModel(dirname(dirname(__FILE__)).'/model/prob_trans.json');
         self::$prob_emit = self::loadModel(dirname(dirname(__FILE__)).'/model/prob_emit.json');
-
-    }// end function init
+    }
 
     /**
      * Static method loadModel
@@ -41,9 +39,9 @@ class Finalseg
      * @param string $f_name # input f_name
      * @param array $options # other options
      *
-     * @return void
+     * @return mixed
      */
-    public static function loadModel($f_name, $options = array())
+    public static function loadModel(string $f_name, array $options = array())
     {
 
         $defaults = array(
@@ -53,8 +51,7 @@ class Finalseg
         $options = array_merge($defaults, $options);
 
         return json_decode(file_get_contents($f_name), true);
-
-    }// end function loadModel
+    }
 
     /**
      * Static method viterbi
@@ -62,9 +59,9 @@ class Finalseg
      * @param string $sentence # input sentence
      * @param array  $options  # other options
      *
-     * @return array $viterbi
+     * @return array
      */
-    public static function viterbi($sentence, $options = array())
+    public static function viterbi(string $sentence, array $options = array()): array
     {
 
         $defaults = array(
@@ -144,8 +141,7 @@ class Finalseg
         $state = key($temp_prob_array);
 
         return array("prob"=>$prob, "pos_list"=>$path[$state]);
-
-    }// end function viterbi
+    }
 
     /**
      * Static method __cut
@@ -153,9 +149,9 @@ class Finalseg
      * @param string $sentence # input sentence
      * @param array  $options  # other options
      *
-     * @return array $words
+     * @return array
      */
-    public static function __cut($sentence, $options = array())
+    public static function __cut(string $sentence, array $options = array()): array
     {
 
         $defaults = array(
@@ -193,8 +189,7 @@ class Finalseg
         }
 
         return $words;
-
-    }// end function __cut
+    }
 
 
     /**
@@ -205,7 +200,7 @@ class Finalseg
      *
      * @return array $seg_list
      */
-    public static function cut($sentence, $options = array())
+    public static function cut(string $sentence, array $options = array()): array
     {
 
         $defaults = array(
@@ -227,25 +222,17 @@ class Finalseg
         $blocks = $matches[0];
 
         foreach ($blocks as $blk) {
-
             if (preg_match('/'.$re_han_pattern.'/u', $blk)) {
-
                 $words = self::__cut($blk);
 
                 foreach ($words as $word) {
                     array_push($seg_list, $word);
                 }
-
             } else {
-
                 array_push($seg_list, $blk);
-
-            }// end else (preg_match('/'.$re_han_pattern.'/u', $blk))
-
-
-        }// end foreach ($blocks as $blk)
+            }
+        }
 
         return $seg_list;
-
-    }// end function cut
+    }
 }
