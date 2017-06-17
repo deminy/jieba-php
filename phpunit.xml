@@ -9,10 +9,10 @@
     processIsolation="false"
     stopOnFailure="false"
     syntaxCheck="false"
-    bootstrap="test/bootstrap.php">
+    bootstrap="tests/bootstrap.php">
     <testsuites>
         <testsuite name="PHP jieba test suite">
-            <directory>./test/</directory>
+            <directory>./tests/</directory>
         </testsuite>
     </testsuites>
     <php>

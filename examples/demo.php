@@ -1,25 +1,11 @@
-#!/usr/bin/php
+#!/usr/bin/env php
 <?php
-/**
- * demo.php
- *
- * PHP version 5
- *
- * @category PHP
- * @package  /src/cmd/
- * @author   Fukuball Lin <fukuball@gmail.com>
- * @license  MIT Licence
- * @version  GIT: <fukuball/jieba-php>
- * @link     https://github.com/fukuball/jieba-php
- */
-ini_set('memory_limit', '1024M');
 
-require_once dirname(dirname(__FILE__))."/vendor/multi-array/MultiArray.php";
-require_once dirname(dirname(__FILE__))."/vendor/multi-array/Factory/MultiArrayFactory.php";
-require_once dirname(dirname(__FILE__))."/class/Jieba.php";
-require_once dirname(dirname(__FILE__))."/class/Finalseg.php";
-use Fukuball\Jieba\Jieba;
-use Fukuball\Jieba\Finalseg;
+require_once dirname(__DIR__) . '/vendor/autoload.php';
+
+use Jieba\Jieba;
+use Jieba\Finalseg;
+
 Jieba::init(array('mode'=>'test','dict'=>'big'));
 Finalseg::init();
 
@@ -56,4 +42,3 @@ var_dump($seg_list);
 
 $seg_list = Jieba::cutForSearch("小明碩士畢業于中國科學院計算所，後在日本京都大學深造");
 var_dump($seg_list);
-?>
