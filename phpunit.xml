@@ -18,4 +18,15 @@
     <php>
         <ini name="memory_limit" value="1024M" />
     </php>
+
+    <filter>
+        <whitelist>
+            <directory>./src/Jieba</directory>
+            <exclude>
+                <directory>./examples</directory>
+                <directory>./tests</directory>
+                <directory>./vendor</directory>
+            </exclude>
+        </whitelist>
+    </filter>
 </phpunit>
