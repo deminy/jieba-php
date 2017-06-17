@@ -3,7 +3,7 @@
 
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
-use Jieba\Tebru\MultiArray;
+use Jieba\MultiArray;
 
 $content = fopen(dirname(__DIR__) . '/src/dict/dict.big.txt', 'r');
 

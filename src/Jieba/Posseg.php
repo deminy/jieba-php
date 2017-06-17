@@ -9,12 +9,12 @@ namespace Jieba;
  */
 class Posseg
 {
-    public static $prob_start = array();
-    public static $prob_trans = array();
-    public static $prob_emit = array();
-    public static $char_state = array();
-    public static $word_tag = array();
-    public static $pos_tag_readable = array();
+    public static $prob_start       = [];
+    public static $prob_trans       = [];
+    public static $prob_emit        = [];
+    public static $char_state       = [];
+    public static $word_tag         = [];
+    public static $pos_tag_readable = [];
 
     /**
      * Static method init
@@ -23,21 +23,21 @@ class Posseg
      *
      * @return void
      */
-    public static function init(array $options = array())
+    public static function init(array $options = [])
     {
         $defaults = array(
-            'mode'=>'default'
+            'mode'=>'default',
         );
 
         $options = array_merge($defaults, $options);
 
-        self::$prob_start = self::loadModel(dirname(dirname(__FILE__)).'/model/pos/prob_start.json');
-        self::$prob_trans = self::loadModel(dirname(dirname(__FILE__)).'/model/pos/prob_trans.json');
-        self::$prob_emit = self::loadModel(dirname(dirname(__FILE__)).'/model/pos/prob_emit.json');
-        self::$char_state = self::loadModel(dirname(dirname(__FILE__)).'/model/pos/char_state.json');
+        self::$prob_start = self::loadModel(dirname(__DIR__).'/model/pos/prob_start.json');
+        self::$prob_trans = self::loadModel(dirname(__DIR__).'/model/pos/prob_trans.json');
+        self::$prob_emit  = self::loadModel(dirname(__DIR__).'/model/pos/prob_emit.json');
+        self::$char_state = self::loadModel(dirname(__DIR__).'/model/pos/char_state.json');
 
         if (Jieba::$dictname!="") {
-            $content = fopen(dirname(dirname(__FILE__))."/dict/".Jieba::$dictname, "r");
+            $content = fopen(dirname(__DIR__)."/dict/".Jieba::$dictname, "r");
             while (($line = fgets($content)) !== false) {
                 $explode_line = explode(" ", trim($line));
                 $word = $explode_line[0];
@@ -63,7 +63,7 @@ class Posseg
             }
         }
 
-        $content = fopen(dirname(dirname(__FILE__))."/dict/pos_tag_readable.txt", "r");
+        $content = fopen(dirname(__DIR__)."/dict/pos_tag_readable.txt", "r");
 
         while (($line = fgets($content)) !== false) {
             $explode_line = explode(" ", trim($line));
@@ -82,10 +82,10 @@ class Posseg
      *
      * @return mixed
      */
-    public static function loadModel(string $f_name, array $options = array())
+    public static function loadModel(string $f_name, array $options = [])
     {
         $defaults = array(
-            'mode'=>'default'
+            'mode'=>'default',
         );
 
         $options = array_merge($defaults, $options);
@@ -102,7 +102,7 @@ class Posseg
      *
      * @return array $top_states
      */
-    public static function getTopStates(array $t_state_v, int $top_k = 4, array $options = array()): array
+    public static function getTopStates(array $t_state_v, int $top_k = 4, array $options = []): array
     {
         arsort($t_state_v);
 
@@ -119,20 +119,20 @@ class Posseg
      *
      * @return array $viterbi
      */
-    public static function viterbi(string $sentence, array $options = array()): array
+    public static function viterbi(string $sentence, array $options = []): array
     {
         $defaults = array(
-            'mode'=>'default'
+            'mode'=>'default',
         );
 
         $options = array_merge($defaults, $options);
 
         $obs = $sentence;
         $states = self::$char_state;
-        $V = array();
-        $V[0] = array();
-        $mem_path = array();
-        $mem_path[0] = array();
+        $V = [];
+        $V[0] = [];
+        $mem_path = [];
+        $mem_path[0] = [];
         $all_states = array_keys(self::$prob_trans);
 
         $c = mb_substr($obs, 0, 1, 'UTF-8');
@@ -158,14 +158,14 @@ class Posseg
 
         for ($t=1; $t<mb_strlen($obs, 'UTF-8'); $t++) {
             $c = mb_substr($obs, $t, 1, 'UTF-8');
-            $V[$t] = array();
-            $mem_path[$t] = array();
+            $V[$t] = [];
+            $mem_path[$t] = [];
 
             $prev_states = array_keys(self::getTopStates($V[$t-1]));
 
             $prev_mem_path = array_keys($mem_path[$t-1]);
 
-            $prev_states = array();
+            $prev_states = [];
 
             foreach ($prev_mem_path as $mem_path_state) {
                 if (count(self::$prob_trans[$mem_path_state])>0) {
@@ -173,7 +173,7 @@ class Posseg
                 }
             }
 
-            $prev_states_expect_next = array();
+            $prev_states_expect_next = [];
 
             foreach ($prev_states as $prev_state) {
                 $prev_states_expect_next
@@ -185,7 +185,7 @@ class Posseg
                     );
             }
 
-            $obs_states = array();
+            $obs_states = [];
 
             if (isset($states[$c])) {
                 $obs_states = $states[$c];
@@ -201,7 +201,7 @@ class Posseg
 
 
             foreach ($obs_states as $y) {
-                $temp_prob_array = array();
+                $temp_prob_array = [];
                 foreach ($prev_states as $y0) {
                     $prob_trans = 0.0;
                     if (isset(self::$prob_trans[$y0][$y])) {
@@ -225,7 +225,7 @@ class Posseg
             }
         }
 
-        $last = array();
+        $last = [];
         $mem_path_end_keys = array_keys(end($mem_path));
 
         foreach ($mem_path_end_keys as $y) {
@@ -239,7 +239,7 @@ class Posseg
 
         $obs_length = mb_strlen($obs, 'UTF-8');
 
-        $route = array();
+        $route = [];
         for ($t=0; $t<$obs_length; $t++) {
             array_push($route, 'None');
         }
@@ -263,15 +263,15 @@ class Posseg
      *
      * @return array $words
      */
-    public static function __cut(string $sentence, array $options = array()): array
+    public static function __cut(string $sentence, array $options = []): array
     {
         $defaults = array(
-            'mode'=>'default'
+            'mode'=>'default',
         );
 
         $options = array_merge($defaults, $options);
 
-        $words = array();
+        $words = [];
 
         $viterbi_array = self::viterbi($sentence);
 
@@ -331,15 +331,15 @@ class Posseg
      *
      * @return array $words
      */
-    public static function __cutDetail(string $sentence, array $options = array()): array
+    public static function __cutDetail(string $sentence, array $options = []): array
     {
         $defaults = array(
-            'mode'=>'default'
+            'mode'=>'default',
         );
 
         $options = array_merge($defaults, $options);
 
-        $words = array();
+        $words = [];
 
         $re_han_pattern = '([\x{4E00}-\x{9FA5}]+)';
         $re_skip_pattern = '([a-zA-Z0-9+#\r\n]+)';
@@ -385,15 +385,15 @@ class Posseg
      *
      * @return array $words
      */
-    public static function __cutDAG(string $sentence, array $options = array()): array
+    public static function __cutDAG(string $sentence, array $options = []): array
     {
         $defaults = array(
-            'mode'=>'default'
+            'mode'=>'default',
         );
 
         $options = array_merge($defaults, $options);
 
-        $words = array();
+        $words = [];
 
         $N = mb_strlen($sentence, 'UTF-8');
         $DAG = Jieba::getDAG($sentence);
@@ -475,15 +475,15 @@ class Posseg
      *
      * @return array $seg_list
      */
-    public static function cut(string $sentence, array $options = array()): array
+    public static function cut(string $sentence, array $options = []): array
     {
         $defaults = array(
-            'mode'=>'default'
+            'mode'=>'default',
         );
 
         @$options = array_merge($defaults, $options);
 
-        $seg_list = array();
+        $seg_list = [];
 
         $re_han_pattern = '([\x{4E00}-\x{9FA5}]+)';
         $re_skip_pattern = '([a-zA-Z0-9+#\r\n]+)';
@@ -530,15 +530,15 @@ class Posseg
      *
      * @return array $new_seg_list
      */
-    public static function posTagReadable(array $seg_list, array $options = array()): array
+    public static function posTagReadable(array $seg_list, array $options = []): array
     {
         $defaults = array(
-            'mode'=>'default'
+            'mode'=>'default',
         );
 
         $options = array_merge($defaults, $options);
 
-        $new_seg_list = array();
+        $new_seg_list = [];
 
         foreach ($seg_list as $seg) {
             $seg['tag_readable'] = self::$pos_tag_readable[$seg['tag']];

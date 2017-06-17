@@ -1,25 +1,25 @@
 [deminy/jieba-php](https://github.com/deminy/jieba-php)
-=========
+================
 [![Build Status](https://travis-ci.org/deminy/jieba-php.svg?branch=master)](https://travis-ci.org/deminy/jieba-php)
 [![codecov.io](http://codecov.io/github/deminy/jieba-php/coverage.svg?branch=master)](http://codecov.io/github/deminy/jieba-php?branch=master)
 [![Latest Stable Version](https://poser.pugx.org/deminy/jieba-php/v/stable.png)](https://packagist.org/packages/deminy/jieba-php)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/26534521d345458a998eecd3b3008620)](https://www.codacy.com/app/deminy/jieba-php)
+[![Coding Standards](https://img.shields.io/badge/cs-PSR--2--R-yellow.svg)](https://github.com/php-fig-rectified/fig-rectified-standards)
+[![PSR-4](https://img.shields.io/badge/cs-PSR--4-yellow.svg)](http://www.php-fig.org/psr/psr-4/)
 
-"结巴"中文分词PHP版本：基于[fukuball](https://github.com/fukuball/jieba-php)的实现而作的进一步改进，包括使用PHP 7的新功能重构代码、使用PSR-4管理autoloading、使用依赖注射等设计模式、更新单元测试的实现等等。若想使用 Python 版本请前往 [fxsjy/jieba](https://github.com/fxsjy/jieba)。
-
-可以支援繁体中文，只要将字典切换为 big 模式即可。具体实现请参考下面示例代码。
+"[结巴中文分词](https://github.com/fxsjy/jieba)"PHP版本：基于[fukuball](https://github.com/fukuball/jieba-php)的PHP实现而作的进一步改进，包括使用PHP 7的新功能重构代码、使用PSR-4管理autoloading、使用依赖注射等设计模式、更新单元测试的实现、以及更多的性能优化和代码更新等等。
 
 # 功能
 
 支持三种分词模式：
 
-1. 默认精确模式，试图将句子最精确地切开，适合文本分析；
-2. 全模式，把句子中所有的可以成词的词语都扫描出来，但是不能解决歧义。（需要充足的字典）
-3. 搜寻引擎模式，在精确模式的基础上，对长词再次切分，提高召回率，适合用于搜寻引擎分词。
+1. 默认精确模式：试图将句子最精确地切开，适合文本分析。
+2. 全模式：把句子中所有的可以成词的词语都扫描出来，但是不能解决歧义。（需要充足的字典）
+3. 搜寻引擎模式：在精确模式的基础上，对长词再次切分，提高召回率，适合用于搜寻引擎分词。
 
 # 安装使用
 
-使用本库你需要至少给PHP分配1G内存限制(memory_limit > 1G)。
+使用本库你需要至少给PHP分配1G内存限制(memory_limit >= 1G)。
 
 ```bash
 composer require deminy/jieba-php:dev-master
@@ -47,10 +47,10 @@ var_dump(Jieba::cut("怜香惜玉也得要看对象啊！"));
 
 # 接口
 
-* 组件只提供 jieba.cut 方法用于分词
-* cut 方法接受两个输入参数: 1) 第一个参数为需要分词的字符串 2）cut_all 参数用来控制分词模式
-* 待分词的字符串可以是 utf-8 字符串
-* jieba.cut 返回的结构是一个可迭代的 array
+* 组件只提供 jieba.cut 方法用于分词。
+* cut 方法接受两个输入参数: 1) 第一个参数为需要分词的字符串 2）cut_all 参数用来控制分词模式。
+* 待分词的字符串可以是 utf-8 字符串。
+* jieba.cut 返回的结构是一个可迭代的数组。
 
 # 用法介绍
 
@@ -482,7 +482,7 @@ Finalseg::init();
 $seg_list = Jieba::cut("怜香惜玉也得要看对象啊！");
 var_dump($seg_list);
 
-$seg_list = Jieba::cut("怜香惜玉也得要看对象啊！");
+$seg_list = Jieba::cut("憐香惜玉也得要看對象啊！");
 var_dump($seg_list);
 ```
 
@@ -507,7 +507,7 @@ array(7) {
 }
 array(7) {
   [0]=>
-  string(12) "怜香惜玉"
+  string(12) "憐香惜玉"
   [1]=>
   string(3) "也"
   [2]=>
@@ -517,7 +517,7 @@ array(7) {
   [4]=>
   string(3) "看"
   [5]=>
-  string(6) "对象"
+  string(6) "對象"
   [6]=>
   string(3) "啊"
 }

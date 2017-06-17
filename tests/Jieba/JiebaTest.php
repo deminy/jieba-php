@@ -75,7 +75,6 @@ class JiebaTest extends TestCase
 
     public function testJiebaCutAll()
     {
-
         $case_array = array(
             "我",
             "来到",
@@ -92,7 +91,6 @@ class JiebaTest extends TestCase
 
     public function testJiebaCutForSearch()
     {
-
         $case_array = array(
             "小明",
             "硕士",
@@ -151,7 +149,7 @@ class JiebaTest extends TestCase
         );
 
         $top_k = 10;
-        $content = file_get_contents(dirname(dirname(__FILE__))."/src/dict/lyric.txt", "r");
+        $content = file_get_contents(dirname(__DIR__, 2) . "/src/dict/lyric.txt", "r");
 
         $tags = JiebaAnalyse::extractTags($content, $top_k);
         $this->assertEquals($case_array, $tags);
@@ -159,7 +157,6 @@ class JiebaTest extends TestCase
 
     public function testLoadUserDict()
     {
-
         $case_array = array(
             "李小福",
             "是",
@@ -173,7 +170,7 @@ class JiebaTest extends TestCase
             "专家"
         );
 
-        Jieba::loadUserDict(dirname(dirname(__FILE__)).'/src/dict/user_dict.txt');
+        Jieba::loadUserDict(dirname(__DIR__, 2) . '/src/dict/user_dict.txt');
 
         $seg_list = Jieba::cut("李小福是创新办主任也是云计算方面的专家");
         $this->assertEquals($case_array, $seg_list);
@@ -181,8 +178,6 @@ class JiebaTest extends TestCase
 
     public function testPossegCut()
     {
-
-
         $case_array = array(
             array(
                 "word" => "这",

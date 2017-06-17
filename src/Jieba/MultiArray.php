@@ -1,6 +1,6 @@
 <?php
 
-namespace Jieba\Tebru;
+namespace Jieba;
 
 use ArrayAccess;
 use ArrayIterator;
@@ -12,12 +12,9 @@ use Traversable;
 /**
  * Class MultiArray
  *
- * Attempts to ease access to multidimensional arrays. Created with the intention of
- * accessing json response values.
- *
- * @author Nate Brunette <n@tebru.net>
+ * @package Jieba\Tebru
  */
-class MultiArray implements IteratorAggregate, JsonSerializable, ArrayAccess
+class MultiArray implements IteratorAggregate, ArrayAccess
 {
     const EXCEPTION_KEY_MISSING = 'Could not find key in array.';
 
@@ -32,38 +29,24 @@ class MultiArray implements IteratorAggregate, JsonSerializable, ArrayAccess
      * Stores array object was created with
      * @var array $storage
      */
-    public $storage = array();
+    public $storage = [];
 
     /**
      * A cache of keys that have been verified and values
      *
      * @var array $cache
      */
-    public $cache = array();
+    public $cache = [];
 
     /**
      * Constructor
      *
-     * @param array|string $jsonOrArray An array or string. If a string is provided, attempts
-     *     to json_decode() it into an associative array.
-     * @param string $keyDelimiter How array key access will be delimited
-     * @throws InvalidArgumentException
+     * @param array An array or string.
+     * @param string How array key access will be delimited.
      */
-    public function __construct($jsonOrArray, $keyDelimiter = '.')
+    public function __construct(array $jsonOrArray, string $keyDelimiter = '.')
     {
-        if (is_string($jsonOrArray)) {
-            $jsonOrArray = json_decode($jsonOrArray, true);
-
-            if (null === $jsonOrArray) {
-                throw new InvalidArgumentException('Could not decode json string into array.');
-            }
-        }
-
-        if (!is_array($jsonOrArray)) {
-            throw new InvalidArgumentException('Expected array or string, got ' . gettype($jsonOrArray));
-        }
-
-        $this->storage = $jsonOrArray;
+        $this->storage      = $jsonOrArray;
         $this->keyDelimiter = $keyDelimiter;
     }
 
@@ -216,7 +199,7 @@ class MultiArray implements IteratorAggregate, JsonSerializable, ArrayAccess
             } else {
                 if (!is_array($element[$checkKey])) {
                     $temp_value = $element[$checkKey];
-                    $element[$checkKey] = array();
+                    $element[$checkKey] = [];
                     array_push($element[$checkKey], $temp_value);
                     array_push($element[$checkKey], $value);
                 } else {
@@ -228,7 +211,7 @@ class MultiArray implements IteratorAggregate, JsonSerializable, ArrayAccess
         }
 
         if (!isset($element[$checkKey])) {
-            $element[$checkKey] = array();
+            $element[$checkKey] = [];
         }
 
         if (!is_array($element[$checkKey])) {
@@ -284,14 +267,6 @@ class MultiArray implements IteratorAggregate, JsonSerializable, ArrayAccess
     public function getIterator()
     {
         return new ArrayIterator($this->storage);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    function jsonSerialize()
-    {
-        return $this->storage;
     }
 
     /**

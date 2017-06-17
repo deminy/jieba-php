@@ -9,9 +9,8 @@ namespace Jieba;
  */
 class JiebaAnalyse
 {
-
-    public static $idf_freq = array();
-    public static $max_idf = 0;
+    public static $idf_freq = [];
+    public static $max_idf  = 0;
 
     /**
      * Static method init
@@ -20,15 +19,15 @@ class JiebaAnalyse
      *
      * @return void
      */
-    public static function init(array $options = array())
+    public static function init(array $options = [])
     {
         $defaults = array(
-            'mode'=>'default'
+            'mode'=>'default',
         );
 
         $options = array_merge($defaults, $options);
 
-        $content = fopen(dirname(dirname(__FILE__))."/dict/idf.txt", "r");
+        $content = fopen(dirname(__DIR__)."/dict/idf.txt", "r");
 
         while (($line = fgets($content)) !== false) {
             $explode_line = explode(" ", trim($line));
@@ -51,7 +50,7 @@ class JiebaAnalyse
      *
      * @return array $tags
      */
-    public static function extractTags(string $content, int $top_k = 20, array $options = array()): array
+    public static function extractTags(string $content, int $top_k = 20, array $options = []): array
     {
         $defaults = array(
             'mode'=>'default',
@@ -59,16 +58,14 @@ class JiebaAnalyse
 
         $options = array_merge($defaults, $options);
 
-        $tags = array();
-
         $words = Jieba::cut($content);
 
-        $freq = array();
+        $freq = [];
         $total = 0.0;
 
         foreach ($words as $w) {
             $w = trim($w);
-            if (mb_strlen($w, 'UTF-8')<2) {
+            if (mb_strlen($w, 'UTF-8') < 2) {
                 continue;
             }
             if (isset($freq[$w])) {
@@ -83,7 +80,7 @@ class JiebaAnalyse
             $freq[$k] = $v/$total;
         }
 
-        $tf_idf_list = array();
+        $tf_idf_list = [];
 
         foreach ($freq as $k => $v) {
             if (isset(self::$idf_freq[$k])) {

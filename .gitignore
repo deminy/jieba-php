@@ -13,3 +13,6 @@
 /composer.lock
 /composer.phar
 /vendor/*
+
+# Ignore PHPUnit report files
+/clover.xml

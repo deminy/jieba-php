@@ -9,9 +9,9 @@ namespace Jieba;
  */
 class Finalseg
 {
-    public static $prob_start = array();
-    public static $prob_trans = array();
-    public static $prob_emit = array();
+    public static $prob_start = [];
+    public static $prob_trans = [];
+    public static $prob_emit  = [];
 
     /**
      * Static method init
@@ -20,17 +20,17 @@ class Finalseg
      *
      * @return void
      */
-    public static function init(array $options = array())
+    public static function init(array $options = [])
     {
         $defaults = array(
-            'mode'=>'default'
+            'mode'=>'default',
         );
 
         $options = array_merge($defaults, $options);
 
-        self::$prob_start = self::loadModel(dirname(dirname(__FILE__)).'/model/prob_start.json');
-        self::$prob_trans = self::loadModel(dirname(dirname(__FILE__)).'/model/prob_trans.json');
-        self::$prob_emit = self::loadModel(dirname(dirname(__FILE__)).'/model/prob_emit.json');
+        self::$prob_start = self::loadModel(dirname(__DIR__) . '/model/prob_start.json');
+        self::$prob_trans = self::loadModel(dirname(__DIR__) . '/model/prob_trans.json');
+        self::$prob_emit  = self::loadModel(dirname(__DIR__) . '/model/prob_emit.json');
     }
 
     /**
@@ -41,11 +41,11 @@ class Finalseg
      *
      * @return mixed
      */
-    public static function loadModel(string $f_name, array $options = array())
+    public static function loadModel(string $f_name, array $options = [])
     {
 
         $defaults = array(
-            'mode'=>'default'
+            'mode'=>'default',
         );
 
         $options = array_merge($defaults, $options);
@@ -61,20 +61,20 @@ class Finalseg
      *
      * @return array
      */
-    public static function viterbi(string $sentence, array $options = array()): array
+    public static function viterbi(string $sentence, array $options = []): array
     {
 
         $defaults = array(
-            'mode'=>'default'
+            'mode'=>'default',
         );
 
         $options = array_merge($defaults, $options);
 
         $obs = $sentence;
         $states = array('B', 'M', 'E', 'S');
-        $V = array();
-        $V[0] = array();
-        $path = array();
+        $V    = [];
+        $V[0] = [];
+        $path = [];
 
         foreach ($states as $key => $state) {
             $y = $state;
@@ -91,11 +91,11 @@ class Finalseg
 
         for ($t=1; $t<mb_strlen($obs, 'UTF-8'); $t++) {
             $c = mb_substr($obs, $t, 1, 'UTF-8');
-            $V[$t] = array();
-            $newpath = array();
+            $V[$t] = [];
+            $newpath = [];
             foreach ($states as $key => $state) {
                 $y = $state;
-                $temp_prob_array = array();
+                $temp_prob_array = [];
                 foreach ($states as $key => $state0) {
                     $y0 = $state0;
                     $prob_trans = 0.0;
@@ -117,7 +117,7 @@ class Finalseg
                 $max_key = key($temp_prob_array);
                 $V[$t][$y] = $max_prob;
                 if (is_array($path[$max_key])) {
-                    $newpath[$y] = array();
+                    $newpath[$y] = [];
                     foreach ($path[$max_key] as $key => $path_value) {
                         array_push($newpath[$y], $path_value);
                     }
@@ -130,7 +130,7 @@ class Finalseg
         }
 
         $es_states = array('E','S');
-        $temp_prob_array = array();
+        $temp_prob_array = [];
         $len = mb_strlen($obs, 'UTF-8');
         foreach ($es_states as $key => $state) {
             $y = $state;
@@ -151,16 +151,16 @@ class Finalseg
      *
      * @return array
      */
-    public static function __cut(string $sentence, array $options = array()): array
+    public static function __cut(string $sentence, array $options = []): array
     {
 
         $defaults = array(
-            'mode'=>'default'
+            'mode'=>'default',
         );
 
         $options = array_merge($defaults, $options);
 
-        $words = array();
+        $words = [];
 
         $viterbi_array = self::viterbi($sentence);
         $prob = $viterbi_array['prob'];
@@ -200,16 +200,16 @@ class Finalseg
      *
      * @return array $seg_list
      */
-    public static function cut(string $sentence, array $options = array()): array
+    public static function cut(string $sentence, array $options = []): array
     {
 
         $defaults = array(
-            'mode'=>'default'
+            'mode'=>'default',
         );
 
         $options = array_merge($defaults, $options);
 
-        $seg_list = array();
+        $seg_list = [];
 
         $re_han_pattern = '([\x{4E00}-\x{9FA5}]+)';
         $re_skip_pattern = '([a-zA-Z0-9+#\r\n]+)';

@@ -2,7 +2,7 @@
 
 namespace Jieba;
 
-use Jieba\Tebru\MultiArray;
+use Jieba\MultiArray;
 
 define("MIN_FLOAT", -3.14e+100);
 
@@ -14,13 +14,13 @@ define("MIN_FLOAT", -3.14e+100);
 class Jieba
 {
     public static $total = 0.0;
-    public static $trie = array();
-    public static $FREQ = array();
-    public static $original_freq = array();
+    public static $trie = [];
+    public static $FREQ = [];
+    public static $original_freq = [];
     public static $min_freq = 0.0;
-    public static $route = array();
+    public static $route = [];
     public static $dictname;
-    public static $user_dictname=array();
+    public static $user_dictname=[];
 
     /**
      * Static method init
@@ -29,7 +29,7 @@ class Jieba
      *
      * @return void
      */
-    public static function init(array $options = array())
+    public static function init(array $options = [])
     {
         $defaults = array(
             'mode'=>'default',
@@ -54,7 +54,7 @@ class Jieba
         }
 
         $t1 = microtime(true);
-        self::$trie = Jieba::genTrie(dirname(dirname(__FILE__))."/dict/".$f_name);
+        self::$trie = Jieba::genTrie(dirname(__DIR__)."/dict/".$f_name);
         self::__calcFreq();
 
         if ($options['mode']=='test') {
@@ -87,13 +87,13 @@ class Jieba
      *
      * @return array self::$route
      */
-    public static function calc(string $sentence, array $DAG, $options = array()): array
+    public static function calc(string $sentence, array $DAG, $options = []): array
     {
         $N = mb_strlen($sentence, 'UTF-8');
-        self::$route = array();
+        self::$route = [];
         self::$route[$N] = array($N => 1.0);
         for ($i=($N-1); $i>=0; $i--) {
-            $candidates = array();
+            $candidates = [];
             foreach ($DAG[$i] as $x) {
                 $w_c = mb_substr($sentence, $i, (($x+1)-$i), 'UTF-8');
                 $previous_freq = current(self::$route[$x+1]);
@@ -121,7 +121,7 @@ class Jieba
      *
      * @return array self::$trie
      */
-    public static function genTrie(string $f_name, array $options = array())
+    public static function genTrie(string $f_name, array $options = [])
     {
         $defaults = array(
             'mode'=>'default'
@@ -129,8 +129,8 @@ class Jieba
 
         $options = array_merge($defaults, $options);
 
-        self::$trie = new MultiArray(file_get_contents($f_name.'.json'));
-        self::$trie->cache = new MultiArray(file_get_contents($f_name.'.cache.json'));
+        self::$trie = new MultiArray(json_decode(file_get_contents($f_name . '.json'), true));
+        self::$trie->cache = new MultiArray(json_decode(file_get_contents($f_name . '.cache.json'), true));
 
         $content = fopen($f_name, "r");
         while (($line = fgets($content)) !== false) {
@@ -144,14 +144,6 @@ class Jieba
             }
             self::$original_freq[$word] = $freq;
             self::$total += $freq;
-            //$l = mb_strlen($word, 'UTF-8');
-            //$word_c = array();
-            //for ($i=0; $i<$l; $i++) {
-            //    $c = mb_substr($word, $i, 1, 'UTF-8');
-            //    array_push($word_c, $c);
-            //}
-            //$word_c_key = implode('.', $word_c);
-            //self::$trie->set($word_c_key, array("end"=>""));
         }
         fclose($content);
 
@@ -166,7 +158,7 @@ class Jieba
      *
      * @return array self::$trie
      */
-    public static function loadUserDict(string $f_name, array $options = array())
+    public static function loadUserDict(string $f_name, array $options = [])
     {
         array_push(self::$user_dictname, $f_name);
         $content = fopen($f_name, "r");
@@ -182,7 +174,7 @@ class Jieba
             self::$original_freq[$word] = $freq;
             self::$total += $freq;
             $l = mb_strlen($word, 'UTF-8');
-            $word_c = array();
+            $word_c = [];
             for ($i=0; $i<$l; $i++) {
                 $c = mb_substr($word, $i, 1, 'UTF-8');
                 array_push($word_c, $c);
@@ -204,7 +196,7 @@ class Jieba
      *
      * @return array $words
      */
-    public static function __cutAll(string $sentence, array $options = array()): array
+    public static function __cutAll(string $sentence, array $options = []): array
     {
         $defaults = array(
             'mode'=>'default'
@@ -212,7 +204,7 @@ class Jieba
 
         $options = array_merge($defaults, $options);
 
-        $words = array();
+        $words = [];
 
         $DAG = self::getDAG($sentence);
         $old_j = -1;
@@ -244,7 +236,7 @@ class Jieba
      *
      * @return array $DAG
      */
-    public static function getDAG(string $sentence, array $options = array()): array
+    public static function getDAG(string $sentence, array $options = []): array
     {
         $defaults = array(
             'mode'=>'default'
@@ -255,8 +247,8 @@ class Jieba
         $N = mb_strlen($sentence, 'UTF-8');
         $i = 0;
         $j = 0;
-        $DAG = array();
-        $word_c = array();
+        $DAG = [];
+        $word_c = [];
 
         while ($i < $N) {
             $c = mb_substr($sentence, $j, 1, 'UTF-8');
@@ -274,18 +266,18 @@ class Jieba
                  || isset($next_word_key_value[0]["end"])
                 ) {
                     if (!isset($DAG[$i])) {
-                        $DAG[$i] = array();
+                        $DAG[$i] = [];
                     }
                     array_push($DAG[$i], $j);
                 }
                 $j += 1;
                 if ($j >= $N) {
-                    $word_c = array();
+                    $word_c = [];
                     $i += 1;
                     $j = $i;
                 }
             } else {
-                $word_c = array();
+                $word_c = [];
                 $i += 1;
                 $j = $i;
             }
@@ -308,7 +300,7 @@ class Jieba
      *
      * @return array $words
      */
-    public static function __cutDAG(string $sentence, array $options = array()): array
+    public static function __cutDAG(string $sentence, array $options = []): array
     {
         $defaults = array(
             'mode'=>'default'
@@ -316,7 +308,7 @@ class Jieba
 
         $options = array_merge($defaults, $options);
 
-        $words = array();
+        $words = [];
 
         $N = mb_strlen($sentence, 'UTF-8');
         $DAG = self::getDAG($sentence);
@@ -374,7 +366,7 @@ class Jieba
      *
      * @return array $seg_list
      */
-    public static function cut(string $sentence, bool $cut_all = false, array $options = array()): array
+    public static function cut(string $sentence, bool $cut_all = false, array $options = []): array
     {
         $defaults = array(
             'mode'=>'default'
@@ -382,7 +374,7 @@ class Jieba
 
         $options = array_merge($defaults, $options);
 
-        $seg_list = array();
+        $seg_list = [];
 
         $re_han_pattern = '([\x{4E00}-\x{9FA5}]+)';
         $re_skip_pattern = '([a-zA-Z0-9+#\r\n]+)';
@@ -421,7 +413,7 @@ class Jieba
      *
      * @return array $seg_list
      */
-    public static function cutForSearch(string $sentence, array $options = array()): array
+    public static function cutForSearch(string $sentence, array $options = []): array
     {
         $defaults = array(
             'mode'=>'default'
@@ -429,7 +421,7 @@ class Jieba
 
         $options = array_merge($defaults, $options);
 
-        $seg_list = array();
+        $seg_list = [];
 
         $cut_seg_list = Jieba::cut($sentence);
 
