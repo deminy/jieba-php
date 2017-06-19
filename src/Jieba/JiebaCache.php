@@ -2,10 +2,6 @@
 
 namespace Jieba;
 
-use Jieba\MultiArray;
-
-define("MIN_FLOAT", -3.14e+100);
-
 /**
  * Class JiebaCache
  *
@@ -13,22 +9,41 @@ define("MIN_FLOAT", -3.14e+100);
  */
 class JiebaCache
 {
-    public static $total = 0.0;
-    public static $trie = [];
-    public static $FREQ = [];
-    public static $min_freq = 0.0;
-    public static $route = [];
-    public static $dictname;
-    public static $user_dictname=[];
+    /**
+     * @var float
+     */
+    public $total = 0.0;
+    /**
+     * @var array
+     */
+    public $trie = [];
+    /**
+     * @var array
+     */
+    public $FREQ = [];
+    /**
+     * @var float
+     */
+    public $min_freq = 0.0;
+    /**
+     * @var array
+     */
+    public $route = [];
+    /**
+     * @var string
+     */
+    public $dictname;
+    /**
+     * @var array
+     */
+    public $user_dictname=[];
 
     /**
-     * Static method init
-     *
      * @param array $options # other options
      *
      * @return void
      */
-    public static function init(array $options = [])
+    public function init(array $options = [])
     {
         $defaults = array(
             'mode'=>'default',
@@ -43,17 +58,17 @@ class JiebaCache
 
         if ($options['dict']=='small') {
             $f_name = "dict.small.txt";
-            self::$dictname="dict.small.txt";
+            $this->dictname="dict.small.txt";
         } elseif ($options['dict']=='big') {
             $f_name = "dict.big.txt";
-            self::$dictname="dict.big.txt";
+            $this->dictname="dict.big.txt";
         } else {
             $f_name = "dict.txt";
-            self::$dictname="dict.txt";
+            $this->dictname="dict.txt";
         }
 
         $t1 = microtime(true);
-        self::$trie = Jieba::genTrie(dirname(__DIR__)."/dict/".$f_name);
+        $this->trie = Jieba::genTrie(dirname(__DIR__)."/dict/".$f_name);
         if ($options['mode']=='test') {
             echo "loading model cost ".(microtime(true) - $t1)." seconds.\n";
             echo "Trie has been built succesfully.\n";
@@ -61,54 +76,42 @@ class JiebaCache
     }
 
     /**
-     * Static method calc
-     *
      * @param string $sentence # input sentence
      * @param array  $DAG      # DAG
-     * @param array  $options  # other options
-     *
-     * @return array self::$route
+     * @return array
      */
-    public static function calc(string $sentence, array $DAG, $options = []): array
+    public function calc(string $sentence, array $DAG): array
     {
         $N = mb_strlen($sentence, 'UTF-8');
-        self::$route = [];
-        self::$route[$N] = array($N => 1.0);
+        $this->route = [];
+        $this->route[$N] = array($N => 1.0);
         for ($i=($N-1); $i>=0; $i--) {
             $candidates = [];
             foreach ($DAG[$i] as $x) {
                 $w_c = mb_substr($sentence, $i, (($x+1)-$i), 'UTF-8');
-                $previous_freq = current(self::$route[$x+1]);
-                if (isset(self::$FREQ[$w_c])) {
-                    $current_freq = (float) $previous_freq + self::$FREQ[$w_c];
+                $previous_freq = current($this->route[$x+1]);
+                if (isset($this->FREQ[$w_c])) {
+                    $current_freq = (float) $previous_freq + $this->FREQ[$w_c];
                 } else {
-                    $current_freq = (float) $previous_freq + self::$min_freq;
+                    $current_freq = (float) $previous_freq + $this->min_freq;
                 }
                 $candidates[$x] = $current_freq;
             }
             arsort($candidates);
             $max_prob = reset($candidates);
             $max_key = key($candidates);
-            self::$route[$i] = array($max_key => $max_prob);
+            $this->route[$i] = array($max_key => $max_prob);
         }
 
-        return self::$route;
+        return $this->route;
     }
 
     /**
-     * Static method genTrie
-     *
      * @param string $f_name  # input f_name
-     * @param array  $options # other options
-     *
-     * @return array self::$trie
+     * @return array
      */
-    public static function genTrie(string $f_name, array $options = []): array
+    public function genTrie(string $f_name): array
     {
-        $defaults = array(
-            'mode'=>'default'
-        );
-
         // 配置缓存文件
         $cachepath = dirname($f_name).'/cache/';
         if (!file_exists($cachepath)) {
@@ -125,21 +128,20 @@ class JiebaCache
             // 读取缓存文件
             $triecache = fopen($cachepath.$triecachefile, 'r');
             $triesize = filesize($cachepath.$triecachefile);
-            self::$trie = unserialize(fread($triecache, $triesize));
+            $this->trie = unserialize(fread($triecache, $triesize));
             $freqcache = fopen($cachepath.$freqcachefile, 'r');
             $freqsize = filesize($cachepath.$freqcachefile);
-            self::$FREQ = unserialize(fread($freqcache, $freqsize));
+            $this->FREQ = unserialize(fread($freqcache, $freqsize));
             $totalcache = fopen($cachepath.$totalcachefile, 'r');
             $totalsize = filesize($cachepath.$totalcachefile);
-            self::$total = unserialize(fread($totalcache, $totalsize));
+            $this->total = unserialize(fread($totalcache, $totalsize));
             $minfreqcache = fopen($cachepath.$minfreqcachefile, 'r');
             $minfreqsize = filesize($cachepath.$minfreqcachefile);
-            self::$min_freq = unserialize(fread($minfreqcache, $minfreqsize));
+            $this->min_freq = unserialize(fread($minfreqcache, $minfreqsize));
         } else {
             // 建立树并缓存
-            $options = array_merge($defaults, $options);
-            self::$trie = new MultiArray(json_decode(file_get_contents($f_name . '.json'), true));
-            self::$trie->cache = new MultiArray(json_decode(file_get_contents($f_name . '.cache.json'), true));
+            $this->trie = new MultiArray(json_decode(file_get_contents($f_name . '.json'), true));
+            $this->trie->cache = new MultiArray(json_decode(file_get_contents($f_name . '.cache.json'), true));
 
             $content = fopen($f_name, "r");
             while (($line = fgets($content)) !== false) {
@@ -148,48 +150,46 @@ class JiebaCache
                 $freq = $explode_line[1];
                 $tag = $explode_line[2];
                 $freq = (float) $freq;
-                self::$FREQ[$word] = $freq;
-                self::$total += $freq;
+                $this->FREQ[$word] = $freq;
+                $this->total += $freq;
             }
             fclose($content);
 
-            foreach (self::$FREQ as $key => $value) {
-                self::$FREQ[$key] = log($value / self::$total);
+            foreach ($this->FREQ as $key => $value) {
+                $this->FREQ[$key] = log($value / $this->total);
             }
-            self::$min_freq = min(self::$FREQ);
+            $this->min_freq = min($this->FREQ);
             // 缓存文件
             $triecache = fopen($cachepath.$triecachefile, 'w');
-            $triecontent = serialize(self::$trie);
+            $triecontent = serialize($this->trie);
             fwrite($triecache, $triecontent);
             fclose($triecache);
             $freqcache = fopen($cachepath.$freqcachefile, 'w');
-            $freqcontent = serialize(self::$FREQ);
+            $freqcontent = serialize($this->FREQ);
             fwrite($freqcache, $freqcontent);
             fclose($freqcache);
             $totalcache = fopen($cachepath.$totalcachefile, 'w');
-            $totalcontent = serialize(self::$total);
+            $totalcontent = serialize($this->total);
             fwrite($totalcache, $totalcontent);
             fclose($totalcache);
             $minfreqcache = fopen($cachepath.$minfreqcachefile, 'w');
-            $minfreqcontent = serialize(self::$min_freq);
+            $minfreqcontent = serialize($this->min_freq);
             fwrite($minfreqcache, $minfreqcontent);
             fclose($minfreqcache);
         }
 
-        return self::$trie;
+        return $this->trie;
     }
 
     /**
      * Static method loadUserDict
      *
      * @param string $f_name  # input f_name
-     * @param array  $options # other options
-     *
-     * @return array self::$trie
+     * @return array
      */
-    public static function loadUserDict(string $f_name, array $options = []): array
+    public function loadUserDict(string $f_name): array
     {
-        array_push(self::$user_dictname, $f_name);
+        array_push($this->user_dictname, $f_name);
         $content = fopen($f_name, "r");
         while (($line = fgets($content)) !== false) {
             $explode_line = explode(" ", trim($line));
@@ -197,8 +197,8 @@ class JiebaCache
             $freq = $explode_line[1];
             $tag = $explode_line[2];
             $freq = (float) $freq;
-            self::$total += $freq;
-            self::$FREQ[$word] = log($freq / self::$total);
+            $this->total += $freq;
+            $this->FREQ[$word] = log($freq / $this->total);
             $l = mb_strlen($word, 'UTF-8');
             $word_c = [];
             for ($i=0; $i<$l; $i++) {
@@ -206,32 +206,22 @@ class JiebaCache
                 array_push($word_c, $c);
             }
             $word_c_key = implode('.', $word_c);
-            self::$trie->set($word_c_key, array("end"=>""));
+            $this->trie->set($word_c_key, array("end"=>""));
         }
         fclose($content);
 
-        return self::$trie;
+        return $this->trie;
     }
 
     /**
-     * Static method __cutAll
-     *
      * @param string $sentence # input sentence
-     * @param array  $options  # other options
-     *
-     * @return array $words
+     * @return array
      */
-    public static function __cutAll(string $sentence, array $options = []): array
+    public function __cutAll(string $sentence): array
     {
-        $defaults = array(
-            'mode'=>'default'
-        );
-
-        $options = array_merge($defaults, $options);
-
         $words = [];
 
-        $DAG = self::getDAG($sentence);
+        $DAG = $this->getDAG($sentence);
         $old_j = -1;
 
         foreach ($DAG as $k => $L) {
@@ -254,21 +244,11 @@ class JiebaCache
     }
 
     /**
-     * Static method getDAG
-     *
      * @param string $sentence # input sentence
-     * @param array  $options  # other options
-     *
-     * @return array $DAG
+     * @return array
      */
-    public static function getDAG(string $sentence, array $options = []): array
+    public function getDAG(string $sentence): array
     {
-        $defaults = array(
-            'mode'=>'default'
-        );
-
-        $options = array_merge($defaults, $options);
-
         $N = mb_strlen($sentence, 'UTF-8');
         $i = 0;
         $j = 0;
@@ -283,9 +263,9 @@ class JiebaCache
                 $next_word_key = implode('.', $word_c).'.'.$c;
             }
 
-            if (self::$trie->exists($next_word_key)) {
+            if ($this->trie->exists($next_word_key)) {
                 array_push($word_c, $c);
-                $next_word_key_value = self::$trie->get($next_word_key);
+                $next_word_key_value = $this->trie->get($next_word_key);
                 if ($next_word_key_value == array("end"=>"")
                  || isset($next_word_key_value["end"])
                  || isset($next_word_key_value[0]["end"])
@@ -318,33 +298,23 @@ class JiebaCache
     }
 
     /**
-     * Static method __cutDAG
-     *
      * @param string $sentence # input sentence
-     * @param array  $options  # other options
-     *
-     * @return array $words
+     * @return array
      */
-    public static function __cutDAG(string $sentence, array $options = []): array
+    public function __cutDAG(string $sentence): array
     {
-        $defaults = array(
-            'mode'=>'default'
-        );
-
-        $options = array_merge($defaults, $options);
-
         $words = [];
 
         $N = mb_strlen($sentence, 'UTF-8');
-        $DAG = self::getDAG($sentence);
+        $DAG = $this->getDAG($sentence);
 
-        self::calc($sentence, $DAG);
+        $this->calc($sentence, $DAG);
 
         $x = 0;
         $buf = '';
 
         while ($x < $N) {
-            $current_route_keys = array_keys(self::$route[$x]);
+            $current_route_keys = array_keys($this->route[$x]);
             $y = $current_route_keys[0]+1;
             $l_word = mb_substr($sentence, $x, ($y-$x), 'UTF-8');
 
@@ -356,7 +326,7 @@ class JiebaCache
                         array_push($words, $buf);
                         $buf = '';
                     } else {
-                        $regognized = Finalseg::cut($buf);
+                        $regognized = Finalseg::singleton()->cut($buf);
                         foreach ($regognized as $key => $word) {
                             array_push($words, $word);
                         }
@@ -372,7 +342,7 @@ class JiebaCache
             if (mb_strlen($buf, 'UTF-8')==1) {
                 array_push($words, $buf);
             } else {
-                $regognized = Finalseg::cut($buf);
+                $regognized = Finalseg::singleton()->cut($buf);
                 foreach ($regognized as $key => $word) {
                     array_push($words, $word);
                 }
@@ -387,18 +357,10 @@ class JiebaCache
      *
      * @param string  $sentence # input sentence
      * @param boolean $cut_all  # cut_all or not
-     * @param array   $options  # other options
-     *
-     * @return array $seg_list
+     * @return array
      */
-    public static function cut(string $sentence, bool $cut_all = false, array $options = []): array
+    public function cut(string $sentence, bool $cut_all = false): array
     {
-        $defaults = array(
-            'mode'=>'default'
-        );
-
-        $options = array_merge($defaults, $options);
-
         $seg_list = [];
 
         $re_han_pattern = '([\x{4E00}-\x{9FA5}]+)';
@@ -431,21 +393,11 @@ class JiebaCache
     }
 
     /**
-     * Static method cutForSearch
-     *
      * @param string  $sentence # input sentence
-     * @param array   $options  # other options
-     *
-     * @return array $seg_list
+     * @return array
      */
-    public static function cutForSearch(string $sentence, array $options = []): array
+    public function cutForSearch(string $sentence): array
     {
-        $defaults = array(
-            'mode'=>'default',
-        );
-
-        $options = array_merge($defaults, $options);
-
         $seg_list = [];
 
         $cut_seg_list = Jieba::cut($sentence);
@@ -457,7 +409,7 @@ class JiebaCache
                 for ($i=0; $i<($len-1); $i++) {
                     $gram2 = mb_substr($w, $i, 2, 'UTF-8');
 
-                    if (isset(self::$FREQ[$gram2])) {
+                    if (isset($this->FREQ[$gram2])) {
                         array_push($seg_list, $gram2);
                     }
                 }
@@ -467,7 +419,7 @@ class JiebaCache
                 for ($i=0; $i<($len-2); $i++) {
                     $gram3 = mb_substr($w, $i, 3, 'UTF-8');
 
-                    if (isset(self::$FREQ[$gram3])) {
+                    if (isset($this->FREQ[$gram3])) {
                         array_push($seg_list, $gram3);
                     }
                 }

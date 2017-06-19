@@ -4,20 +4,13 @@
     "description": "结巴中文分词PHP版本",
     "keywords": ["Jieba", "PHP"],
     "license": "MIT",
-    "authors": [
-        {
-            "name": "fukuball",
-            "email": "fukuball@gmail.com"
-        },
-        {
-            "name": "Demin Yin",
-            "email": "deminy@deminy.net"
-        }
-    ],
     "require": {
-        "php": ">=7.0"
+        "php": ">=7.0",
+        "cache/cache": "~0.4",
+        "psr/log": "~1.0"
     },
     "require-dev": {
+        "monolog/monolog": "~1.11",
         "phpunit/phpunit": "~6.0",
         "squizlabs/php_codesniffer": "~3.0"
     },

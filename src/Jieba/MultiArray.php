@@ -12,7 +12,7 @@ use Traversable;
 /**
  * Class MultiArray
  *
- * @package Jieba\Tebru
+ * @package Jieba
  */
 class MultiArray implements IteratorAggregate, ArrayAccess
 {
@@ -41,12 +41,12 @@ class MultiArray implements IteratorAggregate, ArrayAccess
     /**
      * Constructor
      *
-     * @param array An array or string.
-     * @param string How array key access will be delimited.
+     * @param array $array
+     * @param string $keyDelimiter How array key access will be delimited.
      */
-    public function __construct(array $jsonOrArray, string $keyDelimiter = '.')
+    public function __construct(array $array = [], string $keyDelimiter = '.')
     {
-        $this->storage      = $jsonOrArray;
+        $this->storage      = $array;
         $this->keyDelimiter = $keyDelimiter;
     }
 

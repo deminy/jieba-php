@@ -2,6 +2,8 @@
 
 namespace Jieba;
 
+use Jieba\Traits\SingletonTrait;
+
 /**
  * Class JiebaAnalyse
  *
@@ -9,58 +11,45 @@ namespace Jieba;
  */
 class JiebaAnalyse
 {
-    public static $idf_freq = [];
-    public static $max_idf  = 0;
+    use SingletonTrait;
 
     /**
-     * Static method init
-     *
-     * @param array $options # other options
-     *
-     * @return void
+     * @var array
      */
-    public static function init(array $options = [])
+    protected $idfFreq = [];
+
+    /**
+     * @var int
+     */
+    protected $maxIdf  = 0;
+
+    /**
+     * JiebaAnalyse constructor.
+     */
+    protected function __construct()
     {
-        $defaults = array(
-            'mode'=>'default',
+        Helper::readFile(
+            Helper::getDictFilePath('idf.txt'),
+            function (string $line) {
+                $explode_line         = explode(' ', trim($line));
+                $word                 = $explode_line[0];
+                $freq                 = (float) $explode_line[1];
+                $this->idfFreq[$word] = $freq;
+            }
         );
 
-        $options = array_merge($defaults, $options);
-
-        $content = fopen(dirname(__DIR__)."/dict/idf.txt", "r");
-
-        while (($line = fgets($content)) !== false) {
-            $explode_line = explode(" ", trim($line));
-            $word = $explode_line[0];
-            $freq = $explode_line[1];
-            $freq = (float) $freq;
-            self::$idf_freq[$word] = $freq;
-        }
-        fclose($content);
-
-        self::$max_idf = max(self::$idf_freq);
+        $this->maxIdf = max($this->idfFreq);
     }
 
     /**
-     * Static method extractTags
-     *
-     * @param string  $content  # input content
-     * @param int     $top_k    # top_k
-     * @param array   $options  # other options
-     *
-     * @return array $tags
+     * @param array $words Return value of method call Jieba::cut($content).
+     * @param int    $top_k   # top_k
+     * @return array
+     * @see \Jieba\Jieba::cut()
      */
-    public static function extractTags(string $content, int $top_k = 20, array $options = []): array
+    public function extractTags(array $words, int $top_k = 20): array
     {
-        $defaults = array(
-            'mode'=>'default',
-        );
-
-        $options = array_merge($defaults, $options);
-
-        $words = Jieba::cut($content);
-
-        $freq = [];
+        $freq  = [];
         $total = 0.0;
 
         foreach ($words as $w) {
@@ -83,10 +72,10 @@ class JiebaAnalyse
         $tf_idf_list = [];
 
         foreach ($freq as $k => $v) {
-            if (isset(self::$idf_freq[$k])) {
-                $idf_freq = self::$idf_freq[$k];
+            if (isset($this->idfFreq[$k])) {
+                $idf_freq = $this->idfFreq[$k];
             } else {
-                $idf_freq = self::$max_idf;
+                $idf_freq = $this->maxIdf;
             }
             $tf_idf_list[$k] = $v * $idf_freq;
         }
@@ -96,5 +85,43 @@ class JiebaAnalyse
         $tags = array_slice($tf_idf_list, 0, $top_k, true);
 
         return $tags;
+    }
+
+    /**
+     * @return array
+     */
+    public function getIdfFreq(): array
+    {
+        return $this->idfFreq;
+    }
+
+    /**
+     * @param array $idfFreq
+     * @return JiebaAnalyse
+     */
+    public function setIdfFreq(array $idfFreq): JiebaAnalyse
+    {
+        $this->idfFreq = $idfFreq;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getMaxIdf(): int
+    {
+        return $this->maxIdf;
+    }
+
+    /**
+     * @param int $maxIdf
+     * @return JiebaAnalyse
+     */
+    public function setMaxIdf(int $maxIdf): JiebaAnalyse
+    {
+        $this->maxIdf = $maxIdf;
+
+        return $this;
     }
 }

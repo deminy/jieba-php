@@ -1,42 +1,26 @@
 <?php
 
-use Jieba\Finalseg;
+use Jieba\Helper;
 use Jieba\Jieba;
-use Jieba\JiebaAnalyse;
-use Jieba\Posseg;
 use PHPUnit\Framework\TestCase;
 
 class JiebaTest extends TestCase
 {
-    public function testJiebaInit()
+    /**
+     * @covers \Jieba\Jieba::__construct()
+     */
+    public function testConstruct()
     {
-        Jieba::init();
-        $this->assertGreaterThan(0, Jieba::$total);
+        $this->assertGreaterThan(0, (new Jieba())->total);
     }
 
-    public function testFinalsegInit()
+    /**
+     * @covers \Jieba\Jieba::cut()
+     */
+    public function testCut()
     {
-        Finalseg::init();
-        $array_count = count(Finalseg::$prob_start);
-        $this->assertEquals(4, $array_count);
-    }
+        $jieba = new Jieba();
 
-    public function testJiebaAnalyseInit()
-    {
-        Jieba::init();
-        JiebaAnalyse::init();
-        $this->assertGreaterThan(0, JiebaAnalyse::$max_idf);
-    }
-
-    public function testPossegInit()
-    {
-        Posseg::init();
-        $array_count = count(Posseg::$prob_start);
-        $this->assertEquals(256, $array_count);
-    }
-
-    public function testJiebaCut()
-    {
         $case_array = array(
             "怜香惜玉",
             "也",
@@ -44,20 +28,20 @@ class JiebaTest extends TestCase
             "要",
             "看",
             "对象",
-            "啊"
+            "啊",
         );
 
-        $seg_list = Jieba::cut("怜香惜玉也得要看对象啊！");
+        $seg_list = $jieba->cut("怜香惜玉也得要看对象啊！");
         $this->assertEquals($case_array, $seg_list);
 
         $case_array = array(
             "我",
             "来到",
             "北京",
-            "清华大学"
+            "清华大学",
         );
 
-        $seg_list = Jieba::cut("我来到北京清华大学");
+        $seg_list = $jieba->cut("我来到北京清华大学");
         $this->assertEquals($case_array, $seg_list);
 
         $case_array = array(
@@ -66,14 +50,17 @@ class JiebaTest extends TestCase
             "了",
             "网易",
             "杭研",
-            "大厦"
+            "大厦",
         );
 
-        $seg_list = Jieba::cut("他来到了网易杭研大厦");
+        $seg_list = $jieba->cut("他来到了网易杭研大厦");
         $this->assertEquals($case_array, $seg_list);
     }
 
-    public function testJiebaCutAll()
+    /**
+     * @covers \Jieba\Jieba::cut()
+     */
+    public function testCutAll()
     {
         $case_array = array(
             "我",
@@ -82,14 +69,17 @@ class JiebaTest extends TestCase
             "清华",
             "清华大学",
             "华大",
-            "大学"
+            "大学",
         );
 
-        $seg_list = Jieba::cut("我来到北京清华大学", true);
+        $seg_list = (new Jieba())->cut("我来到北京清华大学", true);
         $this->assertEquals($case_array, $seg_list);
     }
 
-    public function testJiebaCutForSearch()
+    /**
+     * @covers \Jieba\Jieba::cutForSEarch()
+     */
+    public function testCutForSearch()
     {
         $case_array = array(
             "小明",
@@ -109,52 +99,18 @@ class JiebaTest extends TestCase
             "京都",
             "大学",
             "日本京都大学",
-            "深造"
+            "深造",
         );
 
-        $seg_list = Jieba::cutForSEarch("小明硕士毕业于中国科学院计算所，后在日本京都大学深造");
+        $seg_list = (new Jieba())->cutForSEarch("小明硕士毕业于中国科学院计算所，后在日本京都大学深造");
         $this->assertEquals($case_array, $seg_list);
     }
 
-    public function testFinalsegCut()
-    {
-        $case_array = array(
-            "怜香惜",
-            "玉",
-            "也",
-            "得",
-            "要",
-            "看",
-            "对象",
-            "啊"
-        );
-
-        $seg_list = Finalseg::cut("怜香惜玉也得要看对象啊！");
-        $this->assertEquals($case_array, $seg_list);
-    }
-
-    public function testExtractTags()
-    {
-        $case_array = array(
-            "所謂"=>1.1425214508493,
-            "沒有"=>0.76168096723288,
-            "是否"=>0.71841348115616,
-            "一般"=>0.59095311682055,
-            "肌迫"=>0.38084048361644,
-            "雖然"=>0.38084048361644,
-            "退縮"=>0.38084048361644,
-            "矯作"=>0.38084048361644,
-            "怯懦"=>0.26367154884822,
-            "滿肚"=>0.19042024180822
-        );
-
-        $top_k = 10;
-        $content = file_get_contents(dirname(__DIR__, 2) . "/src/dict/lyric.txt", "r");
-
-        $tags = JiebaAnalyse::extractTags($content, $top_k);
-        $this->assertEquals($case_array, $tags);
-    }
-
+    /**
+     * @covers \Jieba\Helper::getDictFilePath()
+     * @covers \Jieba\Jieba::loadUserDict()
+     * @covers \Jieba\Jieba::cut()
+     */
     public function testLoadUserDict()
     {
         $case_array = array(
@@ -167,105 +123,12 @@ class JiebaTest extends TestCase
             "云计算",
             "方面",
             "的",
-            "专家"
+            "专家",
         );
 
-        Jieba::loadUserDict(dirname(__DIR__, 2) . '/src/dict/user_dict.txt');
-
-        $seg_list = Jieba::cut("李小福是创新办主任也是云计算方面的专家");
-        $this->assertEquals($case_array, $seg_list);
-    }
-
-    public function testPossegCut()
-    {
-        $case_array = array(
-            array(
-                "word" => "这",
-                "tag" => "r"
-            ),
-            array(
-                "word" => "是",
-                "tag" => "v"
-            ),
-            array(
-                "word" => "一个",
-                "tag" => "m"
-            ),
-            array(
-                "word" => "伸手不见五指",
-                "tag" => "i"
-            ),
-            array(
-                "word" => "的",
-                "tag" => "uj"
-            ),
-            array(
-                "word" => "黑夜",
-                "tag" => "n"
-            ),
-            array(
-                "word" => "。",
-                "tag" => "w"
-            ),
-            array(
-                "word" => "我",
-                "tag" => "r"
-            ),
-            array(
-                "word" => "叫",
-                "tag" => "v"
-            ),
-            array(
-                "word" => "孙悟空",
-                "tag" => "nr"
-            ),
-            array(
-                "word" => "，",
-                "tag" => "w"
-            ),
-            array(
-                "word" => "我",
-                "tag" => "r"
-            ),
-            array(
-                "word" => "爱",
-                "tag" => "v"
-            ),
-            array(
-                "word" => "北京",
-                "tag" => "ns"
-            ),
-            array(
-                "word" => "，",
-                "tag" => "w"
-            ),
-            array(
-                "word" => "我",
-                "tag" => "r"
-            ),
-            array(
-                "word" => "爱",
-                "tag" => "v"
-            ),
-            array(
-                "word" => "Python",
-                "tag" => "eng"
-            ),
-            array(
-                "word" => "和",
-                "tag" => "c"
-            ),
-            array(
-                "word" => "C++",
-                "tag" => "eng"
-            ),
-            array(
-                "word" => "。",
-                "tag" => "w"
-            )
-        );
-
-        $seg_list = Posseg::cut("这是一个伸手不见五指的黑夜。我叫孙悟空，我爱北京，我爱Python和C++。");
+        $jieba = new Jieba();
+        $jieba->loadUserDict(Helper::getDictFilePath('user_dict.txt'));
+        $seg_list = $jieba->cut("李小福是创新办主任也是云计算方面的专家");
 
         $this->assertEquals($case_array, $seg_list);
     }

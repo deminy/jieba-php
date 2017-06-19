@@ -2,6 +2,8 @@
 
 namespace Jieba;
 
+use Jieba\Traits\LoggerTrait;
+
 /**
  * Class Posseg
  *
@@ -9,100 +11,107 @@ namespace Jieba;
  */
 class Posseg
 {
-    public static $prob_start       = [];
-    public static $prob_trans       = [];
-    public static $prob_emit        = [];
-    public static $char_state       = [];
-    public static $word_tag         = [];
-    public static $pos_tag_readable = [];
+    use LoggerTrait;
 
     /**
-     * Static method init
-     *
-     * @param array $options # other options
-     *
-     * @return void
+     * @var array
      */
-    public static function init(array $options = [])
+    public $prob_start       = [];
+    /**
+     * @var array
+     */
+    public $prob_trans       = [];
+    /**
+     * @var array
+     */
+    public $prob_emit        = [];
+    /**
+     * @var array
+     */
+    public $char_state       = [];
+    /**
+     * @var array
+     */
+    public $word_tag         = [];
+    /**
+     * @var array
+     */
+    public $pos_tag_readable = [];
+
+    /**
+     * @var Jieba
+     */
+    protected $jieba;
+
+    /**
+     * Posseg constructor.
+     *
+     * @param Jieba $jieba
+     */
+    public function __construct(Jieba $jieba)
     {
-        $defaults = array(
-            'mode'=>'default',
-        );
+        $this->setJieba($jieba)->setLogger($this->jieba->getLogger())->init();
+    }
 
-        $options = array_merge($defaults, $options);
+    /**
+     * @return Posseg
+     */
+    protected function init(): Posseg
+    {
+        $this->prob_start = Helper::loadModel('pos/prob_start.json');
+        $this->prob_trans = Helper::loadModel('pos/prob_trans.json');
+        $this->prob_emit  = Helper::loadModel('pos/prob_emit.json');
+        $this->char_state = Helper::loadModel('pos/char_state.json');
 
-        self::$prob_start = self::loadModel(dirname(__DIR__).'/model/pos/prob_start.json');
-        self::$prob_trans = self::loadModel(dirname(__DIR__).'/model/pos/prob_trans.json');
-        self::$prob_emit  = self::loadModel(dirname(__DIR__).'/model/pos/prob_emit.json');
-        self::$char_state = self::loadModel(dirname(__DIR__).'/model/pos/char_state.json');
-
-        if (Jieba::$dictname!="") {
-            $content = fopen(dirname(__DIR__)."/dict/".Jieba::$dictname, "r");
-            while (($line = fgets($content)) !== false) {
+        // TODO: Here property \Jieba::$dictname was used.
+        // @see \Jieba::$dictname
+        // @see https://bitbucket.org/deminy/jieba-php/src/005f8d6440fd55189f386ccfe438ec6ac41c53c4/src/Jieba/Posseg.php?at=old&fileviewer=file-view-default#Posseg.php-39
+        Helper::readFile(
+            $this->getJieba()->getOptions()->getDict()->getDictFilePath(),
+            function (string $line) {
                 $explode_line = explode(" ", trim($line));
                 $word = $explode_line[0];
-                $freq = $explode_line[1];
-                $tag = $explode_line[2];
-                self::$word_tag[$word] = $tag;
+                // $freq = $explode_line[1];
+                $tag  = $explode_line[2];
+                $this->word_tag[$word] = $tag;
             }
-            fclose($content);
-        }
-
-
-        if (sizeof(Jieba::$user_dictname)!=0) {
-            for ($i = 0; $i<sizeof(Jieba::$user_dictname); $i++) {
-                $content = fopen(Jieba::$user_dictname[$i], "r");
-                while (($line = fgets($content)) !== false) {
-                    $explode_line = explode(" ", trim($line));
-                    $word = $explode_line[0];
-                    $freq = $explode_line[1];
-                    $tag = $explode_line[2];
-                    self::$word_tag[$word] = $tag;
-                }
-                fclose($content);
-            }
-        }
-
-        $content = fopen(dirname(__DIR__)."/dict/pos_tag_readable.txt", "r");
-
-        while (($line = fgets($content)) !== false) {
-            $explode_line = explode(" ", trim($line));
-            $tag = $explode_line[0];
-            $meaning = $explode_line[1];
-            self::$pos_tag_readable[$tag] = $meaning;
-        }
-        fclose($content);
-    }
-
-    /**
-     * Static method loadModel
-     *
-     * @param string $f_name # input f_name
-     * @param array $options # other options
-     *
-     * @return mixed
-     */
-    public static function loadModel(string $f_name, array $options = [])
-    {
-        $defaults = array(
-            'mode'=>'default',
         );
 
-        $options = array_merge($defaults, $options);
+        // TODO: Here property \Jieba::$user_dictname was used.
+        // @see \Jieba::user_dictname
+        // @see https://bitbucket.org/deminy/jieba-php/src/005f8d6440fd55189f386ccfe438ec6ac41c53c4/src/Jieba/Posseg.php?at=old&fileviewer=file-view-default#Posseg.php-52
+        foreach (Helper::getUserDictNames() as $userDictName) {
+            Helper::readFile(
+                $userDictName,
+                function (string $line) {
+                    $explode_line = explode(' ', trim($line));
+                    $word = $explode_line[0];
+                    // $freq = $explode_line[1];
+                    $tag  = $explode_line[2];
+                    $this->word_tag[$word] = $tag;
+                }
+            );
+        }
 
-        return json_decode(file_get_contents($f_name), true);
+        Helper::readFile(
+            Helper::getDictFilePath('pos_tag_readable.txt'),
+            function (string $line) {
+                $explode_line = explode(" ", trim($line));
+                $tag = $explode_line[0];
+                $meaning = $explode_line[1];
+                $this->pos_tag_readable[$tag] = $meaning;
+            }
+        );
+
+        return $this;
     }
 
     /**
-     * Static method getTopStates
-     *
      * @param array $t_state_v # input t_state_v
      * @param int   $top_k     # input top_k
-     * @param array $options   # other options
-     *
-     * @return array $top_states
+     * @return array
      */
-    public static function getTopStates(array $t_state_v, int $top_k = 4, array $options = []): array
+    public function getTopStates(array $t_state_v, int $top_k = 4): array
     {
         arsort($t_state_v);
 
@@ -112,28 +121,18 @@ class Posseg
     }
 
     /**
-     * Static method viterbi
-     *
      * @param string $sentence # input sentence
-     * @param array  $options  # other options
-     *
-     * @return array $viterbi
+     * @return array
      */
-    public static function viterbi(string $sentence, array $options = []): array
+    public function viterbi(string $sentence): array
     {
-        $defaults = array(
-            'mode'=>'default',
-        );
-
-        $options = array_merge($defaults, $options);
-
         $obs = $sentence;
-        $states = self::$char_state;
+        $states = $this->char_state;
         $V = [];
         $V[0] = [];
         $mem_path = [];
         $mem_path[0] = [];
-        $all_states = array_keys(self::$prob_trans);
+        $all_states = array_keys($this->prob_trans);
 
         $c = mb_substr($obs, 0, 1, 'UTF-8');
 
@@ -147,12 +146,12 @@ class Posseg
             $y = $state;
             $c = mb_substr($obs, 0, 1, 'UTF-8');
             $prob_emit = 0.0;
-            if (isset(self::$prob_emit[$y][$c])) {
-                $prob_emit = self::$prob_emit[$y][$c];
+            if (isset($this->prob_emit[$y][$c])) {
+                $prob_emit = $this->prob_emit[$y][$c];
             } else {
-                $prob_emit = MIN_FLOAT;
+                $prob_emit = Constant::MIN_FLOAT;
             }
-            $V[0][$y] = self::$prob_start[$y] + $prob_emit;
+            $V[0][$y] = $this->prob_start[$y] + $prob_emit;
             $mem_path[0][$y] = '';
         }
 
@@ -161,14 +160,14 @@ class Posseg
             $V[$t] = [];
             $mem_path[$t] = [];
 
-            $prev_states = array_keys(self::getTopStates($V[$t-1]));
+            $prev_states = array_keys($this->getTopStates($V[$t-1]));
 
             $prev_mem_path = array_keys($mem_path[$t-1]);
 
             $prev_states = [];
 
             foreach ($prev_mem_path as $mem_path_state) {
-                if (count(self::$prob_trans[$mem_path_state])>0) {
+                if (count($this->prob_trans[$mem_path_state])>0) {
                     array_push($prev_states, $mem_path_state);
                 }
             }
@@ -180,12 +179,10 @@ class Posseg
                     = array_unique(
                         array_merge(
                             $prev_states_expect_next,
-                            array_keys(self::$prob_trans[$prev_state])
+                            array_keys($this->prob_trans[$prev_state])
                         )
                     );
             }
-
-            $obs_states = [];
 
             if (isset($states[$c])) {
                 $obs_states = $states[$c];
@@ -204,16 +201,16 @@ class Posseg
                 $temp_prob_array = [];
                 foreach ($prev_states as $y0) {
                     $prob_trans = 0.0;
-                    if (isset(self::$prob_trans[$y0][$y])) {
-                        $prob_trans = self::$prob_trans[$y0][$y];
+                    if (isset($this->prob_trans[$y0][$y])) {
+                        $prob_trans = $this->prob_trans[$y0][$y];
                     } else {
-                        $prob_trans = MIN_FLOAT;
+                        $prob_trans = Constant::MIN_FLOAT;
                     }
                     $prob_emit = 0.0;
-                    if (isset(self::$prob_emit[$y][$c])) {
-                        $prob_emit = self::$prob_emit[$y][$c];
+                    if (isset($this->prob_emit[$y][$c])) {
+                        $prob_emit = $this->prob_emit[$y][$c];
                     } else {
-                        $prob_emit = MIN_FLOAT;
+                        $prob_emit = Constant::MIN_FLOAT;
                     }
                     $temp_prob_array[$y0] = $V[$t-1][$y0] + $prob_trans + $prob_emit;
                 }
@@ -256,26 +253,15 @@ class Posseg
     }
 
     /**
-     * Static method __cut
-     *
      * @param string $sentence # input sentence
-     * @param array  $options  # other options
-     *
-     * @return array $words
+     * @return array
      */
-    public static function __cut(string $sentence, array $options = []): array
+    public function __cut(string $sentence): array
     {
-        $defaults = array(
-            'mode'=>'default',
-        );
-
-        $options = array_merge($defaults, $options);
-
         $words = [];
 
-        $viterbi_array = self::viterbi($sentence);
+        $viterbi_array = $this->viterbi($sentence);
 
-        $prob = $viterbi_array['prob'];
         $pos_list = $viterbi_array['pos_list'];
 
         $begin = 0;
@@ -324,21 +310,11 @@ class Posseg
     }
 
     /**
-     * Static method __cutDetail
-     *
      * @param string $sentence # input sentence
-     * @param array  $options  # other options
-     *
-     * @return array $words
+     * @return array
      */
-    public static function __cutDetail(string $sentence, array $options = []): array
+    public function __cutDetail(string $sentence): array
     {
-        $defaults = array(
-            'mode'=>'default',
-        );
-
-        $options = array_merge($defaults, $options);
-
         $words = [];
 
         $re_han_pattern = '([\x{4E00}-\x{9FA5}]+)';
@@ -359,7 +335,7 @@ class Posseg
 
         foreach ($blocks as $blk) {
             if (preg_match('/'.$re_han_pattern.'/u', $blk)) {
-                $blk_words = self::__cut($blk);
+                $blk_words = $this->__cut($blk);
                 foreach ($blk_words as $blk_word) {
                     array_push($words, $blk_word);
                 }
@@ -378,33 +354,21 @@ class Posseg
     }
 
     /**
-     * Static method __cutDAG
-     *
      * @param string $sentence # input sentence
-     * @param array  $options  # other options
-     *
-     * @return array $words
+     * @return array
      */
-    public static function __cutDAG(string $sentence, array $options = []): array
+    public function __cutDAG(string $sentence): array
     {
-        $defaults = array(
-            'mode'=>'default',
-        );
-
-        $options = array_merge($defaults, $options);
-
         $words = [];
 
         $N = mb_strlen($sentence, 'UTF-8');
-        $DAG = Jieba::getDAG($sentence);
-
-        Jieba::calc($sentence, $DAG);
+        $this->getJieba()->calc($sentence, $this->getJieba()->getDAG($sentence));
 
         $x = 0;
         $buf = '';
 
         while ($x < $N) {
-            $current_route_keys = array_keys(Jieba::$route[$x]);
+            $current_route_keys = array_keys($this->getJieba()->getRouteByKey($x));
             $y = $current_route_keys[0]+1;
             $l_word = mb_substr($sentence, $x, ($y-$x), 'UTF-8');
 
@@ -413,8 +377,8 @@ class Posseg
             } else {
                 if (mb_strlen($buf, 'UTF-8')>0) {
                     if (mb_strlen($buf, 'UTF-8')==1) {
-                        if (isset(self::$word_tag[$buf])) {
-                            $buf_tag = self::$word_tag[$buf];
+                        if (isset($this->word_tag[$buf])) {
+                            $buf_tag = $this->word_tag[$buf];
                         } else {
                             $buf_tag = "x";
                         }
@@ -424,7 +388,7 @@ class Posseg
                         );
                         $buf = '';
                     } else {
-                        $regognized = self::__cutDetail($buf);
+                        $regognized = $this->__cutDetail($buf);
                         foreach ($regognized as $key => $word) {
                             array_push($words, $word);
                         }
@@ -432,8 +396,8 @@ class Posseg
                     }
                 }
 
-                if (isset(self::$word_tag[$l_word])) {
-                    $buf_tag = self::$word_tag[$l_word];
+                if (isset($this->word_tag[$l_word])) {
+                    $buf_tag = $this->word_tag[$l_word];
                 } else {
                     $buf_tag = "x";
                 }
@@ -447,8 +411,8 @@ class Posseg
 
         if (mb_strlen($buf, 'UTF-8')>0) {
             if (mb_strlen($buf, 'UTF-8')==1) {
-                if (isset(self::$word_tag[$buf])) {
-                    $buf_tag = self::$word_tag[$buf];
+                if (isset($this->word_tag[$buf])) {
+                    $buf_tag = $this->word_tag[$buf];
                 } else {
                     $buf_tag = "x";
                 }
@@ -457,7 +421,7 @@ class Posseg
                     array("word"=>$buf, "tag"=>$buf_tag)
                 );
             } else {
-                $regognized = self::__cutDetail($buf);
+                $regognized = $this->__cutDetail($buf);
                 foreach ($regognized as $key => $word) {
                     array_push($words, $word);
                 }
@@ -468,21 +432,11 @@ class Posseg
     }
 
     /**
-     * Static method cut
-     *
      * @param string  $sentence # input sentence
-     * @param array   $options  # other options
-     *
-     * @return array $seg_list
+     * @return array
      */
-    public static function cut(string $sentence, array $options = []): array
+    public function cut(string $sentence): array
     {
-        $defaults = array(
-            'mode'=>'default',
-        );
-
-        @$options = array_merge($defaults, $options);
-
         $seg_list = [];
 
         $re_han_pattern = '([\x{4E00}-\x{9FA5}]+)';
@@ -523,28 +477,37 @@ class Posseg
     }
 
     /**
-     * Static method posTagReadable
-     *
      * @param array $seg_list # input seg_list
-     * @param array $options  # other options
-     *
-     * @return array $new_seg_list
+     * @return array
      */
-    public static function posTagReadable(array $seg_list, array $options = []): array
+    public function posTagReadable(array $seg_list): array
     {
-        $defaults = array(
-            'mode'=>'default',
-        );
-
-        $options = array_merge($defaults, $options);
-
         $new_seg_list = [];
 
         foreach ($seg_list as $seg) {
-            $seg['tag_readable'] = self::$pos_tag_readable[$seg['tag']];
+            $seg['tag_readable'] = $this->pos_tag_readable[$seg['tag']];
             array_push($new_seg_list, $seg);
         }
 
         return $new_seg_list;
+    }
+
+    /**
+     * @return Jieba
+     */
+    public function getJieba(): Jieba
+    {
+        return $this->jieba;
+    }
+
+    /**
+     * @param Jieba $jieba
+     * @return Posseg
+     */
+    public function setJieba(Jieba $jieba): Posseg
+    {
+        $this->jieba = $jieba;
+
+        return $this;
     }
 }

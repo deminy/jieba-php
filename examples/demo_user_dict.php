@@ -3,16 +3,19 @@
 
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
+use Jieba\Helper;
 use Jieba\Jieba;
-use Jieba\Finalseg;
+use Jieba\Options;
+use Jieba\Option\Dict;
+use Jieba\Option\Mode;
 
-Jieba::init(array('mode'=>'test','dict'=>'samll'));
-Finalseg::init();
-
-$seg_list = Jieba::cut("李小福是创新办主任也是云计算方面的专家");
+$jieba = new Jieba(
+    (new Options())->setDict(new Dict(Dict::SMALL))->setMode(new Mode(Mode::TEST))
+);
+$seg_list = $jieba->cut("李小福是创新办主任也是云计算方面的专家");
 var_dump($seg_list);
 
-Jieba::loadUserDict(dirname(__DIR__) . '/src/dict/user_dict.txt');
+$jieba->loadUserDict(Helper::getDictFilePath('user_dict.txt'));
 
-$seg_list = Jieba::cut("李小福是创新办主任也是云计算方面的专家");
+$seg_list = $jieba->cut("李小福是创新办主任也是云计算方面的专家");
 var_dump($seg_list);

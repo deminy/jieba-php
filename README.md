@@ -7,7 +7,7 @@
 [![Coding Standards](https://img.shields.io/badge/cs-PSR--2--R-yellow.svg)](https://github.com/php-fig-rectified/fig-rectified-standards)
 [![PSR-4](https://img.shields.io/badge/cs-PSR--4-yellow.svg)](http://www.php-fig.org/psr/psr-4/)
 
-"[结巴中文分词](https://github.com/fxsjy/jieba)"PHP版本：基于[fukuball](https://github.com/fukuball/jieba-php)的PHP实现而作的进一步改进，包括使用PHP 7的新功能重构代码、使用PSR-4管理autoloading、使用依赖注射等设计模式、更新单元测试的实现、以及更多的性能优化和代码更新等等。
+"[结巴中文分词](https://github.com/fxsjy/jieba)"PHP版本：基于[fukuball](https://github.com/fukuball/jieba-php)的PHP实现而作的各种更新和改进，包括使用PHP 7的新功能重构代码、使用PSR-4管理autoloading、使用依赖注射等设计模式、更新单元测试的实现、以及更多的性能优化和代码更新等等。
 
 # 功能
 
@@ -27,15 +27,12 @@ composer require deminy/jieba-php:dev-master
 
 ```php
 <?php
-require_once '/path/to/your/vendor/autoload.php';
+
+require_once dirname(__DIR__) . '/vendor/autoload.php';
 
 use Jieba\Jieba;
-use Jieba\Finalseg;
 
-Jieba::init();
-Finalseg::init();
-
-var_dump(Jieba::cut("怜香惜玉也得要看对象啊！"));
+var_dump((new Jieba())->cut("怜香惜玉也得要看对象啊！"));
 ```
 
 # 算法
@@ -69,24 +66,22 @@ var_dump(Jieba::cut("怜香惜玉也得要看对象啊！"));
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
 use Jieba\Jieba;
-use Jieba\Finalseg;
 
-Jieba::init();
-Finalseg::init();
+$jieba = new Jieba();
 
-$seg_list = Jieba::cut("怜香惜玉也得要看对象啊！");
+$seg_list = $jieba->cut("怜香惜玉也得要看对象啊！");
 var_dump($seg_list);
 
-$seg_list = Jieba::cut("我来到北京清华大学", true);
+$seg_list = $jieba->cut("我来到北京清华大学", true);
 var_dump($seg_list); #全模式
 
-$seg_list = Jieba::cut("我来到北京清华大学", false);
+$seg_list = $jieba->cut("我来到北京清华大学", false);
 var_dump($seg_list); #默认精确模式
 
-$seg_list = Jieba::cut("他来到了网易杭研大厦");
+$seg_list = $jieba->cut("他来到了网易杭研大厦");
 var_dump($seg_list);
 
-$seg_list = Jieba::cutForSearch("小明硕士毕业于中国科学院计算所，后在日本京都大学深造"); #搜索引擎模式
+$seg_list = $jieba->cutForSearch("小明硕士毕业于中国科学院计算所，后在日本京都大学深造"); #搜索引擎模式
 var_dump($seg_list);
 ```
 
@@ -245,18 +240,20 @@ array(18) {
 
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
+use Jieba\Helper;
 use Jieba\Jieba;
-use Jieba\Finalseg;
 use Jieba\JiebaAnalyse;
+use Jieba\Options;
+use Jieba\Option\Dict;
+use Jieba\Option\Mode;
 
-Jieba::init(array('mode'=>'test','dict'=>'samll'));
-Finalseg::init();
-JiebaAnalyse::init();
-
-$top_k   = 10;
-$content = file_get_contents('/path/to/your/dict/lyric.txt', 'r');
-$tags    = JiebaAnalyse::extractTags($content, $top_k);
-
+$jieba = new Jieba(
+    (new Options())->setDict(new Dict(Dict::SMALL))->setMode(new Mode(Mode::TEST))
+);
+$tags = JiebaAnalyse::singleton()->extractTags(
+    $jieba->cut(Helper::getDictFileContent('lyric.txt')),
+    10
+);
 var_dump($tags);
 ```
 
@@ -299,14 +296,9 @@ array(10) {
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
 use Jieba\Jieba;
-use Jieba\Finalseg;
 use Jieba\Posseg;
 
-Jieba::init();
-Finalseg::init();
-Posseg::init();
-
-$seg_list = Posseg::cut("这是一个伸手不见五指的黑夜。我叫孙悟空，我爱北京，我爱Python和C++。");
+$seg_list = (new Posseg(new Jieba()))->cut("这是一个伸手不见五指的黑夜。我叫孙悟空，我爱北京，我爱Python和C++。");
 var_dump($seg_list);
 ```
 
@@ -474,15 +466,15 @@ array(21) {
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
 use Jieba\Jieba;
-use Jieba\Finalseg;
+use Jieba\Options;
+use Jieba\Option\Dict;
 
-Jieba::init(['mode' => 'default', 'dict' => 'big']);
-Finalseg::init();
+$jieba = new Jieba((new Options())->setDict(new Dict(Dict::BIG)));
 
-$seg_list = Jieba::cut("怜香惜玉也得要看对象啊！");
+$seg_list = $jieba->cut("怜香惜玉也得要看对象啊！");
 var_dump($seg_list);
 
-$seg_list = Jieba::cut("憐香惜玉也得要看對象啊！");
+$seg_list = $jieba->cut("憐香惜玉也得要看對象啊！");
 var_dump($seg_list);
 ```
 
