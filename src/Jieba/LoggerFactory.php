@@ -2,13 +2,13 @@
 
 namespace Jieba;
 
-use Monolog\Logger as MonologLogger;
+use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 use Monolog\Formatter\LineFormatter;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
-class Logger
+class LoggerFactory
 {
     /**
      * @var LoggerInterface
@@ -23,10 +23,10 @@ class Logger
     {
         if (empty(self::$logger)) {
             if (class_exists('\Monolog\Logger')) {
-                $handler = new StreamHandler(self::getLogFile('jieba.log'), MonologLogger::DEBUG);
+                $handler = new StreamHandler(self::getLogFile('jieba.log'), Logger::DEBUG);
                 $handler->setFormatter(new LineFormatter(null, null, true, true));
 
-                self::$logger = new MonologLogger('jieba', [$handler]);
+                self::$logger = new Logger('jieba', [$handler]);
             } else {
                 self::$logger = new NullLogger();
             }
@@ -36,9 +36,10 @@ class Logger
     }
 
     /**
+     * @param string $filename
      * @return string
      */
-    protected static function getLogFile($filename): string
+    protected static function getLogFile(string $filename): string
     {
         return (dirname(__DIR__) . DIRECTORY_SEPARATOR . 'temp' . DIRECTORY_SEPARATOR . $filename);
     }

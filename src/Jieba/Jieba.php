@@ -51,7 +51,7 @@ class Jieba
         $this->trie = new MultiArray();
         $this
             ->setOptions(($options ?: new Options()))
-            ->setLogger($logger ?: Logger::getLogger())
+            ->setLogger($logger ?: LoggerFactory::getLogger())
             ->init();
     }
 
