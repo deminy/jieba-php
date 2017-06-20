@@ -84,7 +84,7 @@ class Posseg
             DictHelper::addWordTags($userDictName, $this->word_tag);
         }
 
-        CacheFactory::get(
+        $this->pos_tag_readable = CacheFactory::get(
             $this->getCachePool(),
             'pos_tag_readable',
             function () {
