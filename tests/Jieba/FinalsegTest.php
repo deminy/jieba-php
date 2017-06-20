@@ -1,5 +1,7 @@
 <?php
 
+namespace Jieba\Tests\Jieba;
+
 use Jieba\Finalseg;
 use PHPUnit\Framework\TestCase;
 

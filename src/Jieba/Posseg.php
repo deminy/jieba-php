@@ -2,6 +2,8 @@
 
 namespace Jieba;
 
+use Cache\Adapter\Common\AbstractCachePool;
+use Jieba\Traits\CachePoolTrait;
 use Jieba\Traits\LoggerTrait;
 
 /**
@@ -11,7 +13,7 @@ use Jieba\Traits\LoggerTrait;
  */
 class Posseg
 {
-    use LoggerTrait;
+    use CachePoolTrait, LoggerTrait;
 
     /**
      * @var array
@@ -47,10 +49,15 @@ class Posseg
      * Posseg constructor.
      *
      * @param Jieba $jieba
+     * @param AbstractCachePool|null $cachePool
      */
-    public function __construct(Jieba $jieba)
+    public function __construct(Jieba $jieba, AbstractCachePool $cachePool = null)
     {
-        $this->setJieba($jieba)->setLogger($this->jieba->getLogger())->init();
+        $this
+            ->setJieba($jieba)
+            ->setLogger($this->jieba->getLogger())
+            ->setCachePool($cachePool ?: CacheFactory::getCachePool())
+            ->init();
     }
 
     /**
@@ -58,48 +65,30 @@ class Posseg
      */
     protected function init(): Posseg
     {
-        $this->prob_start = Helper::loadModel('pos/prob_start.json');
-        $this->prob_trans = Helper::loadModel('pos/prob_trans.json');
-        $this->prob_emit  = Helper::loadModel('pos/prob_emit.json');
-        $this->char_state = Helper::loadModel('pos/char_state.json');
+        $this->prob_start = CacheFactory::getModel($this->getCachePool(), CacheFactory::MODEL_POS_PROB_START);
+        $this->prob_trans = CacheFactory::getModel($this->getCachePool(), CacheFactory::MODEL_POS_PROB_TRANS);
+        $this->prob_emit  = CacheFactory::getModel($this->getCachePool(), CacheFactory::MODEL_POS_PROB_EMIT);
+        $this->char_state = CacheFactory::getModel($this->getCachePool(), CacheFactory::MODEL_POS_CHAR_STATE);
 
         // TODO: Here property \Jieba::$dictname was used.
+        // TODO: performance improvement with cache
         // @see \Jieba::$dictname
         // @see https://bitbucket.org/deminy/jieba-php/src/005f8d6440fd55189f386ccfe438ec6ac41c53c4/src/Jieba/Posseg.php?at=old&fileviewer=file-view-default#Posseg.php-39
-        Helper::readFile(
-            $this->getJieba()->getOptions()->getDict()->getDictFilePath(),
-            function (string $line) {
-                $explode_line = explode(" ", trim($line));
-                $word = $explode_line[0];
-                // $freq = $explode_line[1];
-                $tag  = $explode_line[2];
-                $this->word_tag[$word] = $tag;
-            }
-        );
+        DictHelper::addWordTags($this->getJieba()->getOptions()->getDict()->getDictFilePath(), $this->word_tag);
 
         // TODO: Here property \Jieba::$user_dictname was used.
+        // TODO: performance improvement with cache
         // @see \Jieba::user_dictname
         // @see https://bitbucket.org/deminy/jieba-php/src/005f8d6440fd55189f386ccfe438ec6ac41c53c4/src/Jieba/Posseg.php?at=old&fileviewer=file-view-default#Posseg.php-52
         foreach (Helper::getUserDictNames() as $userDictName) {
-            Helper::readFile(
-                $userDictName,
-                function (string $line) {
-                    $explode_line = explode(' ', trim($line));
-                    $word = $explode_line[0];
-                    // $freq = $explode_line[1];
-                    $tag  = $explode_line[2];
-                    $this->word_tag[$word] = $tag;
-                }
-            );
+            DictHelper::addWordTags($userDictName, $this->word_tag);
         }
 
-        Helper::readFile(
-            Helper::getDictFilePath('pos_tag_readable.txt'),
-            function (string $line) {
-                $explode_line = explode(" ", trim($line));
-                $tag = $explode_line[0];
-                $meaning = $explode_line[1];
-                $this->pos_tag_readable[$tag] = $meaning;
+        CacheFactory::get(
+            $this->getCachePool(),
+            'pos_tag_readable',
+            function () {
+                return DictHelper::getPosTagReadable(Helper::getDictFilePath('pos_tag_readable.txt'));
             }
         );
 
@@ -477,19 +466,16 @@ class Posseg
     }
 
     /**
-     * @param array $seg_list # input seg_list
+     * @param array $seg_list
      * @return array
      */
     public function posTagReadable(array $seg_list): array
     {
-        $new_seg_list = [];
-
         foreach ($seg_list as $seg) {
             $seg['tag_readable'] = $this->pos_tag_readable[$seg['tag']];
-            array_push($new_seg_list, $seg);
         }
 
-        return $new_seg_list;
+        return $seg_list;
     }
 
     /**

@@ -1,5 +1,7 @@
 <?php
 
+namespace Jieba\Tests\Jieba;
+
 use Jieba\Jieba;
 use Jieba\Posseg;
 use PHPUnit\Framework\TestCase;

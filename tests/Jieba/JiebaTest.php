@@ -1,5 +1,7 @@
 <?php
 
+namespace Jieba\Tests\Jieba;
+
 use Jieba\Helper;
 use Jieba\Jieba;
 use PHPUnit\Framework\TestCase;

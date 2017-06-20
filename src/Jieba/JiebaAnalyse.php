@@ -2,6 +2,8 @@
 
 namespace Jieba;
 
+use Cache\Adapter\Common\AbstractCachePool;
+use Jieba\Traits\CachePoolTrait;
 use Jieba\Traits\SingletonTrait;
 
 /**
@@ -11,7 +13,7 @@ use Jieba\Traits\SingletonTrait;
  */
 class JiebaAnalyse
 {
-    use SingletonTrait;
+    use CachePoolTrait, SingletonTrait;
 
     /**
      * @var array
@@ -25,16 +27,17 @@ class JiebaAnalyse
 
     /**
      * JiebaAnalyse constructor.
+     * @param AbstractCachePool|null $cachePool
      */
-    protected function __construct()
+    protected function __construct(AbstractCachePool $cachePool = null)
     {
-        Helper::readFile(
-            Helper::getDictFilePath('idf.txt'),
-            function (string $line) {
-                $explode_line         = explode(' ', trim($line));
-                $word                 = $explode_line[0];
-                $freq                 = (float) $explode_line[1];
-                $this->idfFreq[$word] = $freq;
+        $this->setCachePool($cachePool ?: CacheFactory::getCachePool());
+
+        $this->idfFreq = CacheFactory::get(
+            $this->getCachePool(),
+            ('idf-' . md5(__CLASS__)),
+            function () {
+                return DictHelper::getIdfFreq('idf.txt');
             }
         );
 

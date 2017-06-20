@@ -1,3 +1,12 @@
+0.25.2 / TBD
+============
+
+  * Allow to cache dictionary data and other data.
+  * Use package "league/csv" to read/parse dictionary files.
+  * Removed useless class \Jieba\JiebaCache.
+  * More unit tests.
+  * Move/remove non-core dictionary files.
+
 0.25.1 / 2017-06-19
 ===================
 

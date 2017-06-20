@@ -2,6 +2,8 @@
 
 namespace Jieba;
 
+use Cache\Adapter\Common\AbstractCachePool;
+use Jieba\Traits\CachePoolTrait;
 use Jieba\Traits\LoggerTrait;
 use Jieba\Traits\OptionsTrait;
 use Psr\Log\LoggerInterface;
@@ -13,7 +15,7 @@ use Psr\Log\LoggerInterface;
  */
 class Jieba
 {
-    use LoggerTrait, OptionsTrait;
+    use CachePoolTrait, LoggerTrait, OptionsTrait;
 
     /**
      * @var float
@@ -44,13 +46,18 @@ class Jieba
      * Jieba constructor.
      *
      * @param Options $options
-     * @param LoggerInterface $logger
+     * @param AbstractCachePool|null $cachePool
+     * @param LoggerInterface|null $logger
      */
-    public function __construct(Options $options = null, LoggerInterface $logger = null)
-    {
+    public function __construct(
+        Options $options = null,
+        AbstractCachePool $cachePool = null,
+        LoggerInterface $logger = null
+    ) {
         $this->trie = new MultiArray();
         $this
             ->setOptions(($options ?: new Options()))
+            ->setCachePool($cachePool ?: CacheFactory::getCachePool())
             ->setLogger($logger ?: LoggerFactory::getLogger())
             ->init();
     }
@@ -124,15 +131,7 @@ class Jieba
         Helper::readFile(
             $f_name,
             function (string $line) {
-                $explode_line = explode(" ", trim($line));
-                $word = $explode_line[0];
-                $freq = (float) $explode_line[1];
-                // $tag = $explode_line[2];
-                if (isset($this->original_freq[$word])) {
-                    $this->total -= $this->original_freq[$word];
-                }
-                $this->original_freq[$word] = $freq;
-                $this->total += $freq;
+                DictHelper::readDictLine($line, $word, $this->original_freq, $this->total);
             }
         );
 
@@ -150,15 +149,8 @@ class Jieba
         Helper::readFile(
             $userDictName,
             function (string $line) {
-                $explode_line = explode(' ', trim($line));
-                $word = $explode_line[0];
-                $freq = (float) $explode_line[1];
-                // $tag = $explode_line[2];
-                if (isset($this->original_freq[$word])) {
-                    $this->total -= $this->original_freq[$word];
-                }
-                $this->original_freq[$word] = $freq;
-                $this->total += $freq;
+                DictHelper::readDictLine($line, $word, $this->original_freq, $this->total);
+
                 $l = mb_strlen($word, 'UTF-8');
                 $word_c = [];
                 for ($i = 0; $i < $l; $i++) {

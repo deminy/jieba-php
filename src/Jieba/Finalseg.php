@@ -2,6 +2,8 @@
 
 namespace Jieba;
 
+use Cache\Adapter\Common\AbstractCachePool;
+use Jieba\Traits\CachePoolTrait;
 use Jieba\Traits\SingletonTrait;
 
 /**
@@ -11,7 +13,7 @@ use Jieba\Traits\SingletonTrait;
  */
 class Finalseg
 {
-    use SingletonTrait;
+    use CachePoolTrait, SingletonTrait;
 
     /**
      * @var array
@@ -28,14 +30,15 @@ class Finalseg
 
     /**
      * Finalseg constructor.
-     * @todo use cache for performance improvement.
+     * @param AbstractCachePool|null $cachePool
      */
-    protected function __construct()
+    protected function __construct(AbstractCachePool $cachePool = null)
     {
         $this
-            ->setProbStart(Helper::loadModel('prob_start.json'))
-            ->setProbTrans(Helper::loadModel('prob_trans.json'))
-            ->setProbEmit(Helper::loadModel('prob_emit.json'));
+            ->setCachePool($cachePool ?: CacheFactory::getCachePool())
+            ->setProbStart(CacheFactory::getModel($this->getCachePool(), CacheFactory::MODEL_PROB_START))
+            ->setProbTrans(CacheFactory::getModel($this->getCachePool(), CacheFactory::MODEL_PROB_TRANS))
+            ->setProbEmit(CacheFactory::getModel($this->getCachePool(), CacheFactory::MODEL_PROB_EMIT));
     }
 
     /**
