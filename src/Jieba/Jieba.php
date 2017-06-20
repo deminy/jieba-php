@@ -171,7 +171,7 @@ class Jieba
      * @param string $sentence # input sentence
      * @return array
      */
-    public function __cutAll(string $sentence): array
+    protected function __cutAll(string $sentence): array
     {
         $words = [];
 
@@ -254,12 +254,10 @@ class Jieba
     }
 
     /**
-     * Static method __cutDAG
-     *
      * @param string $sentence # input sentence
      * @return array
      */
-    public function __cutDAG(string $sentence): array
+    protected function __cutDAG(string $sentence): array
     {
         $words = [];
 
@@ -332,9 +330,9 @@ class Jieba
         foreach ($blocks as $blk) {
             if (preg_match('/'.$re_han_pattern.'/u', $blk)) {
                 if ($cut_all) {
-                    $words = Jieba::__cutAll($blk);
+                    $words = $this->__cutAll($blk);
                 } else {
-                    $words = Jieba::__cutDAG($blk);
+                    $words = $this->__cutDAG($blk);
                 }
 
                 foreach ($words as $word) {
@@ -356,7 +354,7 @@ class Jieba
     {
         $seg_list = [];
 
-        $cut_seg_list = Jieba::cut($sentence);
+        $cut_seg_list = $this->cut($sentence);
 
         foreach ($cut_seg_list as $w) {
             $len = mb_strlen($w);
