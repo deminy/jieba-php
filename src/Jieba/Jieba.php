@@ -93,13 +93,13 @@ class Jieba
      */
     public function calc(string $sentence, array $DAG): array
     {
-        $N = mb_strlen($sentence, 'UTF-8');
+        $N = mb_strlen($sentence);
         $this->route = [];
         $this->route[$N] = array($N => 1.0);
         for ($i=($N-1); $i>=0; $i--) {
             $candidates = [];
             foreach ($DAG[$i] as $x) {
-                $w_c = mb_substr($sentence, $i, (($x+1)-$i), 'UTF-8');
+                $w_c = mb_substr($sentence, $i, (($x+1)-$i));
                 $previous_freq = current($this->route[$x+1]);
                 if (isset($this->FREQ[$w_c])) {
                     $current_freq = (float) $previous_freq + $this->FREQ[$w_c];
@@ -151,10 +151,10 @@ class Jieba
             function (string $line) {
                 DictHelper::readDictLine($line, $word, $this->original_freq, $this->total);
 
-                $l = mb_strlen($word, 'UTF-8');
+                $l = mb_strlen($word);
                 $word_c = [];
                 for ($i = 0; $i < $l; $i++) {
-                    $c = mb_substr($word, $i, 1, 'UTF-8');
+                    $c = mb_substr($word, $i, 1);
                     array_push($word_c, $c);
                 }
                 $word_c_key = implode('.', $word_c);
@@ -180,13 +180,13 @@ class Jieba
 
         foreach ($DAG as $k => $L) {
             if (count($L) == 1 && $k > $old_j) {
-                $word = mb_substr($sentence, $k, (($L[0]-$k)+1), 'UTF-8');
+                $word = mb_substr($sentence, $k, (($L[0]-$k)+1));
                 array_push($words, $word);
                 $old_j = $L[0];
             } else {
                 foreach ($L as $j) {
                     if ($j > $k) {
-                        $word = mb_substr($sentence, $k, ($j-$k)+1, 'UTF-8');
+                        $word = mb_substr($sentence, $k, ($j-$k)+1);
                         array_push($words, $word);
                         $old_j = $j;
                     }
@@ -205,14 +205,14 @@ class Jieba
      */
     public function getDAG(string $sentence): array
     {
-        $N = mb_strlen($sentence, 'UTF-8');
+        $N = mb_strlen($sentence);
         $i = 0;
         $j = 0;
         $DAG = [];
         $word_c = [];
 
         while ($i < $N) {
-            $c = mb_substr($sentence, $j, 1, 'UTF-8');
+            $c = mb_substr($sentence, $j, 1);
             if (count($word_c)==0) {
                 $next_word_key = $c;
             } else {
@@ -263,7 +263,7 @@ class Jieba
     {
         $words = [];
 
-        $N = mb_strlen($sentence, 'UTF-8');
+        $N = mb_strlen($sentence);
         $DAG = $this->getDAG($sentence);
 
         $this->calc($sentence, $DAG);
@@ -274,13 +274,13 @@ class Jieba
         while ($x < $N) {
             $current_route_keys = array_keys($this->route[$x]);
             $y = $current_route_keys[0]+1;
-            $l_word = mb_substr($sentence, $x, ($y-$x), 'UTF-8');
+            $l_word = mb_substr($sentence, $x, ($y-$x));
 
             if (($y-$x)==1) {
                 $buf = $buf.$l_word;
             } else {
-                if (mb_strlen($buf, 'UTF-8')>0) {
-                    if (mb_strlen($buf, 'UTF-8')==1) {
+                if (mb_strlen($buf)>0) {
+                    if (mb_strlen($buf)==1) {
                         array_push($words, $buf);
                         $buf = '';
                     } else {
@@ -296,8 +296,8 @@ class Jieba
             $x = $y;
         }
 
-        if (mb_strlen($buf, 'UTF-8')>0) {
-            if (mb_strlen($buf, 'UTF-8')==1) {
+        if (mb_strlen($buf)>0) {
+            if (mb_strlen($buf)==1) {
                 array_push($words, $buf);
             } else {
                 $regognized = Finalseg::singleton()->cut($buf);
@@ -359,11 +359,11 @@ class Jieba
         $cut_seg_list = Jieba::cut($sentence);
 
         foreach ($cut_seg_list as $w) {
-            $len = mb_strlen($w, 'UTF-8');
+            $len = mb_strlen($w);
 
             if ($len>2) {
                 for ($i=0; $i<($len-1); $i++) {
-                    $gram2 = mb_substr($w, $i, 2, 'UTF-8');
+                    $gram2 = mb_substr($w, $i, 2);
 
                     if (isset($this->FREQ[$gram2])) {
                         array_push($seg_list, $gram2);
@@ -371,9 +371,9 @@ class Jieba
                 }
             }
 
-            if (mb_strlen($w, 'UTF-8')>3) {
+            if (mb_strlen($w)>3) {
                 for ($i=0; $i<($len-2); $i++) {
-                    $gram3 = mb_substr($w, $i, 3, 'UTF-8');
+                    $gram3 = mb_substr($w, $i, 3);
 
                     if (isset($this->FREQ[$gram3])) {
                         array_push($seg_list, $gram3);

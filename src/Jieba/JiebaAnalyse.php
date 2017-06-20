@@ -46,7 +46,7 @@ class JiebaAnalyse
 
     /**
      * @param array $words Return value of method call Jieba::cut($content).
-     * @param int    $top_k   # top_k
+     * @param int $top_k
      * @return array
      * @see \Jieba\Jieba::cut()
      */
@@ -57,29 +57,20 @@ class JiebaAnalyse
 
         foreach ($words as $w) {
             $w = trim($w);
-            if (mb_strlen($w, 'UTF-8') < 2) {
+            if (mb_strlen($w) < 2) {
                 continue;
             }
-            if (isset($freq[$w])) {
-                $freq[$w] = $freq[$w] + 1.0;
-            } else {
-                $freq[$w] = 0.0 + 1.0;
-            }
-            $total = $total + 1.0;
+            $freq[$w] = ($freq[$w] ?? 0.0) + 1.0;
+            $total    = $total + 1.0;
         }
 
         foreach ($freq as $k => $v) {
-            $freq[$k] = $v/$total;
+            $freq[$k] = $v / $total;
         }
 
         $tf_idf_list = [];
-
         foreach ($freq as $k => $v) {
-            if (isset($this->idfFreq[$k])) {
-                $idf_freq = $this->idfFreq[$k];
-            } else {
-                $idf_freq = $this->maxIdf;
-            }
+            $idf_freq        = ($this->idfFreq[$k] ?? $this->maxIdf);
             $tf_idf_list[$k] = $v * $idf_freq;
         }
 

@@ -16,6 +16,9 @@
         "squizlabs/php_codesniffer": "~3.0"
     },
     "autoload": {
+        "files":[
+            "src/bootstrap.php"
+        ],
         "psr-4": {
             "Jieba\\": "src/Jieba/"
         }

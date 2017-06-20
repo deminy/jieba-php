@@ -96,8 +96,8 @@ class Posseg
     }
 
     /**
-     * @param array $t_state_v # input t_state_v
-     * @param int   $top_k     # input top_k
+     * @param array $t_state_v
+     * @param int   $top_k
      * @return array
      */
     public function getTopStates(array $t_state_v, int $top_k = 4): array
@@ -123,7 +123,7 @@ class Posseg
         $mem_path[0] = [];
         $all_states = array_keys($this->prob_trans);
 
-        $c = mb_substr($obs, 0, 1, 'UTF-8');
+        $c = mb_substr($obs, 0, 1);
 
         if (isset($states[$c]) && !empty($states[$c])) {
             $c_states = $states[$c];
@@ -133,7 +133,7 @@ class Posseg
 
         foreach ($c_states as $key => $state) {
             $y = $state;
-            $c = mb_substr($obs, 0, 1, 'UTF-8');
+            $c = mb_substr($obs, 0, 1);
             $prob_emit = 0.0;
             if (isset($this->prob_emit[$y][$c])) {
                 $prob_emit = $this->prob_emit[$y][$c];
@@ -144,8 +144,8 @@ class Posseg
             $mem_path[0][$y] = '';
         }
 
-        for ($t=1; $t<mb_strlen($obs, 'UTF-8'); $t++) {
-            $c = mb_substr($obs, $t, 1, 'UTF-8');
+        for ($t=1; $t<mb_strlen($obs); $t++) {
+            $c = mb_substr($obs, $t, 1);
             $V[$t] = [];
             $mem_path[$t] = [];
 
@@ -223,7 +223,7 @@ class Posseg
         $return_prob = reset($last);
         $return_prob_key = key($last);
 
-        $obs_length = mb_strlen($obs, 'UTF-8');
+        $obs_length = mb_strlen($obs);
 
         $route = [];
         for ($t=0; $t<$obs_length; $t++) {
@@ -255,33 +255,39 @@ class Posseg
 
         $begin = 0;
         $next = 0;
-        $len = mb_strlen($sentence, 'UTF-8');
+        $len = mb_strlen($sentence);
 
         for ($i=0; $i<$len; $i++) {
-            $char = mb_substr($sentence, $i, 1, 'UTF-8');
+            $char = mb_substr($sentence, $i, 1);
             eval('$pos_array = array'.$pos_list[$i].';');
             $pos = $pos_array[0];
 
-            if ($pos=='B') {
-                $begin = $i;
-            } elseif ($pos=='E') {
-                eval('$this_pos_array = array'.$pos_list[$i].';');
-                $this_pos = $this_pos_array[1];
-                $this_word_pair = array(
-                    "word"=>mb_substr($sentence, $begin, (($i+1)-$begin), 'UTF-8'),
-                    "tag"=>$this_pos
-                );
-                array_push($words, $this_word_pair);
-                $next = $i+1;
-            } elseif ($pos=='S') {
-                eval('$this_pos_array = array'.$pos_list[$i].';');
-                $this_pos = $this_pos_array[1];
-                $this_word_pair = array(
-                    "word"=>$char,
-                    "tag"=>$this_pos
-                );
-                array_push($words, $this_word_pair);
-                $next = $i+1;
+            switch ($pos) {
+                case Constant::B:
+                    $begin = $i;
+                    break;
+                case Constant::E:
+                    eval('$this_pos_array = array'.$pos_list[$i].';');
+                    $this_pos = $this_pos_array[1];
+                    $this_word_pair = array(
+                        "word"=>mb_substr($sentence, $begin, (($i+1)-$begin)),
+                        "tag"=>$this_pos
+                    );
+                    array_push($words, $this_word_pair);
+                    $next = $i+1;
+                    break;
+                case Constant::S:
+                    eval('$this_pos_array = array'.$pos_list[$i].';');
+                    $this_pos = $this_pos_array[1];
+                    $this_word_pair = array(
+                        "word"=>$char,
+                        "tag"=>$this_pos
+                    );
+                    array_push($words, $this_word_pair);
+                    $next = $i+1;
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -289,7 +295,7 @@ class Posseg
             eval('$this_pos_array = array'.$pos_list[$next].';');
             $this_pos = $this_pos_array[1];
             $this_word_pair = array(
-                "word"=>mb_substr($sentence, $next, null, 'UTF-8'),
+                "word"=>mb_substr($sentence, $next, null),
                 "tag"=>$this_pos
             );
             array_push($words, $this_word_pair);
@@ -350,7 +356,7 @@ class Posseg
     {
         $words = [];
 
-        $N = mb_strlen($sentence, 'UTF-8');
+        $N = mb_strlen($sentence);
         $this->getJieba()->calc($sentence, $this->getJieba()->getDAG($sentence));
 
         $x = 0;
@@ -359,13 +365,13 @@ class Posseg
         while ($x < $N) {
             $current_route_keys = array_keys($this->getJieba()->getRouteByKey($x));
             $y = $current_route_keys[0]+1;
-            $l_word = mb_substr($sentence, $x, ($y-$x), 'UTF-8');
+            $l_word = mb_substr($sentence, $x, ($y-$x));
 
             if (($y-$x)==1) {
                 $buf = $buf.$l_word;
             } else {
-                if (mb_strlen($buf, 'UTF-8')>0) {
-                    if (mb_strlen($buf, 'UTF-8')==1) {
+                if (mb_strlen($buf)>0) {
+                    if (mb_strlen($buf)==1) {
                         if (isset($this->word_tag[$buf])) {
                             $buf_tag = $this->word_tag[$buf];
                         } else {
@@ -398,8 +404,8 @@ class Posseg
             $x = $y;
         }
 
-        if (mb_strlen($buf, 'UTF-8')>0) {
-            if (mb_strlen($buf, 'UTF-8')==1) {
+        if (mb_strlen($buf)>0) {
+            if (mb_strlen($buf)==1) {
                 if (isset($this->word_tag[$buf])) {
                     $buf_tag = $this->word_tag[$buf];
                 } else {

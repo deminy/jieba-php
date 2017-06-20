@@ -143,19 +143,19 @@ class Finalseg
 
         $begin = 0;
         $next  = 0;
-        $len   = mb_strlen($sentence, 'UTF-8');
+        $len   = mb_strlen($sentence);
 
         for ($i=0; $i<$len; $i++) {
-            $char = mb_substr($sentence, $i, 1, 'UTF-8');
+            $char = mb_substr($sentence, $i, 1);
             switch ($pos_list[$i]) {
-                case 'B':
+                case Constant::B:
                     $begin = $i;
                     break;
-                case 'E':
-                    array_push($words, mb_substr($sentence, $begin, (($i+1)-$begin), 'UTF-8'));
+                case Constant::E:
+                    array_push($words, mb_substr($sentence, $begin, (($i+1)-$begin)));
                     $next = $i+1;
                     break;
-                case 'S':
+                case Constant::S:
                     array_push($words, $char);
                     $next = $i+1;
                     break;
@@ -165,7 +165,7 @@ class Finalseg
         }
 
         if ($next < $len) {
-            array_push($words, mb_substr($sentence, $next, null, 'UTF-8'));
+            array_push($words, mb_substr($sentence, $next, null));
         }
 
         return $words;
@@ -177,15 +177,14 @@ class Finalseg
      */
     protected function viterbi(string $sentence): array
     {
-        $obs = $sentence;
-        $states = array('B', 'M', 'E', 'S');
+        $obs  = $sentence;
         $V    = [];
         $V[0] = [];
         $path = [];
 
-        foreach ($states as $key => $state) {
+        foreach (Constant::BMES as $state) {
             $y = $state;
-            $c = mb_substr($obs, 0, 1, 'UTF-8');
+            $c = mb_substr($obs, 0, 1);
             $prob_emit = 0.0;
             if (isset($this->probEmit[$y][$c])) {
                 $prob_emit = $this->probEmit[$y][$c];
@@ -196,14 +195,14 @@ class Finalseg
             $path[$y] = $y;
         }
 
-        for ($t=1; $t<mb_strlen($obs, 'UTF-8'); $t++) {
-            $c = mb_substr($obs, $t, 1, 'UTF-8');
+        for ($t=1; $t<mb_strlen($obs); $t++) {
+            $c = mb_substr($obs, $t, 1);
             $V[$t] = [];
             $newpath = [];
-            foreach ($states as $key => $state) {
+            foreach (Constant::BMES as $state) {
                 $y = $state;
                 $temp_prob_array = [];
-                foreach ($states as $key => $state0) {
+                foreach (Constant::BMES as $state0) {
                     $y0 = $state0;
                     if (isset($this->probTrans[$y0][$y])) {
                         $prob_trans = $this->probTrans[$y0][$y];
@@ -223,7 +222,7 @@ class Finalseg
                 $V[$t][$y] = $max_prob;
                 if (is_array($path[$max_key])) {
                     $newpath[$y] = [];
-                    foreach ($path[$max_key] as $key => $path_value) {
+                    foreach ($path[$max_key] as $path_value) {
                         array_push($newpath[$y], $path_value);
                     }
                     array_push($newpath[$y], $y);
@@ -234,10 +233,10 @@ class Finalseg
             $path = $newpath;
         }
 
-        $es_states = array('E','S');
+        $es_states = [Constant::E, Constant::S];
         $temp_prob_array = [];
-        $len = mb_strlen($obs, 'UTF-8');
-        foreach ($es_states as $key => $state) {
+        $len = mb_strlen($obs);
+        foreach ($es_states as $state) {
             $y = $state;
             $temp_prob_array[$y] = $V[$len-1][$y];
         }
