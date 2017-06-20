@@ -37,6 +37,25 @@ class DictHelper
     }
 
     /**
+     * @param string $line
+     * @param MultiArray $trie
+     */
+    public static function parseDictLineForTrie(string $line, MultiArray $trie)
+    {
+        $line = trim($line);
+        if (!empty($line)) {
+            $array = explode(' ', $line);
+            $word  = $array[0];
+            $trie->set(
+                implode('.', MultiByteString::toArray($word)),
+                [
+                    'end' => '',
+                ]
+            );
+        }
+    }
+
+    /**
      * Go through words in given dictionary and return word frequency back.
      *
      * @param string $basename
