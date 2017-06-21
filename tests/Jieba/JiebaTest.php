@@ -2,7 +2,6 @@
 
 namespace Jieba\Tests\Jieba;
 
-use Jieba\Helper;
 use Jieba\Jieba;
 use PHPUnit\Framework\TestCase;
 
@@ -34,7 +33,7 @@ class JiebaTest extends TestCase
         );
 
         $seg_list = $jieba->cut("怜香惜玉也得要看对象啊！");
-        $this->assertEquals($case_array, $seg_list);
+        $this->assertSame($case_array, $seg_list);
 
         $case_array = array(
             "我",
@@ -44,7 +43,7 @@ class JiebaTest extends TestCase
         );
 
         $seg_list = $jieba->cut("我来到北京清华大学");
-        $this->assertEquals($case_array, $seg_list);
+        $this->assertSame($case_array, $seg_list);
 
         $case_array = array(
             "他",
@@ -56,7 +55,7 @@ class JiebaTest extends TestCase
         );
 
         $seg_list = $jieba->cut("他来到了网易杭研大厦");
-        $this->assertEquals($case_array, $seg_list);
+        $this->assertSame($case_array, $seg_list);
     }
 
     /**
@@ -75,7 +74,7 @@ class JiebaTest extends TestCase
         );
 
         $seg_list = (new Jieba())->cut("我来到北京清华大学", true);
-        $this->assertEquals($case_array, $seg_list);
+        $this->assertSame($case_array, $seg_list);
     }
 
     /**
@@ -105,7 +104,7 @@ class JiebaTest extends TestCase
         );
 
         $seg_list = (new Jieba())->cutForSEarch("小明硕士毕业于中国科学院计算所，后在日本京都大学深造");
-        $this->assertEquals($case_array, $seg_list);
+        $this->assertSame($case_array, $seg_list);
     }
 
     /**
@@ -132,6 +131,6 @@ class JiebaTest extends TestCase
         $jieba->loadUserDict(dirname(__DIR__) . '/dict/user_dict.txt');
         $seg_list = $jieba->cut("李小福是创新办主任也是云计算方面的专家");
 
-        $this->assertEquals($case_array, $seg_list);
+        $this->assertSame($case_array, $seg_list);
     }
 }

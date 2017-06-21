@@ -315,35 +315,12 @@ class Jieba
      */
     public function cut(string $sentence, bool $cut_all = false): array
     {
-        $seg_list = [];
-
-        $re_han_pattern = '([\x{4E00}-\x{9FA5}]+)';
-        $re_skip_pattern = '([a-zA-Z0-9+#\r\n]+)';
-        preg_match_all(
-            '/('.$re_han_pattern.'|'.$re_skip_pattern.')/u',
+        return StringHelper::cut(
             $sentence,
-            $matches,
-            PREG_PATTERN_ORDER
-        );
-        $blocks = $matches[0];
-
-        foreach ($blocks as $blk) {
-            if (preg_match('/'.$re_han_pattern.'/u', $blk)) {
-                if ($cut_all) {
-                    $words = $this->__cutAll($blk);
-                } else {
-                    $words = $this->__cutDAG($blk);
-                }
-
-                foreach ($words as $word) {
-                    array_push($seg_list, $word);
-                }
-            } else {
-                array_push($seg_list, $blk);
+            function (string $blk) use ($cut_all) {
+                return $cut_all ? $this->__cutAll($blk) : $this->__cutDAG($blk);
             }
-        }
-
-        return $seg_list;
+        );
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace Jieba;
 
 use Cache\Adapter\Common\AbstractCachePool;
+use Closure;
 use Jieba\Traits\CachePoolTrait;
 use Jieba\Traits\LoggerTrait;
 
@@ -124,17 +125,11 @@ class Posseg
         $all_states = array_keys($this->prob_trans);
 
         $c = mb_substr($obs, 0, 1);
-
-        if (isset($states[$c]) && !empty($states[$c])) {
-            $c_states = $states[$c];
-        } else {
-            $c_states = $all_states;
-        }
+        $c_states = (!empty($states[$c]) ? $states[$c] : $all_states);
 
         foreach ($c_states as $key => $state) {
             $y = $state;
             $c = mb_substr($obs, 0, 1);
-            $prob_emit = 0.0;
             if (isset($this->prob_emit[$y][$c])) {
                 $prob_emit = $this->prob_emit[$y][$c];
             } else {
@@ -148,8 +143,6 @@ class Posseg
             $c = mb_substr($obs, $t, 1);
             $V[$t] = [];
             $mem_path[$t] = [];
-
-            $prev_states = array_keys($this->getTopStates($V[$t-1]));
 
             $prev_mem_path = array_keys($mem_path[$t-1]);
 
@@ -189,18 +182,8 @@ class Posseg
             foreach ($obs_states as $y) {
                 $temp_prob_array = [];
                 foreach ($prev_states as $y0) {
-                    $prob_trans = 0.0;
-                    if (isset($this->prob_trans[$y0][$y])) {
-                        $prob_trans = $this->prob_trans[$y0][$y];
-                    } else {
-                        $prob_trans = Constant::MIN_FLOAT;
-                    }
-                    $prob_emit = 0.0;
-                    if (isset($this->prob_emit[$y][$c])) {
-                        $prob_emit = $this->prob_emit[$y][$c];
-                    } else {
-                        $prob_emit = Constant::MIN_FLOAT;
-                    }
+                    $prob_trans = ($this->prob_trans[$y0][$y] ?? Constant::MIN_FLOAT);
+                    $prob_emit  = ($this->prob_emit[$y][$c] ?? Constant::MIN_FLOAT);
                     $temp_prob_array[$y0] = $V[$t-1][$y0] + $prob_trans + $prob_emit;
                 }
                 arsort($temp_prob_array);
@@ -310,49 +293,19 @@ class Posseg
      */
     public function __cutDetail(string $sentence): array
     {
-        $words = [];
-
-        $re_han_pattern = '([\x{4E00}-\x{9FA5}]+)';
-        $re_skip_pattern = '([a-zA-Z0-9+#\r\n]+)';
-        $re_punctuation_pattern = '([\x{ff5e}\x{ff01}\x{ff08}\x{ff09}\x{300e}'.
-                                    '\x{300c}\x{300d}\x{300f}\x{3001}\x{ff1a}\x{ff1b}'.
-                                    '\x{ff0c}\x{ff1f}\x{3002}]+)';
-        $re_eng_pattern = '[a-zA-Z+#]+';
-        $re_num_pattern = '[0-9]+';
-
-        preg_match_all(
-            '/('.$re_han_pattern.'|'.$re_skip_pattern.'|'.$re_punctuation_pattern.')/u',
+        return $this->_cut(
             $sentence,
-            $matches,
-            PREG_PATTERN_ORDER
-        );
-        $blocks = $matches[0];
-
-        foreach ($blocks as $blk) {
-            if (preg_match('/'.$re_han_pattern.'/u', $blk)) {
-                $blk_words = $this->__cut($blk);
-                foreach ($blk_words as $blk_word) {
-                    array_push($words, $blk_word);
-                }
-            } elseif (preg_match('/'.$re_skip_pattern.'/u', $blk)) {
-                if (preg_match('/'.$re_num_pattern.'/u', $blk)) {
-                    array_push($words, array("word"=>$blk, "tag"=>"m"));
-                } elseif (preg_match('/'.$re_eng_pattern.'/u', $blk)) {
-                    array_push($words, array("word"=>$blk, "tag"=>"eng"));
-                }
-            } elseif (preg_match('/'.$re_punctuation_pattern.'/u', $blk)) {
-                array_push($words, array("word"=>$blk, "tag"=>"w"));
+            function (string $blk) {
+                return $this->__cut($blk);
             }
-        }
-
-        return $words;
+        );
     }
 
     /**
      * @param string $sentence # input sentence
      * @return array
      */
-    public function __cutDAG(string $sentence): array
+    protected function __cutDAG(string $sentence): array
     {
         $words = [];
 
@@ -425,46 +378,50 @@ class Posseg
 
         return $words;
     }
-
     /**
      * @param string  $sentence # input sentence
      * @return array
      */
     public function cut(string $sentence): array
     {
-        $seg_list = [];
+        return $this->_cut(
+            $sentence,
+            function (string $blk) {
+                return $this->__cutDAG($blk);
+            }
+        );
+    }
 
-        $re_han_pattern = '([\x{4E00}-\x{9FA5}]+)';
-        $re_skip_pattern = '([a-zA-Z0-9+#\r\n]+)';
-        $re_punctuation_pattern = '([\x{ff5e}\x{ff01}\x{ff08}\x{ff09}\x{300e}'.
-                                    '\x{300c}\x{300d}\x{300f}\x{3001}\x{ff1a}\x{ff1b}'.
-                                    '\x{ff0c}\x{ff1f}\x{3002}]+)';
-        $re_eng_pattern = '[a-zA-Z+#]+';
-        $re_num_pattern = '[0-9]+';
-
+    /**
+     * @param string  $sentence
+     * @param Closure $callback
+     * @return array
+     */
+    protected function _cut(string $sentence, Closure $callback): array
+    {
         preg_match_all(
-            '/('.$re_han_pattern.'|'.$re_skip_pattern.'|'.$re_punctuation_pattern.')/u',
+            '/(' . Constant::REGEX_HAN . '|' . Constant::REGEX_SKIP . '|' . Constant::REGEX_PUNCTUATION . ')/u',
             $sentence,
             $matches,
             PREG_PATTERN_ORDER
         );
         $blocks = $matches[0];
 
+        $seg_list = [];
         foreach ($blocks as $blk) {
-            if (preg_match('/'.$re_han_pattern.'/u', $blk)) {
-                $words = Posseg::__cutDAG($blk);
-
+            if (preg_match('/' . Constant::REGEX_HAN . '/u', $blk)) {
+                $words = $callback($blk);
                 foreach ($words as $word) {
-                    array_push($seg_list, $word);
+                    $seg_list[] = $word;
                 }
-            } elseif (preg_match('/'.$re_skip_pattern.'/u', $blk)) {
-                if (preg_match('/'.$re_num_pattern.'/u', $blk)) {
-                    array_push($seg_list, array("word"=>$blk, "tag"=>"m"));
-                } elseif (preg_match('/'.$re_eng_pattern.'/u', $blk)) {
-                    array_push($seg_list, array("word"=>$blk, "tag"=>"eng"));
+            } elseif (preg_match('/' . Constant::REGEX_SKIP . '/u', $blk)) {
+                if (preg_match('/' . Constant::REGEX_NUMBER . '/u', $blk)) {
+                    $seg_list[] = ['word' => $blk, 'tag' => 'm'];
+                } elseif (preg_match('/' . Constant::REGEX_ENG . '/u', $blk)) {
+                    $seg_list[] = ['word' => $blk, 'tag' => 'eng'];
                 }
-            } elseif (preg_match('/'.$re_punctuation_pattern.'/u', $blk)) {
-                array_push($seg_list, array("word"=>$blk, "tag"=>"w"));
+            } elseif (preg_match('/' . Constant::REGEX_PUNCTUATION . '/u', $blk)) {
+                $seg_list[] = ['word' => $blk, 'tag' => 'w'];
             }
         }
 

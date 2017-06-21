@@ -2,7 +2,6 @@
 
 namespace Jieba\Tests\Jieba;
 
-use Jieba\Helper;
 use Jieba\Jieba;
 use Jieba\JiebaAnalyse;
 use PHPUnit\Framework\TestCase;

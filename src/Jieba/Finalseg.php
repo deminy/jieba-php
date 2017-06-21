@@ -42,35 +42,18 @@ class Finalseg
     }
 
     /**
-     * @param string  $sentence # input sentence
+     * Cut given sentence to an array of individual Chinese and non-Chinese characters.
+     * @param string $sentence
      * @return array
      */
     public function cut(string $sentence): array
     {
-        $re_han_pattern  = '([\x{4E00}-\x{9FA5}]+)';
-        $re_skip_pattern = '([a-zA-Z0-9+#\r\n]+)';
-        preg_match_all(
-            '/('.$re_han_pattern.'|'.$re_skip_pattern.')/u',
+        return StringHelper::cut(
             $sentence,
-            $matches,
-            PREG_PATTERN_ORDER
-        );
-        $blocks = $matches[0];
-
-        $seg_list = [];
-        foreach ($blocks as $blk) {
-            if (preg_match('/'.$re_han_pattern.'/u', $blk)) {
-                $words = $this->__cut($blk);
-
-                foreach ($words as $word) {
-                    array_push($seg_list, $word);
-                }
-            } else {
-                array_push($seg_list, $blk);
+            function (string $blk) {
+                return $this->__cut($blk);
             }
-        }
-
-        return $seg_list;
+        );
     }
 
     /**

@@ -18,12 +18,12 @@ class Helper
 
     /**
      * @param string $filename
-     * @param Closure $op
+     * @param Closure $callback
      * @param array ...$params
      * @return void
      * @throws Exception
      */
-    public static function readFile(string $filename, Closure $op, ...$params)
+    public static function readFile(string $filename, Closure $callback, ...$params)
     {
         if (!is_file($filename)) {
             throw new Exception("path '{$filename}' does not point to a file");
@@ -34,7 +34,7 @@ class Helper
 
         $content = fopen($filename, 'r');
         while (($line = fgets($content)) !== false) {
-            $op($line, ...$params);
+            $callback($line, ...$params);
         }
         fclose($content);
     }

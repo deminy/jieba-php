@@ -32,6 +32,6 @@ class FinalsegTest extends TestCase
         );
 
         $seg_list = Finalseg::singleton()->cut("怜香惜玉也得要看对象啊！");
-        $this->assertEquals($case_array, $seg_list);
+        $this->assertSame($case_array, $seg_list);
     }
 }

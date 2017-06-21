@@ -7,11 +7,11 @@ use Closure;
 class Wrapper
 {
     /**
-     * @param Closure $op
+     * @param Closure $callback
      * @param array ...$params
      * @return mixed
      */
-    public static function run(Closure $op, ...$params)
+    public static function run(Closure $callback, ...$params)
     {
         $encoding = mb_internal_encoding();
 
@@ -19,7 +19,7 @@ class Wrapper
             mb_internal_encoding('UTF-8');
         }
 
-        $result = $op(...$params);
+        $result = $callback(...$params);
 
         if (Constant::UTF8 != $encoding) {
             mb_internal_encoding($encoding);
