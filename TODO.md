@@ -1,6 +1,8 @@
 # TODOs for Next Stable Release
 
 * Default to disable cache; allow to enable cache manually.
+* Each Travis CI build should finish in around 3 minutes.
+* Comments in demo scripts.
 
 # TODOs
 
