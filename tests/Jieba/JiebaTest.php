@@ -129,7 +129,7 @@ class JiebaTest extends TestCase
         );
 
         $jieba = new Jieba();
-        $jieba->loadUserDict(Helper::getDictFilePath('user_dict.txt'));
+        $jieba->loadUserDict(dirname(__DIR__) . '/dict/user_dict.txt');
         $seg_list = $jieba->cut("李小福是创新办主任也是云计算方面的专家");
 
         $this->assertEquals($case_array, $seg_list);

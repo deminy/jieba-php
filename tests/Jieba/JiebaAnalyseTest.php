@@ -36,7 +36,7 @@ class JiebaAnalyseTest extends TestCase
         );
 
         $tags = JiebaAnalyse::singleton()->extractTags(
-            (new Jieba())->cut(Helper::getDictFileContent('lyric.txt')),
+            (new Jieba())->cut(file_get_contents(dirname(__DIR__) . '/dict/lyric.txt')),
             10
         );
         $this->assertEquals($case_array, $tags);

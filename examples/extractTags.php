@@ -3,7 +3,6 @@
 
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
-use Jieba\Helper;
 use Jieba\Jieba;
 use Jieba\JiebaAnalyse;
 use Jieba\Options;
@@ -14,7 +13,7 @@ $jieba = new Jieba(
     (new Options())->setDict(new Dict(Dict::SMALL))->setMode(new Mode(Mode::TEST))
 );
 $tags = JiebaAnalyse::singleton()->extractTags(
-    $jieba->cut(Helper::getDictFileContent('lyric.txt')),
+    $jieba->cut(file_get_contents(dirname(__DIR__) . '/tests/dict/lyric.txt')),
     10
 );
 var_dump($tags);

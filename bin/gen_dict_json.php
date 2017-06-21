@@ -6,7 +6,6 @@ require_once dirname(__DIR__) . '/vendor/autoload.php';
 use Jieba\DictHelper;
 use Jieba\Helper;
 use Jieba\MultiArray;
-use Jieba\MultiByteString;
 use Jieba\Option\Dict;
 
 $dict = new Dict();
