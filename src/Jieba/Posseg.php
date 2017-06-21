@@ -293,7 +293,7 @@ class Posseg
      */
     public function __cutDetail(string $sentence): array
     {
-        return $this->_cut(
+        return $this->cutSentence(
             $sentence,
             function (string $blk) {
                 return $this->__cut($blk);
@@ -384,7 +384,7 @@ class Posseg
      */
     public function cut(string $sentence): array
     {
-        return $this->_cut(
+        return $this->cutSentence(
             $sentence,
             function (string $blk) {
                 return $this->__cutDAG($blk);
@@ -397,7 +397,7 @@ class Posseg
      * @param Closure $callback
      * @return array
      */
-    protected function _cut(string $sentence, Closure $callback): array
+    protected function cutSentence(string $sentence, Closure $callback): array
     {
         preg_match_all(
             '/(' . Constant::REGEX_HAN . '|' . Constant::REGEX_SKIP . '|' . Constant::REGEX_PUNCTUATION . ')/u',
