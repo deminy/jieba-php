@@ -5,6 +5,8 @@
   * Use package "league/csv" to read/parse dictionary files.
   * Removed useless class \Jieba\JiebaCache.
   * More unit tests.
+  * Move/remove non-core dictionary files.
+  * Support to use the library where UTF-8 is not the internal encoding.
 
 0.25.1 / 2017-06-19
 ===================

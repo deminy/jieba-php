@@ -11,6 +11,8 @@ class Constant
 {
     const MIN_FLOAT = -3.14e+100;
 
+    const UTF8 = 'UTF-8';
+
     const B = 'B';
     const M = 'M';
     const E = 'E';

@@ -1,7 +1,6 @@
 # TODOs for Next Stable Release
 
 * Default to disable cache; allow to enable cache manually.
-* Don't hardcode internal encoding.
 
 # TODOs
 
@@ -19,6 +18,7 @@
 * Move following files to proper locations:
     * dict/lyric.txt
     * dict/user_dict.txt
+* Don't hardcode internal encoding.
 
 # POSTPONED
 

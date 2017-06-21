@@ -49,6 +49,42 @@ var_dump((new Jieba())->cut("怜香惜玉也得要看对象啊！"));
 * 待分词的字符串可以是 utf-8 字符串。
 * jieba.cut 返回的结构是一个可迭代的数组。
 
+# 字符编码处理
+
+本库默认假设用户使用的字符编码为UTF-8。如果运行环境非UTF-8，你可以参考下面的代码解决相关编码问题：
+
+```php
+#!/usr/bin/env php
+<?php
+
+require_once dirname(__DIR__) . '/vendor/autoload.php';
+
+use Jieba\Jieba;
+use Jieba\Wrapper;
+
+function testCut() {
+    var_dump((new Jieba())->cut("怜香惜玉也得要看对象啊！"));
+}
+
+// Here we set default encoding to "iso-8859-1". Under this encoding Chinese characters won't be parsed properly.
+mb_internal_encoding('iso-8859-1');
+
+// This function call prints garbled Chinese characters because of improper encoding "iso-8859-1" used.
+testCut();
+
+// This function call prints Chinese characters as expected because the function call is executed where UTF-8 is set
+// as the internal encoding.
+// After the execution, previous internal encoding (iso-8859-1) will be recovered.
+Wrapper::run(
+    function () {
+        testCut();
+    }
+);
+
+// This function call prints garbled Chinese characters because of improper encoding "iso-8859-1" used.
+testCut();
+```
+
 # 用法介绍
 
 ## 分词
@@ -240,7 +276,6 @@ array(18) {
 
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
-use Jieba\Helper;
 use Jieba\Jieba;
 use Jieba\JiebaAnalyse;
 use Jieba\Options;
@@ -251,7 +286,7 @@ $jieba = new Jieba(
     (new Options())->setDict(new Dict(Dict::SMALL))->setMode(new Mode(Mode::TEST))
 );
 $tags = JiebaAnalyse::singleton()->extractTags(
-    $jieba->cut(Helper::getDictFileContent('lyric.txt')),
+    $jieba->cut(file_get_contents(dirname(__DIR__) . '/tests/dict/lyric.txt')),
     10
 );
 var_dump($tags);
