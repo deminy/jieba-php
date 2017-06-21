@@ -3,6 +3,8 @@
 namespace Jieba\Tests\Jieba;
 
 use Jieba\Jieba;
+use Jieba\Options;
+use Jieba\Option\Dict;
 use PHPUnit\Framework\TestCase;
 
 class JiebaTest extends TestCase
@@ -56,6 +58,27 @@ class JiebaTest extends TestCase
 
         $seg_list = $jieba->cut("他来到了网易杭研大厦");
         $this->assertSame($case_array, $seg_list);
+    }
+
+    /**
+     * @covers \Jieba\Jieba::cut()
+     * @covers \Jieba\Options::setDict()
+     * @covers \Jieba\Option\Dict
+     */
+    public function testCutOnBig5()
+    {
+        $this->assertSame(
+            [
+                "憐香惜玉",
+                "也",
+                "得",
+                "要",
+                "看",
+                "對象",
+                "啊",
+            ],
+            (new Jieba((new Options())->setDict(new Dict(Dict::BIG))))->cut("憐香惜玉也得要看對象啊！")
+        );
     }
 
     /**
@@ -114,23 +137,42 @@ class JiebaTest extends TestCase
      */
     public function testLoadUserDict()
     {
-        $case_array = array(
-            "李小福",
-            "是",
-            "创新办",
-            "主任",
-            "也",
-            "是",
-            "云计算",
-            "方面",
-            "的",
-            "专家",
+        $jieba    = new Jieba();
+        $sentence = "李小福是创新办主任也是云计算方面的专家";
+
+        $this->assertSame(
+            [
+                "李小福",
+                "是",
+                "创新",
+                "办",
+                "主任",
+                "也",
+                "是",
+                "云",
+                "计算",
+                "方面",
+                "的",
+                "专家",
+            ],
+            $jieba->cut($sentence)
         );
 
-        $jieba = new Jieba();
         $jieba->loadUserDict(dirname(__DIR__) . '/dict/user_dict.txt');
-        $seg_list = $jieba->cut("李小福是创新办主任也是云计算方面的专家");
-
-        $this->assertSame($case_array, $seg_list);
+        $this->assertSame(
+            [
+                "李小福",
+                "是",
+                "创新办",
+                "主任",
+                "也",
+                "是",
+                "云计算",
+                "方面",
+                "的",
+                "专家",
+            ],
+            $jieba->cut($sentence)
+        );
     }
 }

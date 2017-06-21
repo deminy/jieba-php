@@ -10,6 +10,7 @@ class Wrapper
      * @param Closure $callback
      * @param array ...$params
      * @return mixed
+     * @todo add unit tests.
      */
     public static function run(Closure $callback, ...$params)
     {
