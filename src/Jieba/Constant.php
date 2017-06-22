@@ -29,9 +29,9 @@ class Constant
      * @see https://github.com/fxsjy/jieba/issues/7 模型的数据是如何生成的？(对BMES的解释）
      */
     const BMES = [
-        self::B => self::B,
-        self::M => self::M,
-        self::E => self::E,
-        self::S => self::S,
+        self::B => self::B, // 开头
+        self::M => self::M, // 中间
+        self::E => self::E, // 结尾
+        self::S => self::S, // 独立成词
     ];
 }

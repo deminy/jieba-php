@@ -3,6 +3,7 @@
 namespace Jieba;
 
 use Cache\Adapter\Common\AbstractCachePool;
+use Jieba\Option\Dict;
 use Jieba\Traits\CachePoolTrait;
 use Jieba\Traits\LoggerTrait;
 use Jieba\Traits\OptionsTrait;
@@ -67,7 +68,7 @@ class Jieba
      */
     public function init(): Jieba
     {
-        $this->trie = $this->genTrie($this->options->getDict()->getDictFilePath());
+        $this->trie = $this->genTrie($this->options->getDict());
         $this->__calcFreq();
 
         return $this;
@@ -118,18 +119,16 @@ class Jieba
     }
 
     /**
-     * Static method genTrie
-     *
-     * @param string $f_name  # input f_name
+     * @param Dict $dict
      * @return MultiArray
      */
-    public function genTrie(string $f_name): MultiArray
+    public function genTrie(Dict $dict): MultiArray
     {
-        $this->trie        = new MultiArray(json_decode(file_get_contents($f_name . '.json'), true));
-        $this->trie->cache = new MultiArray(json_decode(file_get_contents($f_name . '.cache.json'), true));
+        $this->trie        = new MultiArray(CacheFactory::getDict($this->getCachePool(), $dict, Dict::EXT_JSON));
+        $this->trie->cache = new MultiArray(CacheFactory::getDict($this->getCachePool(), $dict, Dict::EXT_CACHE_JSON));
 
         Helper::readFile(
-            $f_name,
+            $dict->getDictFilePath(),
             function (string $line) {
                 DictHelper::readDictLine($line, $word, $this->original_freq, $this->total);
             }

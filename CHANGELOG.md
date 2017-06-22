@@ -7,6 +7,7 @@
   * More unit tests.
   * Move/remove non-core dictionary files.
   * Support to use the library where UTF-8 is not the internal encoding.
+  * Move dictionary trie files out from Git.
 
 0.25.1 / 2017-06-19
 ===================

@@ -19,6 +19,11 @@ foreach (Dict::VALID_DICTIONARIES as $dictName) {
         }
     );
 
-    file_put_contents(Helper::getDictFilePath("{$dict->getDictFileName()}.json"),       json_encode($trie->storage));
-    file_put_contents(Helper::getDictFilePath("{$dict->getDictFileName()}.cache.json"), json_encode($trie->cache));
+    $file = $dict->getDictFilePath(Dict::EXT_JSON);
+    file_put_contents($file, json_encode($trie->storage));
+    echo "    file generated: {$file}\n";
+
+    $file = $dict->getDictFilePath(Dict::EXT_CACHE_JSON);
+    file_put_contents($file, json_encode($trie->cache));
+    echo "    file generated: {$file}\n";
 }

@@ -24,7 +24,7 @@
 
 # 安装使用
 
-使用本库你需要至少给PHP分配1G内存限制(memory_limit >= 1G)。
+使用本库你需要至少给PHP分配1G内存限制(memory_limit >= 1G)或更多。随着进一步的优化（包括缓存方面的优化），内存消耗将会降低。
 
 ```bash
 composer require deminy/jieba-php:dev-master

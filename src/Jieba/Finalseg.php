@@ -114,7 +114,7 @@ class Finalseg
     }
 
     /**
-     * @param string $sentence # input sentence
+     * @param string $sentence
      * @return array
      */
     protected function __cut(string $sentence): array
@@ -155,7 +155,7 @@ class Finalseg
     }
 
     /**
-     * @param string $sentence # input sentence
+     * @param string $sentence
      * @return array
      */
     protected function viterbi(string $sentence): array
@@ -168,7 +168,6 @@ class Finalseg
         foreach (Constant::BMES as $state) {
             $y = $state;
             $c = mb_substr($obs, 0, 1);
-            $prob_emit = 0.0;
             if (isset($this->probEmit[$y][$c])) {
                 $prob_emit = $this->probEmit[$y][$c];
             } else {
@@ -227,6 +226,9 @@ class Finalseg
         $prob = reset($temp_prob_array);
         $state = key($temp_prob_array);
 
-        return array("prob"=>$prob, "pos_list"=>$path[$state]);
+        return [
+            'prob'     => $prob,
+            'pos_list' => $path[$state],
+        ];
     }
 }

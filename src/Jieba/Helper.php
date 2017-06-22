@@ -3,6 +3,7 @@
 namespace Jieba;
 
 use Closure;
+use Jieba\Option\Dict;
 
 /**
  * Class Helper
@@ -64,16 +65,6 @@ class Helper
      * @param string $basePath
      * @return string
      */
-    public static function getDictFileContent(string $basename, string $basePath = null): string
-    {
-        return file_get_contents(self::getDictFilePath($basename, $basePath));
-    }
-
-    /**
-     * @param string $basename
-     * @param string $basePath
-     * @return string
-     */
     public static function getModelFilePath(string $basename, string $basePath = null): string
     {
         return (($basePath ?: self::getModelBasePath()) . $basename);
@@ -98,11 +89,21 @@ class Helper
     }
 
     /**
+     * @param string $fileType
      * @return string
      */
-    public static function getDictBasePath(): string
+    public static function getDictBasePath(string $fileType = null): string
     {
-        return dirname(__DIR__, 2) . '/dict/';
+        switch ($fileType) {
+            case Dict::EXT_JSON:
+            case Dict::EXT_CACHE_JSON:
+                return dirname(__DIR__, 2) . '/temp/dict/';
+                break;
+            case Dict::EXT_DEFAULT:
+            default:
+                return dirname(__DIR__, 2) . '/dict/';
+                break;
+        }
     }
 
     /**

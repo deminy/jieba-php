@@ -35,7 +35,7 @@ class JiebaAnalyse
 
         $this->idfFreq = CacheFactory::get(
             $this->getCachePool(),
-            ('idf-' . md5(__CLASS__)),
+            ('idf_' . md5(__CLASS__)),
             function () {
                 return DictHelper::getIdfFreq('idf.txt');
             }

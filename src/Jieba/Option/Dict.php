@@ -16,6 +16,10 @@ class Dict extends AbstractOption
     const SMALL   = 'small';
     const BIG     = 'big';
 
+    const EXT_DEFAULT    = '';
+    const EXT_JSON       = '.json';
+    const EXT_CACHE_JSON = '.cache.json';
+
     const VALID_DICTIONARIES = [
         self::NORMAL => self::NORMAL,
         self::SMALL  => self::SMALL,
@@ -38,45 +42,74 @@ class Dict extends AbstractOption
     }
 
     /**
+     * @param string|null $fileType
      * @param string|null $dict
-     * @return string
+     * @return bool|mixed|string
+     * @throws Exception
      */
-    public function getDictFileContent(string $dict = null): string
+    public function getDictFileContent(string $fileType = null, string $dict = null)
     {
-        return file_get_contents($this->getDictFilePath($dict));
+        switch ($fileType) {
+            case self::EXT_JSON:
+            case self::EXT_CACHE_JSON:
+                $file = $this->getDictFilePath($fileType, $dict);
+                if (!file_exists($file)) {
+                    throw new Exception(
+                        'Dictionary files missing. Please run script "./bin/gen_dict_json.php" to generate them'
+                    );
+                }
+
+                return json_decode(file_get_contents($file), true);
+                break;
+            case self::EXT_DEFAULT:
+            default:
+                return file_get_contents($this->getDictFilePath($fileType, $dict));
+                break;
+        }
     }
 
     /**
+     * @param string|null $fileType
      * @param string|null $dict
      * @return string
      */
-    public function getDictFilePath(string $dict = null): string
+    public function getDictFilePath(string $fileType = null, string $dict = null): string
     {
-        return (Helper::getDictBasePath() . $this->getDictFileName($dict));
+        return (Helper::getDictBasePath($fileType) . $this->getDictBaseName($fileType, $dict));
     }
 
     /**
+     * @param string|null $fileType
      * @param string|null $dict
      * @return string
+     * @throws Exception
      */
-    public function getDictFileName(string $dict = null): string
+    public function getDictBaseName(string $fileType = null, string $dict = null): string
     {
         if (empty($dict)) {
             $dict = $this->getDict();
         }
+        if (empty($fileType)) {
+            $fileType = self::EXT_DEFAULT;
+        }
+        if (!in_array($fileType, [self::EXT_DEFAULT, self::EXT_JSON, self::EXT_CACHE_JSON])) {
+            throw new Exception("invalid dictionary extension '{$fileType}'");
+        }
 
         switch ($dict) {
             case self::SMALL:
-                return 'dict.small.txt';
+                $basename = 'dict.small.txt';
                 break;
             case self::BIG:
-                return 'dict.big.txt';
+                $basename = 'dict.big.txt';
                 break;
             case self::NORMAL:
             default:
-                return 'dict.txt';
+                $basename = 'dict.txt';
                 break;
         }
+
+        return ($basename . $fileType);
     }
 
     /**

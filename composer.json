@@ -19,5 +19,16 @@
         "psr-4": {
             "Jieba\\": "src/Jieba/"
         }
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "./bin/gen_dict_json.php"
+        ],
+        "post-update-cmd": [
+            "./bin/gen_dict_json.php"
+        ]
+    },
+    "suggest": {
+        "ext-msgpack": "*"
     }
 }
