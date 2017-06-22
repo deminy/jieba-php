@@ -8,6 +8,7 @@
   * Move/remove non-core dictionary files.
   * Support to use the library where UTF-8 is not the internal encoding.
   * Move dictionary trie files out from Git.
+  * Support [MessagePack](http://msgpack.org) as serializer; allow to use different serializers.
 
 0.25.1 / 2017-06-19
 ===================

@@ -4,6 +4,7 @@ namespace Jieba\Option;
 
 use Jieba\Exception;
 use Jieba\Helper;
+use Jieba\Serializer\SerializerFactory;
 
 /**
  * Class Dict
@@ -59,7 +60,7 @@ class Dict extends AbstractOption
                     );
                 }
 
-                return json_decode(file_get_contents($file), true);
+                return SerializerFactory::getSerializer()->decode(file_get_contents($file), true);
                 break;
             case self::EXT_DEFAULT:
             default:

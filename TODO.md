@@ -1,16 +1,21 @@
 # TODOs for Next Stable Release
 
-* Default to disable cache; allow to enable cache manually.
 * Each Travis CI build should finish in around 3 minutes.
 * Comments in demo scripts.
 
 # TODOs
 
-* Support [MessagePack](http://msgpack.org)
 * Upgrade from 0.25 to latest version 0.36 of https://github.com/fxsjy/jieba
 * Better support on caching.
 * Support persistent storage (e.g., MySQL, Couchbase, etc).
 * Clean up examples.
+* Sample code on caching:
+    * Sample code on how to enable/disable cache.
+    * Sample code on how to use different backend engines for caching.
+* Allow to choose different encoding methods (JSON or MessagePack) when packing via script _./bin/gen_dict_json.php_.
+* Unit test for different serializer:
+    * JSON
+    * MessagePack
 
 # DONE
 

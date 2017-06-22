@@ -7,8 +7,9 @@ use Jieba\DictHelper;
 use Jieba\Helper;
 use Jieba\MultiArray;
 use Jieba\Option\Dict;
+use Jieba\Serializer\SerializerFactory;
 
-$dict = new Dict();
+$dict       = new Dict();
 foreach (Dict::VALID_DICTIONARIES as $dictName) {
     $trie = new MultiArray();
 
@@ -19,11 +20,15 @@ foreach (Dict::VALID_DICTIONARIES as $dictName) {
         }
     );
 
-    $file = $dict->getDictFilePath(Dict::EXT_JSON);
-    file_put_contents($file, json_encode($trie->storage));
-    echo "    file generated: {$file}\n";
+    foreach (SerializerFactory::getAllAvailableTypes() as $type) {
+        $serializer = SerializerFactory::setSerializer(SerializerFactory::getSerializer($type));
 
-    $file = $dict->getDictFilePath(Dict::EXT_CACHE_JSON);
-    file_put_contents($file, json_encode($trie->cache));
-    echo "    file generated: {$file}\n";
+        $file = $dict->getDictFilePath(Dict::EXT_JSON);
+        file_put_contents($file, $serializer->encode($trie->storage));
+        echo "    file generated: {$file}\n";
+
+        $file = $dict->getDictFilePath(Dict::EXT_CACHE_JSON);
+        file_put_contents($file, $serializer->encode($trie->cache));
+        echo "    file generated: {$file}\n";
+    }
 }

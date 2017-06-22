@@ -4,6 +4,7 @@ namespace Jieba;
 
 use Closure;
 use Jieba\Option\Dict;
+use Jieba\Serializer\SerializerFactory;
 
 /**
  * Class Helper
@@ -97,13 +98,19 @@ class Helper
         switch ($fileType) {
             case Dict::EXT_JSON:
             case Dict::EXT_CACHE_JSON:
-                return dirname(__DIR__, 2) . '/temp/dict/';
+                $dir = dirname(__DIR__, 2) . '/temp/dict/' . SerializerFactory::getSerializer()->getType() . '/';
                 break;
             case Dict::EXT_DEFAULT:
             default:
-                return dirname(__DIR__, 2) . '/dict/';
+                $dir = dirname(__DIR__, 2) . '/dict/';
                 break;
         }
+
+        if (!file_exists($dir)) {
+            mkdir($dir, 0755, true);
+        }
+
+        return $dir;
     }
 
     /**

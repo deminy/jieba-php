@@ -78,6 +78,12 @@ var_dump((new Jieba())->cut("怜香惜玉也得要看对象啊！"));
 
 > ./examples/big5.php
 
+## 使用不同的序列化格式（JSON, MessagePack等）
+
+请参考下面的代码文件：
+
+> ./examples/demo_use_different_serializers.php
+
 # 常见问题
 
 1. [模型的数据是如何生成的？](https://github.com/fxsjy/jieba/issues/7)
