@@ -119,8 +119,6 @@ class Finalseg
      */
     protected function __cut(string $sentence): array
     {
-        $words = [];
-
         $viterbi_array = $this->viterbi($sentence);
         $pos_list = $viterbi_array['pos_list'];
 
@@ -128,19 +126,20 @@ class Finalseg
         $next  = 0;
         $len   = mb_strlen($sentence);
 
-        for ($i=0; $i<$len; $i++) {
+        $words = [];
+        for ($i = 0; $i < $len; $i++) {
             $char = mb_substr($sentence, $i, 1);
             switch ($pos_list[$i]) {
                 case Constant::B:
                     $begin = $i;
                     break;
                 case Constant::E:
-                    array_push($words, mb_substr($sentence, $begin, (($i+1)-$begin)));
-                    $next = $i+1;
+                    $words[] =mb_substr($sentence, $begin, (($i + 1) - $begin));
+                    $next = $i + 1;
                     break;
                 case Constant::S:
-                    array_push($words, $char);
-                    $next = $i+1;
+                    $words[] = $char;
+                    $next = $i + 1;
                     break;
                 default:
                     break;
@@ -148,7 +147,7 @@ class Finalseg
         }
 
         if ($next < $len) {
-            array_push($words, mb_substr($sentence, $next, null));
+            $words[] = mb_substr($sentence, $next);
         }
 
         return $words;
@@ -209,7 +208,7 @@ class Finalseg
                     }
                     array_push($newpath[$y], $y);
                 } else {
-                    $newpath[$y] = array($path[$max_key], $y);
+                    $newpath[$y] = [$path[$max_key], $y];
                 }
             }
             $path = $newpath;

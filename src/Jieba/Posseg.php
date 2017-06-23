@@ -19,27 +19,23 @@ class Posseg
     /**
      * @var array
      */
-    public $prob_start       = [];
+    public $prob_start = [];
     /**
      * @var array
      */
-    public $prob_trans       = [];
+    public $prob_trans = [];
     /**
      * @var array
      */
-    public $prob_emit        = [];
+    public $prob_emit  = [];
     /**
      * @var array
      */
-    public $char_state       = [];
+    public $char_state = [];
     /**
      * @var array
      */
-    public $word_tag         = [];
-    /**
-     * @var array
-     */
-    public $pos_tag_readable = [];
+    public $word_tag   = [];
 
     /**
      * @var Jieba
@@ -85,29 +81,21 @@ class Posseg
             DictHelper::addWordTags($userDictName, $this->word_tag);
         }
 
-        $this->pos_tag_readable = CacheFactory::get(
-            $this->getCachePool(),
-            'pos_tag_readable',
-            function () {
-                return DictHelper::getPosTagReadable(Helper::getDictFilePath('pos_tag_readable.txt'));
-            }
-        );
-
         return $this;
     }
 
     /**
      * @param array $t_state_v
-     * @param int   $top_k
+     * @param int   $topK
      * @return array
      */
-    public function getTopStates(array $t_state_v, int $top_k = 4): array
+    public function getTopStates(array $t_state_v, int $topK = 4): array
     {
         arsort($t_state_v);
 
-        $top_states = array_slice($t_state_v, 0, $top_k);
+        $topStates = array_slice($t_state_v, 0, $topK);
 
-        return $top_states;
+        return $topStates;
     }
 
     /**
@@ -218,19 +206,19 @@ class Posseg
         while ($i >= 0) {
             $route[$i] = $return_prob_key;
             $return_prob_key = $mem_path[$i][$return_prob_key];
-            $i-=1;
+            $i -= 1;
         }
 
-        return array("prob"=>$return_prob, "pos_list"=>$route);
+        return ["prob" => $return_prob, "pos_list" => $route];
     }
 
     /**
-     * @param string $sentence # input sentence
-     * @return array
+     * @param string $sentence
+     * @return Words
      */
-    public function __cut(string $sentence): array
+    protected function __cut(string $sentence): Words
     {
-        $words = [];
+        $words = new Words();
 
         $viterbi_array = $this->viterbi($sentence);
 
@@ -252,21 +240,13 @@ class Posseg
                 case Constant::E:
                     eval('$this_pos_array = array'.$pos_list[$i].';');
                     $this_pos = $this_pos_array[1];
-                    $this_word_pair = array(
-                        "word"=>mb_substr($sentence, $begin, (($i+1)-$begin)),
-                        "tag"=>$this_pos
-                    );
-                    array_push($words, $this_word_pair);
+                    $words->addWord(new Word(mb_substr($sentence, $begin, (($i + 1) - $begin)), $this_pos));
                     $next = $i+1;
                     break;
                 case Constant::S:
                     eval('$this_pos_array = array'.$pos_list[$i].';');
                     $this_pos = $this_pos_array[1];
-                    $this_word_pair = array(
-                        "word"=>$char,
-                        "tag"=>$this_pos
-                    );
-                    array_push($words, $this_word_pair);
+                    $words->addWord(new Word($char, $this_pos));
                     $next = $i+1;
                     break;
                 default:
@@ -277,11 +257,7 @@ class Posseg
         if ($next<$len) {
             eval('$this_pos_array = array'.$pos_list[$next].';');
             $this_pos = $this_pos_array[1];
-            $this_word_pair = array(
-                "word"=>mb_substr($sentence, $next, null),
-                "tag"=>$this_pos
-            );
-            array_push($words, $this_word_pair);
+            $words->addWord(new Word(mb_substr($sentence, $next), $this_pos));
         }
 
         return $words;
@@ -289,9 +265,9 @@ class Posseg
 
     /**
      * @param string $sentence # input sentence
-     * @return array
+     * @return Words
      */
-    public function __cutDetail(string $sentence): array
+    public function __cutDetail(string $sentence): Words
     {
         return $this->cutSentence(
             $sentence,
@@ -302,12 +278,12 @@ class Posseg
     }
 
     /**
-     * @param string $sentence # input sentence
-     * @return array
+     * @param string $sentence
+     * @return Words
      */
-    protected function __cutDAG(string $sentence): array
+    protected function __cutDAG(string $sentence): Words
     {
-        $words = [];
+        $words = new Words();
 
         $N = mb_strlen($sentence);
         $this->getJieba()->calc($sentence, $this->getJieba()->getDAG($sentence));
@@ -325,53 +301,29 @@ class Posseg
             } else {
                 if (mb_strlen($buf)>0) {
                     if (mb_strlen($buf)==1) {
-                        if (isset($this->word_tag[$buf])) {
-                            $buf_tag = $this->word_tag[$buf];
-                        } else {
-                            $buf_tag = "x";
-                        }
-                        array_push(
-                            $words,
-                            array("word"=>$buf, "tag"=>$buf_tag)
-                        );
+                        $words->addWord(new Word($buf, ($this->word_tag[$buf] ?? PosTagConstant::X)));
                         $buf = '';
                     } else {
                         $regognized = $this->__cutDetail($buf);
-                        foreach ($regognized as $key => $word) {
-                            array_push($words, $word);
+                        foreach ($regognized->getWords() as $word) {
+                            $words->addWord($word);
                         }
                         $buf = '';
                     }
                 }
 
-                if (isset($this->word_tag[$l_word])) {
-                    $buf_tag = $this->word_tag[$l_word];
-                } else {
-                    $buf_tag = "x";
-                }
-                array_push(
-                    $words,
-                    array("word"=>$l_word, "tag"=>$buf_tag)
-                );
+                $words->addWord(new Word($l_word, ($this->word_tag[$l_word] ?? PosTagConstant::X)));
             }
             $x = $y;
         }
 
-        if (mb_strlen($buf)>0) {
-            if (mb_strlen($buf)==1) {
-                if (isset($this->word_tag[$buf])) {
-                    $buf_tag = $this->word_tag[$buf];
-                } else {
-                    $buf_tag = "x";
-                }
-                array_push(
-                    $words,
-                    array("word"=>$buf, "tag"=>$buf_tag)
-                );
+        if (mb_strlen($buf) > 0) {
+            if (mb_strlen($buf) == 1) {
+                $words->addWord(new Word($buf, ($this->word_tag[$buf] ?? PosTagConstant::X)));
             } else {
                 $regognized = $this->__cutDetail($buf);
-                foreach ($regognized as $key => $word) {
-                    array_push($words, $word);
+                foreach ($regognized->getWords() as $word) {
+                    $words->addWord($word);
                 }
             }
         }
@@ -379,10 +331,10 @@ class Posseg
         return $words;
     }
     /**
-     * @param string  $sentence # input sentence
-     * @return array
+     * @param string $sentence
+     * @return Words
      */
-    public function cut(string $sentence): array
+    public function cut(string $sentence): Words
     {
         return $this->cutSentence(
             $sentence,
@@ -394,10 +346,11 @@ class Posseg
 
     /**
      * @param string  $sentence
-     * @param Closure $callback
-     * @return array
+     * @param Closure $callback A callback function that returns a |Jieba\Words object back.
+     * @return Words
+     * @throws Exception
      */
-    protected function cutSentence(string $sentence, Closure $callback): array
+    protected function cutSentence(string $sentence, Closure $callback): Words
     {
         preg_match_all(
             '/(' . Constant::REGEX_HAN . '|' . Constant::REGEX_SKIP . '|' . Constant::REGEX_PUNCTUATION . ')/u',
@@ -407,21 +360,24 @@ class Posseg
         );
         $blocks = $matches[0];
 
-        $seg_list = [];
+        $seg_list = new Words();
         foreach ($blocks as $blk) {
             if (preg_match('/' . Constant::REGEX_HAN . '/u', $blk)) {
+                /** @var Words $words */
                 $words = $callback($blk);
-                foreach ($words as $word) {
-                    $seg_list[] = $word;
+                foreach ($words->getWords() as $word) {
+                    $seg_list->addWord($word);
                 }
             } elseif (preg_match('/' . Constant::REGEX_SKIP . '/u', $blk)) {
                 if (preg_match('/' . Constant::REGEX_NUMBER . '/u', $blk)) {
-                    $seg_list[] = ['word' => $blk, 'tag' => 'm'];
+                    $seg_list->addWord(new Word($blk, PosTagConstant::M));
                 } elseif (preg_match('/' . Constant::REGEX_ENG . '/u', $blk)) {
-                    $seg_list[] = ['word' => $blk, 'tag' => 'eng'];
+                    $seg_list->addWord(new Word($blk, PosTagConstant::ENG));
                 }
             } elseif (preg_match('/' . Constant::REGEX_PUNCTUATION . '/u', $blk)) {
-                $seg_list[] = ['word' => $blk, 'tag' => 'w'];
+                $seg_list->addWord(new Word($blk, PosTagConstant::W));
+            } else {
+                throw new Exception('unreachable case executed');
             }
         }
 
@@ -435,7 +391,7 @@ class Posseg
     public function posTagReadable(array $seg_list): array
     {
         foreach ($seg_list as $seg) {
-            $seg['tag_readable'] = $this->pos_tag_readable[$seg['tag']];
+            $seg['tag_readable'] = PosTagConstant::TAGS[$seg['tag']];
         }
 
         return $seg_list;

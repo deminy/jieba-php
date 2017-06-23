@@ -96,7 +96,7 @@ class Jieba
     {
         $N = mb_strlen($sentence);
         $this->route = [];
-        $this->route[$N] = array($N => 1.0);
+        $this->route[$N] = [$N => 1.0];
         for ($i=($N-1); $i>=0; $i--) {
             $candidates = [];
             foreach ($DAG[$i] as $x) {
@@ -112,7 +112,7 @@ class Jieba
             arsort($candidates);
             $max_prob = reset($candidates);
             $max_key = key($candidates);
-            $this->route[$i] = array($max_key => $max_prob);
+            $this->route[$i] = [$max_key => $max_prob];
         }
 
         return $this->route;
@@ -221,7 +221,7 @@ class Jieba
             if ($this->trie->exists($next_word_key)) {
                 array_push($word_c, $c);
                 $next_word_key_value = $this->trie->get($next_word_key);
-                if ($next_word_key_value == array("end"=>"")
+                if ($next_word_key_value == ["end" => ""]
                  || isset($next_word_key_value["end"])
                  || isset($next_word_key_value[0]["end"])
                 ) {
@@ -245,7 +245,7 @@ class Jieba
 
         for ($i=0; $i<$N; $i++) {
             if (!isset($DAG[$i])) {
-                $DAG[$i] = array($i);
+                $DAG[$i] = [$i];
             }
         }
 

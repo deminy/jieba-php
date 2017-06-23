@@ -27,6 +27,7 @@ class JiebaAnalyseTest extends TestCase
         return [
             [
                 Dict::NORMAL,
+                10,
                 [
                     "所謂" => 1.1425214508493,
                     "沒有" => 0.76168096723288,
@@ -42,6 +43,7 @@ class JiebaAnalyseTest extends TestCase
             ],
             [
                 Dict::BIG,
+                9,
                 [
                     '沒有' => 1.2317056147342,
                     '所謂' => 1.0557476697722,
@@ -52,7 +54,6 @@ class JiebaAnalyseTest extends TestCase
                     '肌迫' => 0.35191588992405,
                     '退縮' => 0.35191588992405,
                     '矯作' => 0.35191588992405,
-                    '怯懦' => 0.24364586159392,
                 ],
             ],
         ];
@@ -62,16 +63,17 @@ class JiebaAnalyseTest extends TestCase
      * @dataProvider arrayExtractTags
      * @covers \Jieba\JiebaAnalyse::extractTags()
      * @param string $dict
+     * @param int $topK
      * @param array $expected
      */
-    public function testExtractTags(string $dict, array $expected)
+    public function testExtractTags(string $dict, int $topK, array $expected)
     {
         $jieba = new Jieba((new Options())->setDict(new Dict($dict))->setMode(new Mode(Mode::TEST)));
         $this->assertEquals(
             $expected,
             JiebaAnalyse::singleton()->extractTags(
                 $jieba->cut(file_get_contents(dirname(__DIR__) . '/dict/lyric.txt')),
-                10
+                $topK
             )
         );
     }

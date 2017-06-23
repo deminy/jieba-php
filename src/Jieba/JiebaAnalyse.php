@@ -46,22 +46,21 @@ class JiebaAnalyse
 
     /**
      * @param array $words Return value of method call Jieba::cut($content).
-     * @param int $top_k
+     * @param int $topK
      * @return array
      * @see \Jieba\Jieba::cut()
      */
-    public function extractTags(array $words, int $top_k = 20): array
+    public function extractTags(array $words, int $topK = 20): array
     {
         $freq  = [];
         $total = 0.0;
 
         foreach ($words as $w) {
             $w = trim($w);
-            if (mb_strlen($w) < 2) {
-                continue;
+            if (mb_strlen($w) >= 2) {
+                $freq[$w] = ($freq[$w] ?? 0.0) + 1.0;
+                $total += 1.0;
             }
-            $freq[$w] = ($freq[$w] ?? 0.0) + 1.0;
-            $total    = $total + 1.0;
         }
 
         foreach ($freq as $k => $v) {
@@ -76,7 +75,7 @@ class JiebaAnalyse
 
         arsort($tf_idf_list);
 
-        $tags = array_slice($tf_idf_list, 0, $top_k, true);
+        $tags = array_slice($tf_idf_list, 0, $topK, true);
 
         return $tags;
     }
