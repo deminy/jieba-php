@@ -1,5 +1,5 @@
-0.25.2 / TBD
-============
+0.25.2 / 2017-06-22
+===================
 
   * Allow to cache dictionary data and other data.
   * Use package "league/csv" to read/parse dictionary files.
