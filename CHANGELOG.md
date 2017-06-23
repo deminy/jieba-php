@@ -3,6 +3,7 @@
 
   * New class \Jieba\PosTagConstant from text file /dict/pos_tag_readable.txt.
   * Standardize data structure with new class \Jieba\Word and \Jieba\Words.
+  * Remove class \Jieba\Option\Mode.
 
 0.25.2 / 2017-06-22
 ===================

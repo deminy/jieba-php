@@ -6,12 +6,9 @@ require_once dirname(__DIR__) . '/vendor/autoload.php';
 use Jieba\Jieba;
 use Jieba\Options;
 use Jieba\Option\Dict;
-use Jieba\Option\Mode;
 use Jieba\Posseg;
 
-$jieba = new Jieba(
-    (new Options())->setDict(new Dict(Dict::BIG))->setMode(new Mode(Mode::TEST))
-);
+$jieba = new Jieba((new Options())->setDict(new Dict(Dict::BIG)));
 $posseg = new Posseg($jieba);
 
 $seg_list = $posseg->cut("这是一个伸手不见五指的黑夜。我叫孙悟空，我爱北京，我爱Python和C++。")->toArray();

@@ -6,7 +6,6 @@ use Jieba\Jieba;
 use Jieba\JiebaAnalyse;
 use Jieba\Options;
 use Jieba\Option\Dict;
-use Jieba\Option\Mode;
 use PHPUnit\Framework\TestCase;
 
 class JiebaAnalyseTest extends TestCase
@@ -68,7 +67,7 @@ class JiebaAnalyseTest extends TestCase
      */
     public function testExtractTags(string $dict, int $topK, array $expected)
     {
-        $jieba = new Jieba((new Options())->setDict(new Dict($dict))->setMode(new Mode(Mode::TEST)));
+        $jieba = new Jieba((new Options())->setDict(new Dict($dict)));
         $this->assertEquals(
             $expected,
             JiebaAnalyse::singleton()->extractTags(
