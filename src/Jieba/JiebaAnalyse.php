@@ -73,11 +73,7 @@ class JiebaAnalyse
             $tf_idf_list[$k] = $v * $idf_freq;
         }
 
-        arsort($tf_idf_list);
-
-        $tags = array_slice($tf_idf_list, 0, $topK, true);
-
-        return $tags;
+        return DictHelper::getTopK($tf_idf_list, $topK, true);
     }
 
     /**

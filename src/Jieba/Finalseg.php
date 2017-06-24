@@ -120,27 +120,26 @@ class Finalseg
     protected function __cut(string $sentence): array
     {
         $viterbi_array = $this->viterbi($sentence);
-        $pos_list = $viterbi_array['pos_list'];
 
         $begin = 0;
         $next  = 0;
         $len   = mb_strlen($sentence);
-
         $words = [];
         for ($i = 0; $i < $len; $i++) {
             $char = mb_substr($sentence, $i, 1);
-            switch ($pos_list[$i]) {
+            switch ($viterbi_array['pos_list'][$i]) {
                 case Constant::B:
                     $begin = $i;
                     break;
                 case Constant::E:
-                    $words[] =mb_substr($sentence, $begin, (($i + 1) - $begin));
-                    $next = $i + 1;
+                    $words[] = mb_substr($sentence, $begin, (($i + 1) - $begin));
+                    $next    = $i + 1;
                     break;
                 case Constant::S:
                     $words[] = $char;
-                    $next = $i + 1;
+                    $next    = $i + 1;
                     break;
+                case Constant::M:
                 default:
                     break;
             }
@@ -155,7 +154,16 @@ class Finalseg
 
     /**
      * @param string $sentence
-     * @return array
+     * @return array an array in the format of
+     *         array(
+     *             'prob'     => -24.596579213972,
+     *             'pos_list' => array(
+     *                 'B',
+     *                 'E',
+     *                 'S',
+     *                 'S',
+     *             ),
+     *         );
      */
     protected function viterbi(string $sentence): array
     {
@@ -165,68 +173,37 @@ class Finalseg
         $path = [];
 
         foreach (Constant::BMES as $state) {
-            $y = $state;
-            $c = mb_substr($obs, 0, 1);
-            if (isset($this->probEmit[$y][$c])) {
-                $prob_emit = $this->probEmit[$y][$c];
-            } else {
-                $prob_emit = Constant::MIN_FLOAT;
-            }
-            $V[0][$y] = $this->probStart[$y] + $prob_emit;
-            $path[$y] = $y;
+            $c            = mb_substr($obs, 0, 1);
+            $prob_emit    = ($this->probEmit[$state][$c] ?? Constant::MIN_FLOAT);
+            $V[0][$state] = $this->probStart[$state] + $prob_emit;
+            $path[$state] = $state;
         }
 
-        for ($t=1; $t<mb_strlen($obs); $t++) {
-            $c = mb_substr($obs, $t, 1);
-            $V[$t] = [];
-            $newpath = [];
+        for ($t = 1; $t < mb_strlen($obs); $t++) {
+            $c       = mb_substr($obs, $t, 1);
+            $V[$t]   = [];
+            $newPath = [];
             foreach (Constant::BMES as $state) {
-                $y = $state;
                 $temp_prob_array = [];
                 foreach (Constant::BMES as $state0) {
-                    $y0 = $state0;
-                    if (isset($this->probTrans[$y0][$y])) {
-                        $prob_trans = $this->probTrans[$y0][$y];
-                    } else {
-                        $prob_trans = Constant::MIN_FLOAT;
-                    }
-                    if (isset($this->probEmit[$y][$c])) {
-                        $prob_emit = $this->probEmit[$y][$c];
-                    } else {
-                        $prob_emit = Constant::MIN_FLOAT;
-                    }
-                    $temp_prob_array[$y0] = $V[$t-1][$y0] + $prob_trans + $prob_emit;
+                    $prob_trans = ($this->probTrans[$state0][$state] ?? Constant::MIN_FLOAT);
+                    $prob_emit  = ($this->probEmit[$state][$c] ?? Constant::MIN_FLOAT);
+                    $temp_prob_array[$state0] = $V[$t-1][$state0] + $prob_trans + $prob_emit;
                 }
-                arsort($temp_prob_array);
-                $max_prob = reset($temp_prob_array);
-                $max_key = key($temp_prob_array);
-                $V[$t][$y] = $max_prob;
-                if (is_array($path[$max_key])) {
-                    $newpath[$y] = [];
-                    foreach ($path[$max_key] as $path_value) {
-                        array_push($newpath[$y], $path_value);
-                    }
-                    array_push($newpath[$y], $y);
-                } else {
-                    $newpath[$y] = [$path[$max_key], $y];
-                }
+                $top               = new TopArrayElement($temp_prob_array);
+                $maxKey            = $top->getKey();
+                $V[$t][$state]     = $top->getValue(); // maximum probability
+                $newPath[$state]   = (is_array($path[$maxKey]) ? array_values($path[$maxKey]) : [$path[$maxKey]]);
+                $newPath[$state][] = $state;
             }
-            $path = $newpath;
+            $path = $newPath;
         }
 
-        $es_states = [Constant::E, Constant::S];
-        $temp_prob_array = [];
-        $len = mb_strlen($obs);
-        foreach ($es_states as $state) {
-            $y = $state;
-            $temp_prob_array[$y] = $V[$len-1][$y];
-        }
-        arsort($temp_prob_array);
-        $prob = reset($temp_prob_array);
-        $state = key($temp_prob_array);
+        $state =
+            ($V[mb_strlen($obs) - 1][Constant::E] >= $V[mb_strlen($obs) - 1][Constant::S]) ? Constant::E : Constant::S;
 
         return [
-            'prob'     => $prob,
+            'prob'     => $V[mb_strlen($obs) - 1][$state],
             'pos_list' => $path[$state],
         ];
     }

@@ -35,4 +35,13 @@ class StringHelper
 
         return $seg_list;
     }
+
+    /**
+     * @param string $str
+     * @return int
+     */
+    public static function strlen(string $str): int
+    {
+        return ($str ? mb_strlen($str) : 0);
+    }
 }

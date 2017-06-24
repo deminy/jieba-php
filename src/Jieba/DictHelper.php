@@ -107,6 +107,34 @@ class DictHelper
     }
 
     /**
+     * @param array $data
+     * @param float $total
+     * @return array
+     */
+    public static function calculateFrequency(array $data, float $total): array
+    {
+        return array_map(
+            function (float $value) use ($total): float {
+                return log($value / $total);
+            },
+            $data
+        );
+    }
+
+    /**
+     * @param array $array
+     * @param int $topK
+     * @param bool $preserveKeys
+     * @return array
+     */
+    public static function getTopK(array $array, int $topK, bool $preserveKeys = false): array
+    {
+        arsort($array);
+
+        return array_slice($array, 0, $topK, $preserveKeys);
+    }
+
+    /**
      * @param string $filename
      * @return void
      */

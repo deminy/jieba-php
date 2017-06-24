@@ -85,20 +85,6 @@ class Posseg
     }
 
     /**
-     * @param array $t_state_v
-     * @param int   $topK
-     * @return array
-     */
-    public function getTopStates(array $t_state_v, int $topK = 4): array
-    {
-        arsort($t_state_v);
-
-        $topStates = array_slice($t_state_v, 0, $topK);
-
-        return $topStates;
-    }
-
-    /**
      * @param string $sentence # input sentence
      * @return array
      */
@@ -174,11 +160,9 @@ class Posseg
                     $prob_emit  = ($this->prob_emit[$y][$c] ?? Constant::MIN_FLOAT);
                     $temp_prob_array[$y0] = $V[$t-1][$y0] + $prob_trans + $prob_emit;
                 }
-                arsort($temp_prob_array);
-                $max_prob = reset($temp_prob_array);
-                $max_key = key($temp_prob_array);
-                $V[$t][$y] = $max_prob;
-                $mem_path[$t][$y] = $max_key;
+                $top              = new TopArrayElement($temp_prob_array);
+                $mem_path[$t][$y] = $top->getKey();
+                $V[$t][$y]        = $top->getValue(); // maximum probability
             }
         }
 
@@ -190,9 +174,9 @@ class Posseg
             $last[$y] = $end_array[$y];
         }
 
-        arsort($last);
-        $return_prob = reset($last);
-        $return_prob_key = key($last);
+        $top             = new TopArrayElement($last);
+        $return_prob_key = $top->getKey();
+        $return_prob     = $top->getValue();
 
         $obs_length = mb_strlen($obs);
 
@@ -299,7 +283,7 @@ class Posseg
             if (($y-$x)==1) {
                 $buf = $buf.$l_word;
             } else {
-                if (mb_strlen($buf)>0) {
+                if (!empty($buf)) {
                     if (mb_strlen($buf)==1) {
                         $words->addWord(new Word($buf, ($this->word_tag[$buf] ?? PosTagConstant::X)));
                         $buf = '';
@@ -317,7 +301,7 @@ class Posseg
             $x = $y;
         }
 
-        if (mb_strlen($buf) > 0) {
+        if (!empty($buf)) {
             if (mb_strlen($buf) == 1) {
                 $words->addWord(new Word($buf, ($this->word_tag[$buf] ?? PosTagConstant::X)));
             } else {

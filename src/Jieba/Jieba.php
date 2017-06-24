@@ -69,7 +69,7 @@ class Jieba
     public function init(): Jieba
     {
         $this->trie = $this->genTrie($this->options->getDict());
-        $this->__calcFreq();
+        $this->__calculateFrequency();
 
         return $this;
     }
@@ -77,42 +77,35 @@ class Jieba
     /**
      * @return Jieba
      */
-    protected function __calcFreq(): Jieba
+    protected function __calculateFrequency(): Jieba
     {
-        foreach ($this->original_freq as $key => $value) {
-            $this->FREQ[$key] = log($value / $this->total);
-        }
+        $this->FREQ     = DictHelper::calculateFrequency($this->original_freq, $this->total) + $this->FREQ;
         $this->min_freq = min($this->FREQ);
 
         return $this;
     }
 
     /**
-     * @param string $sentence # input sentence
-     * @param array  $DAG      # DAG
+     * @param string $sentence
+     * @param array $DAG
      * @return array
      */
     public function calc(string $sentence, array $DAG): array
     {
         $N = mb_strlen($sentence);
-        $this->route = [];
-        $this->route[$N] = [$N => 1.0];
-        for ($i=($N-1); $i>=0; $i--) {
+        $this->route = [
+            $N => [$N => 1.0],
+        ];
+        for ($i = ($N - 1); $i >= 0; $i--) {
             $candidates = [];
             foreach ($DAG[$i] as $x) {
-                $w_c = mb_substr($sentence, $i, (($x+1)-$i));
-                $previous_freq = current($this->route[$x+1]);
-                if (isset($this->FREQ[$w_c])) {
-                    $current_freq = (float) $previous_freq + $this->FREQ[$w_c];
-                } else {
-                    $current_freq = (float) $previous_freq + $this->min_freq;
-                }
+                $w_c            = mb_substr($sentence, $i, (($x + 1) - $i));
+                $previous_freq  = current($this->route[$x+1]);
+                $current_freq   = (float) $previous_freq + ($this->FREQ[$w_c] ?? $this->min_freq);
                 $candidates[$x] = $current_freq;
             }
-            arsort($candidates);
-            $max_prob = reset($candidates);
-            $max_key = key($candidates);
-            $this->route[$i] = [$max_key => $max_prob];
+            $top             = new TopArrayElement($candidates);
+            $this->route[$i] = [$top->getKey() => $top->getValue()];
         }
 
         return $this->route;
@@ -153,21 +146,20 @@ class Jieba
                 $l = mb_strlen($word);
                 $word_c = [];
                 for ($i = 0; $i < $l; $i++) {
-                    $c = mb_substr($word, $i, 1);
-                    array_push($word_c, $c);
+                    $word_c[] = mb_substr($word, $i, 1);
                 }
                 $word_c_key = implode('.', $word_c);
                 $this->trie->set($word_c_key, ['end' => '']);
             }
         );
 
-        $this->__calcFreq();
+        $this->__calculateFrequency();
 
         return $this->trie;
     }
 
     /**
-     * @param string $sentence # input sentence
+     * @param string $sentence
      * @return array
      */
     protected function __cutAll(string $sentence): array
@@ -197,9 +189,7 @@ class Jieba
     }
 
     /**
-     * Static method getDAG
-     *
-     * @param string $sentence # input sentence
+     * @param string $sentence
      * @return array
      */
     public function getDAG(string $sentence): array
@@ -215,15 +205,15 @@ class Jieba
             if (count($word_c)==0) {
                 $next_word_key = $c;
             } else {
-                $next_word_key = implode('.', $word_c).'.'.$c;
+                $next_word_key = implode('.', $word_c) . '.' . $c;
             }
 
             if ($this->trie->exists($next_word_key)) {
                 array_push($word_c, $c);
                 $next_word_key_value = $this->trie->get($next_word_key);
-                if ($next_word_key_value == ["end" => ""]
-                 || isset($next_word_key_value["end"])
-                 || isset($next_word_key_value[0]["end"])
+                if ($next_word_key_value == ['end' => '']
+                 || isset($next_word_key_value['end'])
+                 || isset($next_word_key_value[0]['end'])
                 ) {
                     if (!isset($DAG[$i])) {
                         $DAG[$i] = [];
@@ -253,7 +243,7 @@ class Jieba
     }
 
     /**
-     * @param string $sentence # input sentence
+     * @param string $sentence
      * @return array
      */
     protected function __cutDAG(string $sentence): array
@@ -270,14 +260,14 @@ class Jieba
 
         while ($x < $N) {
             $current_route_keys = array_keys($this->route[$x]);
-            $y = $current_route_keys[0]+1;
-            $l_word = mb_substr($sentence, $x, ($y-$x));
+            $y = $current_route_keys[0] + 1;
+            $l_word = mb_substr($sentence, $x, ($y - $x));
 
-            if (($y-$x)==1) {
-                $buf = $buf.$l_word;
+            if (($y - $x) == 1) {
+                $buf = $buf . $l_word;
             } else {
-                if (mb_strlen($buf)>0) {
-                    if (mb_strlen($buf)==1) {
+                if (!empty($buf)) {
+                    if (mb_strlen($buf) == 1) {
                         array_push($words, $buf);
                         $buf = '';
                     } else {
@@ -293,8 +283,8 @@ class Jieba
             $x = $y;
         }
 
-        if (mb_strlen($buf)>0) {
-            if (mb_strlen($buf)==1) {
+        if (!empty($buf)) {
+            if (mb_strlen($buf) == 1) {
                 array_push($words, $buf);
             } else {
                 $regognized = Finalseg::singleton()->cut($buf);
@@ -308,16 +298,16 @@ class Jieba
     }
 
     /**
-     * @param string  $sentence # input sentence
-     * @param boolean $cut_all  # cut_all or not
+     * @param string $sentence
+     * @param boolean $cutAll
      * @return array
      */
-    public function cut(string $sentence, bool $cut_all = false): array
+    public function cut(string $sentence, bool $cutAll = false): array
     {
         return StringHelper::cut(
             $sentence,
-            function (string $blk) use ($cut_all) {
-                return $cut_all ? $this->__cutAll($blk) : $this->__cutDAG($blk);
+            function (string $blk) use ($cutAll) {
+                return ($cutAll ? $this->__cutAll($blk) : $this->__cutDAG($blk));
             }
         );
     }
@@ -328,34 +318,33 @@ class Jieba
      */
     public function cutForSearch(string $sentence): array
     {
-        $seg_list = [];
-
         $cut_seg_list = $this->cut($sentence);
 
+        $seg_list = [];
         foreach ($cut_seg_list as $w) {
             $len = mb_strlen($w);
 
-            if ($len>2) {
-                for ($i=0; $i<($len-1); $i++) {
+            if ($len > 2) {
+                for ($i = 0; $i < ($len - 1); $i++) {
                     $gram2 = mb_substr($w, $i, 2);
 
                     if (isset($this->FREQ[$gram2])) {
-                        array_push($seg_list, $gram2);
+                        $seg_list[] = $gram2;
                     }
                 }
             }
 
-            if (mb_strlen($w)>3) {
-                for ($i=0; $i<($len-2); $i++) {
+            if ($len > 3) {
+                for ($i = 0; $i < ($len - 2); $i++) {
                     $gram3 = mb_substr($w, $i, 3);
 
                     if (isset($this->FREQ[$gram3])) {
-                        array_push($seg_list, $gram3);
+                        $seg_list[] = $gram3;
                     }
                 }
             }
 
-            array_push($seg_list, $w);
+            $seg_list[] = $w;
         }
 
         return $seg_list;
