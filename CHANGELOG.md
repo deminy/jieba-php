@@ -6,6 +6,7 @@
   * Remove class \Jieba\Option\Mode.
   * Classes better organized.
   * Support [BSON](http://bsonspec.org) as serializer.
+  * Optimize script ./bin/gen_dict_json.php allowing to create serialized dictionary files in selected formats.
 
 0.25.2 / 2017-06-22
 ===================
