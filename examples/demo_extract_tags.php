@@ -8,9 +8,12 @@ use Jieba\JiebaAnalyse;
 use Jieba\Options\Options;
 use Jieba\Options\Dict;
 
-$jieba = new Jieba((new Options())->setDict(new Dict(Dict::BIG)));
-$tags = JiebaAnalyse::singleton()->extractTags(
-    $jieba->cut(file_get_contents(dirname(__DIR__) . '/tests/dict/lyric.txt')),
-    10
-);
-var_dump($tags);
+$sentence = file_get_contents(dirname(__DIR__) . '/tests/dict/lyric.txt');
+foreach ([Dict::BIG, Dict::SMALL] as $dict) {
+    $tags = JiebaAnalyse::singleton()->extractTags(
+        (new Jieba((new Options())->setDict(new Dict(Dict::BIG))))->cut($sentence),
+        10
+    );
+    echo "\n cut sentence with dictionary '{$dict}':\n";
+    print_r($tags);
+}
