@@ -46,4 +46,12 @@ class Msgpack implements SerializerInterface
     {
         return SerializerFactory::MSGPACK;
     }
+
+    /**
+     * @inheritdoc
+     */
+    public static function available(): bool
+    {
+        return extension_loaded('msgpack');
+    }
 }

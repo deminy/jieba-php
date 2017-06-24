@@ -16,6 +16,12 @@ class SerializerFactory
     const JSON    = 'json';
     const MSGPACK = 'msgpack';
 
+    const CLASSES = [
+        self::BSON    => Bson::class,
+        self::JSON    => Json::class,
+        self::MSGPACK => Msgpack::class,
+    ];
+
     const EXTENSIONS = [
         self::BSON    => 'bson',
         self::JSON    => 'json',
@@ -31,6 +37,7 @@ class SerializerFactory
      * @param string $type
      * @return SerializerInterface
      * @throws Exception
+     * @see \Jieba\Serializer\SerializerInterface::available()
      */
     public static function getSerializer(string $type = self::DEFAULT): SerializerInterface
     {
@@ -42,19 +49,15 @@ class SerializerFactory
             return self::$serializer;
         }
 
-        switch ($type) {
-            case self::BSON:
-                return new Bson();
-                break;
-            case self::JSON:
-                return new Json();
-                break;
-            case self::MSGPACK:
-                return new Msgpack();
-                break;
-            default:
-                throw new Exception("invalid serializer type '{$type}'");
-                break;
+        if (array_key_exists($type, self::CLASSES)) {
+            $className = self::CLASSES[$type];
+            if ($className::available()) {
+                return new $className();
+            }
+
+            throw new Exception("serializer '{$type}' not available");
+        } else {
+            throw new Exception("invalid serializer type '{$type}'");
         }
     }
 
@@ -73,18 +76,17 @@ class SerializerFactory
      * Return a list of available serializer types ordered by performance. The first one is the fastest.
      *
      * @return array
+     * @see \Jieba\Serializer\SerializerInterface::available()
      * @todo add benchmark on dictionary files.
      */
     public static function getAllAvailableTypes(): array
     {
         $serializers = [];
 
-        if (extension_loaded('mongodb')) {
-            $serializers[] = self::BSON;
-        }
-        $serializers[] = self::JSON;
-        if (extension_loaded('msgpack')) {
-            $serializers[] = self::MSGPACK;
+        foreach (self::CLASSES as $type => $className) {
+            if ($className::available()) {
+                $serializers[] = $type;
+            }
         }
 
         return $serializers;

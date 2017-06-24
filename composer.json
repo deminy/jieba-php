@@ -30,6 +30,7 @@
         ]
     },
     "suggest": {
-        "ext-msgpack": "*"
+        "ext-mongodb": "Allow serializing dictionary files in BSON format",
+        "ext-msgpack": "Allow serializing dictionary files in MessagePack format"
     }
 }

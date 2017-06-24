@@ -34,4 +34,12 @@ class Bson implements SerializerInterface
     {
         return SerializerFactory::BSON;
     }
+
+    /**
+     * @inheritdoc
+     */
+    public static function available(): bool
+    {
+        return extension_loaded('mongodb');
+    }
 }

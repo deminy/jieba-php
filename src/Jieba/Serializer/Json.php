@@ -32,4 +32,12 @@ class Json implements SerializerInterface
     {
         return SerializerFactory::JSON;
     }
+
+    /**
+     * @inheritdoc
+     */
+    public static function available(): bool
+    {
+        return true;
+    }
 }

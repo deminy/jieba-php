@@ -27,4 +27,9 @@ interface SerializerInterface
      * @see \Jieba\Serializer\SerializerFactory::MSGPACK
      */
     public function getType(): string;
+
+    /**
+     * @return bool
+     */
+    public static function available(): bool;
 }

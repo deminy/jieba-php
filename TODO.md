@@ -1,10 +1,11 @@
 # TODOs for Next Stable Release
 
-* Each Travis CI build should finish in around 3 minutes.
-* Comments in demo scripts.
+* Create BSON/JSON/Msgpack files for ./dict/idf.txt and ./dict/pos_tag_readable.txt.
 
 # TODOs
 
+* Each Travis CI build should finish in around 3 minutes.
+* Comments in demo scripts.
 * Upgrade from 0.25 to latest version 0.36 of https://github.com/fxsjy/jieba
 * Better support on caching.
 * Support persistent storage (e.g., MySQL, Couchbase, etc).
