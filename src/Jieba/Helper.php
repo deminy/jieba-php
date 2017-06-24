@@ -96,11 +96,11 @@ class Helper
     public static function getDictBasePath(string $fileType = null): string
     {
         switch ($fileType) {
-            case Dict::EXT_JSON:
-            case Dict::EXT_CACHE_JSON:
+            case Dict::SERIALIZED:
+            case Dict::SERIALIZED_AND_CACHED:
                 $dir = dirname(__DIR__, 2) . '/temp/dict/' . SerializerFactory::getSerializer()->getType() . '/';
                 break;
-            case Dict::EXT_DEFAULT:
+            case Dict::DEFAULT:
             default:
                 $dir = dirname(__DIR__, 2) . '/dict/';
                 break;

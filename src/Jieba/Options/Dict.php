@@ -17,9 +17,9 @@ class Dict extends AbstractOption
     const SMALL   = 'small';
     const BIG     = 'big';
 
-    const EXT_DEFAULT    = '';
-    const EXT_JSON       = '.json';
-    const EXT_CACHE_JSON = '.cache.json';
+    const DEFAULT               = 0;
+    const SERIALIZED            = 1;
+    const SERIALIZED_AND_CACHED = 2;
 
     const VALID_DICTIONARIES = [
         self::NORMAL => self::NORMAL,
@@ -51,8 +51,8 @@ class Dict extends AbstractOption
     public function getDictFileContent(string $fileType = null, string $dict = null)
     {
         switch ($fileType) {
-            case self::EXT_JSON:
-            case self::EXT_CACHE_JSON:
+            case self::SERIALIZED:
+            case self::SERIALIZED_AND_CACHED:
                 $file = $this->getDictFilePath($fileType, $dict);
                 if (!file_exists($file)) {
                     throw new Exception(
@@ -62,7 +62,7 @@ class Dict extends AbstractOption
 
                 return SerializerFactory::getSerializer()->decode(file_get_contents($file), true);
                 break;
-            case self::EXT_DEFAULT:
+            case self::DEFAULT:
             default:
                 return file_get_contents($this->getDictFilePath($fileType, $dict));
                 break;
@@ -91,26 +91,10 @@ class Dict extends AbstractOption
             $dict = $this->getDict();
         }
         if (empty($fileType)) {
-            $fileType = self::EXT_DEFAULT;
-        }
-        if (!in_array($fileType, [self::EXT_DEFAULT, self::EXT_JSON, self::EXT_CACHE_JSON])) {
-            throw new Exception("invalid dictionary extension '{$fileType}'");
+            $fileType = self::DEFAULT;
         }
 
-        switch ($dict) {
-            case self::SMALL:
-                $basename = 'dict.small.txt';
-                break;
-            case self::BIG:
-                $basename = 'dict.big.txt';
-                break;
-            case self::NORMAL:
-            default:
-                $basename = 'dict.txt';
-                break;
-        }
-
-        return ($basename . $fileType);
+        return ('dict' . ((self::NORMAL == $dict) ? '' : ".{$dict}") . '.' . $this->getFileExtension($fileType));
     }
 
     /**
@@ -143,5 +127,30 @@ class Dict extends AbstractOption
     protected function isValid(string $value): bool
     {
         return array_key_exists($value, self::VALID_DICTIONARIES);
+    }
+
+    /**
+     * @param int $fileType
+     * @return string
+     * @throws Exception
+     */
+    protected function getFileExtension(int $fileType): string
+    {
+        $serializerType = SerializerFactory::getSerializer()->getType();
+
+        switch ($fileType) {
+            case self::SERIALIZED:
+                return SerializerFactory::EXTENSIONS[$serializerType];
+                break;
+            case self::SERIALIZED_AND_CACHED:
+                return 'cache.' . SerializerFactory::EXTENSIONS[$serializerType];
+                break;
+            case self::DEFAULT:
+                return 'txt';
+                break;
+            default:
+                throw new Exception("unknown file type {$fileType}");
+                break;
+        }
     }
 }

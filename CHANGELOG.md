@@ -5,6 +5,7 @@
   * Standardize data structure with new class \Jieba\Word and \Jieba\Words.
   * Remove class \Jieba\Option\Mode.
   * Classes better organized.
+  * Support [BSON](http://bsonspec.org) as serializer.
 
 0.25.2 / 2017-06-22
 ===================

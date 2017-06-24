@@ -123,8 +123,10 @@ class Jieba
      */
     public function genTrie(Dict $dict): MultiArray
     {
-        $this->trie        = new MultiArray(CacheFactory::getDict($this->getCachePool(), $dict, Dict::EXT_JSON));
-        $this->trie->cache = new MultiArray(CacheFactory::getDict($this->getCachePool(), $dict, Dict::EXT_CACHE_JSON));
+        $this->trie        = new MultiArray(CacheFactory::getDict($this->getCachePool(), $dict, Dict::SERIALIZED));
+        $this->trie->cache = new MultiArray(
+            CacheFactory::getDict($this->getCachePool(), $dict, Dict::SERIALIZED_AND_CACHED)
+        );
 
         Helper::readFile(
             $dict->getDictFilePath(),

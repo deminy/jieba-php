@@ -23,11 +23,11 @@ foreach (Dict::VALID_DICTIONARIES as $dictName) {
     foreach (SerializerFactory::getAllAvailableTypes() as $type) {
         $serializer = SerializerFactory::setSerializer(SerializerFactory::getSerializer($type));
 
-        $file = $dict->getDictFilePath(Dict::EXT_JSON);
+        $file = $dict->getDictFilePath(Dict::SERIALIZED);
         file_put_contents($file, $serializer->encode($trie->storage));
         echo "    file generated: {$file}\n";
 
-        $file = $dict->getDictFilePath(Dict::EXT_CACHE_JSON);
+        $file = $dict->getDictFilePath(Dict::SERIALIZED_AND_CACHED);
         file_put_contents($file, $serializer->encode($trie->cache));
         echo "    file generated: {$file}\n";
     }
