@@ -49,7 +49,7 @@ class DictHelper
             $array = explode(' ', $line);
             $word  = $array[0];
             $trie->set(
-                implode('.', MultiByteString::toArray($word)),
+                (new MultiByteString($word))->buildMultiArrayKey(),
                 [
                     'end' => '',
                 ]
