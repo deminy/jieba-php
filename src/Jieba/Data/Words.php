@@ -1,6 +1,6 @@
 <?php
 
-namespace Jieba;
+namespace Jieba\Data;
 
 /**
  * Class Words

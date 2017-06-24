@@ -1,6 +1,6 @@
 <?php
 
-namespace Jieba;
+namespace Jieba\Constants;
 
 /**
  * Class PosTagConstant. This file is generated with script /bin/genPosTagConstant.php.

@@ -3,6 +3,7 @@
 namespace Jieba;
 
 use Closure;
+use Jieba\Constants\JiebaConstant;
 
 class Wrapper
 {
@@ -16,13 +17,13 @@ class Wrapper
     {
         $encoding = mb_internal_encoding();
 
-        if (Constant::UTF8 != $encoding) {
+        if (JiebaConstant::UTF8 != $encoding) {
             mb_internal_encoding('UTF-8');
         }
 
         $result = $callback(...$params);
 
-        if (Constant::UTF8 != $encoding) {
+        if (JiebaConstant::UTF8 != $encoding) {
             mb_internal_encoding($encoding);
         }
 

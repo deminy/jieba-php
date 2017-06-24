@@ -1,8 +1,6 @@
 <?php
 
-namespace Jieba;
-
-use Jieba\Option\Dict;
+namespace Jieba\Options;
 
 /**
  * Class Options

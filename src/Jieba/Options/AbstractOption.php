@@ -1,6 +1,6 @@
 <?php
 
-namespace Jieba\Option;
+namespace Jieba\Options;
 
 /**
  * Class AbstractOption

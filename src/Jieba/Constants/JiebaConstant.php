@@ -1,13 +1,13 @@
 <?php
 
-namespace Jieba;
+namespace Jieba\Constants;
 
 /**
  * Class Config
  *
  * @package Jieba
  */
-class Constant
+class JiebaConstant
 {
     const MIN_FLOAT = -3.14e+100;
 

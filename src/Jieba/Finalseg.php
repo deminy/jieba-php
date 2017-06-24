@@ -3,6 +3,8 @@
 namespace Jieba;
 
 use Cache\Adapter\Common\AbstractCachePool;
+use Jieba\Constants\JiebaConstant;
+use Jieba\Data\TopArrayElement;
 use Jieba\Traits\CachePoolTrait;
 use Jieba\Traits\SingletonTrait;
 
@@ -128,18 +130,18 @@ class Finalseg
         for ($i = 0; $i < $len; $i++) {
             $char = mb_substr($sentence, $i, 1);
             switch ($viterbi_array['pos_list'][$i]) {
-                case Constant::B:
+                case JiebaConstant::B:
                     $begin = $i;
                     break;
-                case Constant::E:
+                case JiebaConstant::E:
                     $words[] = mb_substr($sentence, $begin, (($i + 1) - $begin));
                     $next    = $i + 1;
                     break;
-                case Constant::S:
+                case JiebaConstant::S:
                     $words[] = $char;
                     $next    = $i + 1;
                     break;
-                case Constant::M:
+                case JiebaConstant::M:
                 default:
                     break;
             }
@@ -172,9 +174,9 @@ class Finalseg
         $V[0] = [];
         $path = [];
 
-        foreach (Constant::BMES as $state) {
+        foreach (JiebaConstant::BMES as $state) {
             $c            = mb_substr($obs, 0, 1);
-            $prob_emit    = ($this->probEmit[$state][$c] ?? Constant::MIN_FLOAT);
+            $prob_emit    = ($this->probEmit[$state][$c] ?? JiebaConstant::MIN_FLOAT);
             $V[0][$state] = $this->probStart[$state] + $prob_emit;
             $path[$state] = $state;
         }
@@ -183,11 +185,11 @@ class Finalseg
             $c       = mb_substr($obs, $t, 1);
             $V[$t]   = [];
             $newPath = [];
-            foreach (Constant::BMES as $state) {
+            foreach (JiebaConstant::BMES as $state) {
                 $temp_prob_array = [];
-                foreach (Constant::BMES as $state0) {
-                    $prob_trans = ($this->probTrans[$state0][$state] ?? Constant::MIN_FLOAT);
-                    $prob_emit  = ($this->probEmit[$state][$c] ?? Constant::MIN_FLOAT);
+                foreach (JiebaConstant::BMES as $state0) {
+                    $prob_trans = ($this->probTrans[$state0][$state] ?? JiebaConstant::MIN_FLOAT);
+                    $prob_emit  = ($this->probEmit[$state][$c] ?? JiebaConstant::MIN_FLOAT);
                     $temp_prob_array[$state0] = $V[$t-1][$state0] + $prob_trans + $prob_emit;
                 }
                 $top               = new TopArrayElement($temp_prob_array);
@@ -199,8 +201,11 @@ class Finalseg
             $path = $newPath;
         }
 
-        $state =
-            ($V[mb_strlen($obs) - 1][Constant::E] >= $V[mb_strlen($obs) - 1][Constant::S]) ? Constant::E : Constant::S;
+        if ($V[mb_strlen($obs) - 1][JiebaConstant::E] >= $V[mb_strlen($obs) - 1][JiebaConstant::S]) {
+            $state = JiebaConstant::E;
+        } else {
+            $state = JiebaConstant::S;
+        }
 
         return [
             'prob'     => $V[mb_strlen($obs) - 1][$state],

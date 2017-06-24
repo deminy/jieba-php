@@ -4,6 +4,11 @@ namespace Jieba;
 
 use Cache\Adapter\Common\AbstractCachePool;
 use Closure;
+use Jieba\Constants\JiebaConstant;
+use Jieba\Constants\PosTagConstant;
+use Jieba\Data\TopArrayElement;
+use Jieba\Data\Word;
+use Jieba\Data\Words;
 use Jieba\Traits\CachePoolTrait;
 use Jieba\Traits\LoggerTrait;
 
@@ -107,7 +112,7 @@ class Posseg
             if (isset($this->prob_emit[$y][$c])) {
                 $prob_emit = $this->prob_emit[$y][$c];
             } else {
-                $prob_emit = Constant::MIN_FLOAT;
+                $prob_emit = JiebaConstant::MIN_FLOAT;
             }
             $V[0][$y] = $this->prob_start[$y] + $prob_emit;
             $mem_path[0][$y] = '';
@@ -156,8 +161,8 @@ class Posseg
             foreach ($obs_states as $y) {
                 $temp_prob_array = [];
                 foreach ($prev_states as $y0) {
-                    $prob_trans = ($this->prob_trans[$y0][$y] ?? Constant::MIN_FLOAT);
-                    $prob_emit  = ($this->prob_emit[$y][$c] ?? Constant::MIN_FLOAT);
+                    $prob_trans = ($this->prob_trans[$y0][$y] ?? JiebaConstant::MIN_FLOAT);
+                    $prob_emit  = ($this->prob_emit[$y][$c] ?? JiebaConstant::MIN_FLOAT);
                     $temp_prob_array[$y0] = $V[$t-1][$y0] + $prob_trans + $prob_emit;
                 }
                 $top              = new TopArrayElement($temp_prob_array);
@@ -218,16 +223,16 @@ class Posseg
             $pos = $pos_array[0];
 
             switch ($pos) {
-                case Constant::B:
+                case JiebaConstant::B:
                     $begin = $i;
                     break;
-                case Constant::E:
+                case JiebaConstant::E:
                     eval('$this_pos_array = array'.$pos_list[$i].';');
                     $this_pos = $this_pos_array[1];
                     $words->addWord(new Word(mb_substr($sentence, $begin, (($i + 1) - $begin)), $this_pos));
                     $next = $i+1;
                     break;
-                case Constant::S:
+                case JiebaConstant::S:
                     eval('$this_pos_array = array'.$pos_list[$i].';');
                     $this_pos = $this_pos_array[1];
                     $words->addWord(new Word($char, $this_pos));
@@ -337,7 +342,8 @@ class Posseg
     protected function cutSentence(string $sentence, Closure $callback): Words
     {
         preg_match_all(
-            '/(' . Constant::REGEX_HAN . '|' . Constant::REGEX_SKIP . '|' . Constant::REGEX_PUNCTUATION . ')/u',
+            '/(' . JiebaConstant::REGEX_HAN . '|' . JiebaConstant::REGEX_SKIP . '|' . JiebaConstant::REGEX_PUNCTUATION .
+            ')/u',
             $sentence,
             $matches,
             PREG_PATTERN_ORDER
@@ -346,19 +352,19 @@ class Posseg
 
         $seg_list = new Words();
         foreach ($blocks as $blk) {
-            if (preg_match('/' . Constant::REGEX_HAN . '/u', $blk)) {
+            if (preg_match('/' . JiebaConstant::REGEX_HAN . '/u', $blk)) {
                 /** @var Words $words */
                 $words = $callback($blk);
                 foreach ($words->getWords() as $word) {
                     $seg_list->addWord($word);
                 }
-            } elseif (preg_match('/' . Constant::REGEX_SKIP . '/u', $blk)) {
-                if (preg_match('/' . Constant::REGEX_NUMBER . '/u', $blk)) {
+            } elseif (preg_match('/' . JiebaConstant::REGEX_SKIP . '/u', $blk)) {
+                if (preg_match('/' . JiebaConstant::REGEX_NUMBER . '/u', $blk)) {
                     $seg_list->addWord(new Word($blk, PosTagConstant::M));
-                } elseif (preg_match('/' . Constant::REGEX_ENG . '/u', $blk)) {
+                } elseif (preg_match('/' . JiebaConstant::REGEX_ENG . '/u', $blk)) {
                     $seg_list->addWord(new Word($blk, PosTagConstant::ENG));
                 }
-            } elseif (preg_match('/' . Constant::REGEX_PUNCTUATION . '/u', $blk)) {
+            } elseif (preg_match('/' . JiebaConstant::REGEX_PUNCTUATION . '/u', $blk)) {
                 $seg_list->addWord(new Word($blk, PosTagConstant::W));
             } else {
                 throw new Exception('unreachable case executed');

@@ -2,6 +2,8 @@
 
 namespace Jieba;
 
+use Jieba\Data\MultiArray;
+use Jieba\Data\MultiByteString;
 use League\Csv\Reader;
 
 /**

@@ -3,6 +3,7 @@
 namespace Jieba;
 
 use Closure;
+use Jieba\Constants\JiebaConstant;
 
 class StringHelper
 {
@@ -14,7 +15,7 @@ class StringHelper
     public static function cut(string $sentence, Closure $callback): array
     {
         preg_match_all(
-            '/(' . Constant::REGEX_HAN . '|' . Constant::REGEX_SKIP . ')/u',
+            '/(' . JiebaConstant::REGEX_HAN . '|' . JiebaConstant::REGEX_SKIP . ')/u',
             $sentence,
             $matches,
             PREG_PATTERN_ORDER
@@ -23,7 +24,7 @@ class StringHelper
 
         $seg_list = [];
         foreach ($blocks as $blk) {
-            if (preg_match('/' . Constant::REGEX_HAN . '/u', $blk)) {
+            if (preg_match('/' . JiebaConstant::REGEX_HAN . '/u', $blk)) {
                 $words = $callback($blk);
                 foreach ($words as $word) {
                     $seg_list[] = $word;

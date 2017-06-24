@@ -3,10 +3,10 @@
 
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
+use Jieba\Data\MultiArray;
 use Jieba\DictHelper;
 use Jieba\Helper;
-use Jieba\MultiArray;
-use Jieba\Option\Dict;
+use Jieba\Options\Dict;
 use Jieba\Serializer\SerializerFactory;
 
 $dict       = new Dict();

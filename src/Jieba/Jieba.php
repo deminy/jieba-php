@@ -3,7 +3,10 @@
 namespace Jieba;
 
 use Cache\Adapter\Common\AbstractCachePool;
-use Jieba\Option\Dict;
+use Jieba\Data\MultiArray;
+use Jieba\Data\TopArrayElement;
+use Jieba\Options\Dict;
+use Jieba\Options\Options;
 use Jieba\Traits\CachePoolTrait;
 use Jieba\Traits\LoggerTrait;
 use Jieba\Traits\OptionsTrait;

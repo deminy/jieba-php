@@ -2,7 +2,7 @@
 
 namespace Jieba\Tests\Jieba;
 
-use Jieba\MultiArray;
+use Jieba\Data\MultiArray;
 use PHPUnit\Framework\TestCase;
 
 class MultiArrayTest extends TestCase
@@ -63,7 +63,7 @@ class MultiArrayTest extends TestCase
 
     /**
      * @dataProvider dataExists
-     * @covers \Jieba\MultiArray::exists()
+     * @covers \Jieba\Data\MultiArray::exists()
      * @param bool $expected
      * @param array $array
      * @param string $keyDelimiter
@@ -119,7 +119,7 @@ class MultiArrayTest extends TestCase
                     'key11.key21',
 
                     // NOTE: I thought following keys should be removed as well but not.
-                    // TODO: why following keys not removed after \Jieba\MultiArray::remove() has been called?
+                    // TODO: why following keys not removed after \Jieba\Data\MultiArray::remove() has been called?
                     'key11.key23.key31',
                     'key11.key23.key32',
                     'key11.key23.key32.key41',
@@ -131,9 +131,9 @@ class MultiArrayTest extends TestCase
     /**
      * @dataProvider dataRemove
      * @depends testExists
-     * @covers \Jieba\MultiArray::exists()
-     * @covers \Jieba\MultiArray::remove()
-     * @covers \Jieba\MultiArray::set()
+     * @covers \Jieba\Data\MultiArray::exists()
+     * @covers \Jieba\Data\MultiArray::remove()
+     * @covers \Jieba\Data\MultiArray::set()
      * @param array $array
      * @param string $deletedKeyString
      * @param array $deletedKeyStrings

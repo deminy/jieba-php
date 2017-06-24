@@ -3,8 +3,8 @@
 namespace Jieba\Tests\Jieba;
 
 use Jieba\Jieba;
-use Jieba\Options;
-use Jieba\Option\Dict;
+use Jieba\Options\Options;
+use Jieba\Options\Dict;
 use PHPUnit\Framework\TestCase;
 
 class JiebaTest extends TestCase
@@ -62,8 +62,8 @@ class JiebaTest extends TestCase
 
     /**
      * @covers \Jieba\Jieba::cut()
-     * @covers \Jieba\Options::setDict()
-     * @covers \Jieba\Option\Dict
+     * @covers \Jieba\Options\Options::setDict()
+     * @covers \Jieba\Options\Dict
      */
     public function testCutOnBig5()
     {

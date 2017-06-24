@@ -5,8 +5,8 @@ require_once dirname(__DIR__) . '/vendor/autoload.php';
 
 use Jieba\Jieba;
 use Jieba\JiebaAnalyse;
-use Jieba\Options;
-use Jieba\Option\Dict;
+use Jieba\Options\Options;
+use Jieba\Options\Dict;
 
 $jieba = new Jieba((new Options())->setDict(new Dict(Dict::BIG)));
 $tags = JiebaAnalyse::singleton()->extractTags(

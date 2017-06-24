@@ -4,8 +4,8 @@
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
 use Jieba\Jieba;
-use Jieba\Options;
-use Jieba\Option\Dict;
+use Jieba\Options\Options;
+use Jieba\Options\Dict;
 
 $jieba = new Jieba((new Options())->setDict(new Dict(Dict::SMALL)));
 $seg_list = $jieba->cut("李小福是创新办主任也是云计算方面的专家");

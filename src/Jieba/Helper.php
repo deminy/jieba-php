@@ -3,7 +3,7 @@
 namespace Jieba;
 
 use Closure;
-use Jieba\Option\Dict;
+use Jieba\Options\Dict;
 use Jieba\Serializer\SerializerFactory;
 
 /**

@@ -2,7 +2,7 @@
 
 namespace Jieba\Traits;
 
-use Jieba\Options;
+use Jieba\Options\Options;
 
 /**
  * Trait OptionsTrait

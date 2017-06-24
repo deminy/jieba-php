@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 /**
- * This script is to generate class \Jieba\PosTagConstant from text file /dict/pos_tag_readable.txt.
+ * This script is to generate class \Jieba\Constants\PosTagConstant from text file /dict/pos_tag_readable.txt.
  */
 
 require_once dirname(__DIR__) . '/vendor/autoload.php';
@@ -12,7 +12,7 @@ use Jieba\Helper;
 $template = <<<EOC
 <?php
 
-namespace Jieba;
+namespace Jieba\Constants;
 
 /**
  * Class PosTagConstant. This file is generated with script /bin/genPosTagConstant.php.
@@ -54,4 +54,4 @@ foreach ($pos_tag_readable as $key => $name) {
 }
 
 $m = new Mustache_Engine;
-file_put_contents(dirname(__DIR__)  . '/src/Jieba/PosTagConstant.php', $m->render($template, $context));
+file_put_contents(dirname(__DIR__)  . '/src/Jieba/Constants/PosTagConstant.php', $m->render($template, $context));

@@ -5,7 +5,7 @@ namespace Jieba;
 use Cache\Adapter\Common\AbstractCachePool;
 use Cache\Adapter\PHPArray\ArrayCachePool;
 use Closure;
-use Jieba\Option\Dict;
+use Jieba\Options\Dict;
 
 class CacheFactory
 {
