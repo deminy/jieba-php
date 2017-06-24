@@ -1,10 +1,12 @@
 <?php
 
-namespace Jieba;
+namespace Jieba\Factory;
 
 use Cache\Adapter\Common\AbstractCachePool;
 use Cache\Adapter\PHPArray\ArrayCachePool;
 use Closure;
+use Jieba\Exception;
+use Jieba\Helper;
 use Jieba\Options\Dict;
 
 class CacheFactory

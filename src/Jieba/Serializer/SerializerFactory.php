@@ -2,6 +2,8 @@
 
 namespace Jieba\Serializer;
 
+use Jieba\Exception;
+
 /**
  * Class SerializerFactory
  *

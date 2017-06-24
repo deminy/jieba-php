@@ -1,6 +1,6 @@
 <?php
 
-namespace Jieba;
+namespace Jieba\Factory;
 
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
@@ -41,6 +41,6 @@ class LoggerFactory
      */
     protected static function getLogFile(string $filename): string
     {
-        return (dirname(__DIR__) . DIRECTORY_SEPARATOR . 'temp' . DIRECTORY_SEPARATOR . $filename);
+        return (sys_get_temp_dir() . DIRECTORY_SEPARATOR . $filename);
     }
 }

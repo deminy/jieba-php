@@ -5,6 +5,7 @@ namespace Jieba;
 use Cache\Adapter\Common\AbstractCachePool;
 use Jieba\Constants\JiebaConstant;
 use Jieba\Data\TopArrayElement;
+use Jieba\Factory\CacheFactory;
 use Jieba\Traits\CachePoolTrait;
 use Jieba\Traits\SingletonTrait;
 

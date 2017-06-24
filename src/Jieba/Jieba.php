@@ -5,6 +5,8 @@ namespace Jieba;
 use Cache\Adapter\Common\AbstractCachePool;
 use Jieba\Data\MultiArray;
 use Jieba\Data\TopArrayElement;
+use Jieba\Factory\CacheFactory;
+use Jieba\Factory\LoggerFactory;
 use Jieba\Options\Dict;
 use Jieba\Options\Options;
 use Jieba\Traits\CachePoolTrait;

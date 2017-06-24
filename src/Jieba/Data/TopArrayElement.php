@@ -2,6 +2,8 @@
 
 namespace Jieba\Data;
 
+use Jieba\Exception;
+
 /**
  * Class TopArrayElement
  *

@@ -9,6 +9,7 @@ use Jieba\Constants\PosTagConstant;
 use Jieba\Data\TopArrayElement;
 use Jieba\Data\Word;
 use Jieba\Data\Words;
+use Jieba\Factory\CacheFactory;
 use Jieba\Traits\CachePoolTrait;
 use Jieba\Traits\LoggerTrait;
 

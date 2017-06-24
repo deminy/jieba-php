@@ -2,6 +2,8 @@
 
 namespace Jieba\Options;
 
+use Jieba\Exception;
+
 /**
  * Class Options
  *
