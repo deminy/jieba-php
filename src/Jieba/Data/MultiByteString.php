@@ -2,6 +2,9 @@
 
 namespace Jieba\Data;
 
+use Closure;
+use Jieba\Constants\JiebaConstant;
+
 /**
  * Class MultiByteString
  *
@@ -22,6 +25,43 @@ class MultiByteString
     public function __construct(string $string = '')
     {
         $this->setString($string);
+    }
+
+    /**
+     * @return int
+     */
+    public function strlen(): int
+    {
+        return ($this->getString() ? mb_strlen($this->getString()) : 0);
+    }
+
+    /**
+     * @param Closure $callback
+     * @return array
+     */
+    public function cut(Closure $callback): array
+    {
+        preg_match_all(
+            '/(' . JiebaConstant::REGEX_HAN . '|' . JiebaConstant::REGEX_SKIP . ')/u',
+            $this->getString(),
+            $matches,
+            PREG_PATTERN_ORDER
+        );
+        $blocks = $matches[0];
+
+        $segmentList = [];
+        foreach ($blocks as $blk) {
+            if (preg_match('/' . JiebaConstant::REGEX_HAN . '/u', $blk)) {
+                $words = $callback($blk);
+                foreach ($words as $word) {
+                    $segmentList[] = $word;
+                }
+            } else {
+                $segmentList[] = $blk;
+            }
+        }
+
+        return $segmentList;
     }
 
     /**

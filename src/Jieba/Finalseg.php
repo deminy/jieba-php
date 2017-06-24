@@ -4,6 +4,7 @@ namespace Jieba;
 
 use Cache\Adapter\Common\AbstractCachePool;
 use Jieba\Constants\JiebaConstant;
+use Jieba\Data\MultiByteString;
 use Jieba\Data\TopArrayElement;
 use Jieba\Factory\CacheFactory;
 use Jieba\Traits\CachePoolTrait;
@@ -51,8 +52,7 @@ class Finalseg
      */
     public function cut(string $sentence): array
     {
-        return StringHelper::cut(
-            $sentence,
+        return (new MultiByteString($sentence))->cut(
             function (string $blk) {
                 return $this->__cut($blk);
             }

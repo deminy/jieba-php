@@ -4,6 +4,7 @@ namespace Jieba;
 
 use Cache\Adapter\Common\AbstractCachePool;
 use Jieba\Data\MultiArray;
+use Jieba\Data\MultiByteString;
 use Jieba\Data\TopArrayElement;
 use Jieba\Factory\CacheFactory;
 use Jieba\Factory\LoggerFactory;
@@ -309,8 +310,7 @@ class Jieba
      */
     public function cut(string $sentence, bool $cutAll = false): array
     {
-        return StringHelper::cut(
-            $sentence,
+        return (new MultiByteString($sentence))->cut(
             function (string $blk) use ($cutAll) {
                 return ($cutAll ? $this->__cutAll($blk) : $this->__cutDAG($blk));
             }
