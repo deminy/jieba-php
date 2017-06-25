@@ -6,6 +6,7 @@ use Cache\Adapter\Common\AbstractCachePool;
 use Jieba\Constants\JiebaConstant;
 use Jieba\Data\MultiByteString;
 use Jieba\Data\TopArrayElement;
+use Jieba\Data\Viterbi;
 use Jieba\Factory\CacheFactory;
 use Jieba\Traits\CachePoolTrait;
 use Jieba\Traits\SingletonTrait;
@@ -122,7 +123,7 @@ class Finalseg
      */
     protected function __cut(string $sentence): array
     {
-        $viterbi_array = $this->viterbi($sentence);
+        $viterbi = $this->viterbi($sentence);
 
         $begin = 0;
         $next  = 0;
@@ -130,7 +131,7 @@ class Finalseg
         $words = [];
         for ($i = 0; $i < $len; $i++) {
             $char = mb_substr($sentence, $i, 1);
-            switch ($viterbi_array['pos_list'][$i]) {
+            switch ($viterbi->getPositionAt($i)) {
                 case JiebaConstant::B:
                     $begin = $i;
                     break;
@@ -157,18 +158,9 @@ class Finalseg
 
     /**
      * @param string $sentence
-     * @return array an array in the format of
-     *         array(
-     *             'prob'     => -24.596579213972,
-     *             'pos_list' => array(
-     *                 'B',
-     *                 'E',
-     *                 'S',
-     *                 'S',
-     *             ),
-     *         );
+     * @return Viterbi
      */
-    protected function viterbi(string $sentence): array
+    protected function viterbi(string $sentence): Viterbi
     {
         $obs  = $sentence;
         $V    = [];
@@ -208,9 +200,6 @@ class Finalseg
             $state = JiebaConstant::S;
         }
 
-        return [
-            'prob'     => $V[mb_strlen($obs) - 1][$state],
-            'pos_list' => $path[$state],
-        ];
+        return new Viterbi($V[mb_strlen($obs) - 1][$state], $path[$state]);
     }
 }

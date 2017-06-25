@@ -1,9 +1,9 @@
 [deminy/jieba-php](https://github.com/deminy/jieba-php)
 ================
 [![Build Status](https://travis-ci.org/deminy/jieba-php.svg?branch=master)](https://travis-ci.org/deminy/jieba-php)
-[![codecov.io](http://codecov.io/github/deminy/jieba-php/coverage.svg?branch=master)](http://codecov.io/github/deminy/jieba-php?branch=master)
 [![Latest Stable Version](https://poser.pugx.org/deminy/jieba-php/v/stable.png)](https://packagist.org/packages/deminy/jieba-php)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/26534521d345458a998eecd3b3008620)](https://www.codacy.com/app/deminy/jieba-php)
+[![codecov.io](http://codecov.io/github/deminy/jieba-php/coverage.svg?branch=master)](http://codecov.io/github/deminy/jieba-php?branch=master)
 [![Coding Standards](https://img.shields.io/badge/cs-PSR--2--R-yellow.svg)](https://github.com/php-fig-rectified/fig-rectified-standards)
 [![PSR-4](https://img.shields.io/badge/cs-PSR--4-yellow.svg)](http://www.php-fig.org/psr/psr-4/)
 [![License](https://poser.pugx.org/deminy/jieba-php/license.svg)](https://packagist.org/packages/deminy/jieba-php)
@@ -78,7 +78,7 @@ var_dump((new Jieba())->cut("怜香惜玉也得要看对象啊！"));
 
 > ./examples/big5.php
 
-## 使用不同的序列化格式（JSON, MessagePack等）
+## 使用不同的序列化格式（BSON, JSON, MessagePack等）
 
 请参考下面的代码文件：
 

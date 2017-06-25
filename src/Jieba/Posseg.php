@@ -7,6 +7,7 @@ use Closure;
 use Jieba\Constants\JiebaConstant;
 use Jieba\Constants\PosTagConstant;
 use Jieba\Data\TopArrayElement;
+use Jieba\Data\Viterbi;
 use Jieba\Data\Word;
 use Jieba\Data\Words;
 use Jieba\Factory\CacheFactory;
@@ -91,10 +92,10 @@ class Posseg
     }
 
     /**
-     * @param string $sentence # input sentence
-     * @return array
+     * @param string $sentence
+     * @return Viterbi
      */
-    public function viterbi(string $sentence): array
+    protected function viterbi(string $sentence): Viterbi
     {
         $obs = $sentence;
         $states = $this->char_state;
@@ -107,7 +108,7 @@ class Posseg
         $c = mb_substr($obs, 0, 1);
         $c_states = (!empty($states[$c]) ? $states[$c] : $all_states);
 
-        foreach ($c_states as $key => $state) {
+        foreach ($c_states as $state) {
             $y = $state;
             $c = mb_substr($obs, 0, 1);
             if (isset($this->prob_emit[$y][$c])) {
@@ -199,7 +200,7 @@ class Posseg
             $i -= 1;
         }
 
-        return ["prob" => $return_prob, "pos_list" => $route];
+        return new Viterbi($return_prob, $route);
     }
 
     /**
@@ -210,44 +211,35 @@ class Posseg
     {
         $words = new Words();
 
-        $viterbi_array = $this->viterbi($sentence);
-
-        $pos_list = $viterbi_array['pos_list'];
+        $viterbi = $this->viterbi($sentence);
 
         $begin = 0;
-        $next = 0;
-        $len = mb_strlen($sentence);
+        $next  = 0;
+        $len   = mb_strlen($sentence);
 
-        for ($i=0; $i<$len; $i++) {
+        for ($i = 0; $i < $len; $i++) {
             $char = mb_substr($sentence, $i, 1);
-            eval('$pos_array = array'.$pos_list[$i].';');
-            $pos = $pos_array[0];
-
-            switch ($pos) {
+            switch ($viterbi->getPositionAt($i)) {
                 case JiebaConstant::B:
                     $begin = $i;
                     break;
                 case JiebaConstant::E:
-                    eval('$this_pos_array = array'.$pos_list[$i].';');
-                    $this_pos = $this_pos_array[1];
-                    $words->addWord(new Word(mb_substr($sentence, $begin, (($i + 1) - $begin)), $this_pos));
-                    $next = $i+1;
+                    $words->addWord(
+                        new Word(mb_substr($sentence, $begin, (($i + 1) - $begin)), $viterbi->getTagAt($i))
+                    );
+                    $next = $i + 1;
                     break;
                 case JiebaConstant::S:
-                    eval('$this_pos_array = array'.$pos_list[$i].';');
-                    $this_pos = $this_pos_array[1];
-                    $words->addWord(new Word($char, $this_pos));
-                    $next = $i+1;
+                    $words->addWord(new Word($char, $viterbi->getTagAt($i)));
+                    $next = $i + 1;
                     break;
                 default:
                     break;
             }
         }
 
-        if ($next<$len) {
-            eval('$this_pos_array = array'.$pos_list[$next].';');
-            $this_pos = $this_pos_array[1];
-            $words->addWord(new Word(mb_substr($sentence, $next), $this_pos));
+        if ($next < $len) {
+            $words->addWord(new Word(mb_substr($sentence, $next), $viterbi->getTagAt($next)));
         }
 
         return $words;
@@ -290,7 +282,7 @@ class Posseg
                 $buf = $buf.$l_word;
             } else {
                 if (!empty($buf)) {
-                    if (mb_strlen($buf)==1) {
+                    if (mb_strlen($buf) == 1) {
                         $words->addWord(new Word($buf, ($this->word_tag[$buf] ?? PosTagConstant::X)));
                         $buf = '';
                     } else {
