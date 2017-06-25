@@ -1,8 +1,9 @@
 <?php
 
-namespace Jieba;
+namespace Jieba\Helper;
 
 use Closure;
+use Jieba\Exception;
 use Jieba\Options\Dict;
 use Jieba\Serializer\SerializerFactory;
 
@@ -86,7 +87,7 @@ class Helper
      */
     public static function getModelBasePath(): string
     {
-        return dirname(__DIR__, 2) . '/model/';
+        return dirname(__DIR__, 3) . '/model/';
     }
 
     /**
@@ -98,11 +99,11 @@ class Helper
         switch ($fileType) {
             case Dict::SERIALIZED:
             case Dict::SERIALIZED_AND_CACHED:
-                $dir = dirname(__DIR__, 2) . '/temp/dict/' . SerializerFactory::getSerializer()->getType() . '/';
+                $dir = dirname(__DIR__, 3) . '/temp/dict/' . SerializerFactory::getSerializer()->getType() . '/';
                 break;
             case Dict::DEFAULT:
             default:
-                $dir = dirname(__DIR__, 2) . '/dict/';
+                $dir = dirname(__DIR__, 3) . '/dict/';
                 break;
         }
 

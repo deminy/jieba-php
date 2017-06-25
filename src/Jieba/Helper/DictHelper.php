@@ -1,6 +1,6 @@
 <?php
 
-namespace Jieba;
+namespace Jieba\Helper;
 
 use Closure;
 use Jieba\Constants\JiebaConstant;

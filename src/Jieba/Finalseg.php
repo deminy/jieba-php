@@ -10,6 +10,7 @@ use Jieba\Data\TopArrayElement;
 use Jieba\Data\Viterbi;
 use Jieba\Data\Word;
 use Jieba\Factory\CacheFactory;
+use Jieba\Helper\DictHelper;
 use Jieba\Traits\CachePoolTrait;
 use Jieba\Traits\SingletonTrait;
 

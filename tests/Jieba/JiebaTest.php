@@ -131,7 +131,7 @@ class JiebaTest extends TestCase
     }
 
     /**
-     * @covers \Jieba\Helper::getDictFilePath()
+     * @covers \Jieba\Helper\Helper::getDictFilePath()
      * @covers \Jieba\Jieba::loadUserDict()
      * @covers \Jieba\Jieba::cut()
      */

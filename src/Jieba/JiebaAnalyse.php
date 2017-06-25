@@ -4,6 +4,7 @@ namespace Jieba;
 
 use Cache\Adapter\Common\AbstractCachePool;
 use Jieba\Factory\CacheFactory;
+use Jieba\Helper\DictHelper;
 use Jieba\Traits\CachePoolTrait;
 use Jieba\Traits\SingletonTrait;
 

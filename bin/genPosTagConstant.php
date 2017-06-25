@@ -6,8 +6,8 @@
 
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
-use Jieba\DictHelper;
-use Jieba\Helper;
+use Jieba\Helper\DictHelper;
+use Jieba\Helper\Helper;
 
 $template = <<<EOC
 <?php

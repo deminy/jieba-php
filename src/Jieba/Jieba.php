@@ -8,6 +8,8 @@ use Jieba\Data\MultiByteString;
 use Jieba\Data\TopArrayElement;
 use Jieba\Factory\CacheFactory;
 use Jieba\Factory\LoggerFactory;
+use Jieba\Helper\DictHelper;
+use Jieba\Helper\Helper;
 use Jieba\Options\Dict;
 use Jieba\Options\Options;
 use Jieba\Traits\CachePoolTrait;

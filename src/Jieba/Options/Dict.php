@@ -3,7 +3,7 @@
 namespace Jieba\Options;
 
 use Jieba\Exception;
-use Jieba\Helper;
+use Jieba\Helper\Helper;
 use Jieba\Serializer\SerializerFactory;
 
 /**

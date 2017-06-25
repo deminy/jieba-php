@@ -11,6 +11,8 @@ use Jieba\Data\Viterbi;
 use Jieba\Data\Word;
 use Jieba\Data\Words;
 use Jieba\Factory\CacheFactory;
+use Jieba\Helper\DictHelper;
+use Jieba\Helper\Helper;
 use Jieba\Traits\CachePoolTrait;
 use Jieba\Traits\LoggerTrait;
 

@@ -15,8 +15,8 @@
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
 use Jieba\Data\MultiArray;
-use Jieba\DictHelper;
-use Jieba\Helper;
+use Jieba\Helper\DictHelper;
+use Jieba\Helper\Helper;
 use Jieba\Options\Dict;
 use Jieba\Serializer\SerializerFactory;
 
