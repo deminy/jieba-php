@@ -204,57 +204,22 @@ class Posseg
     }
 
     /**
-     * @param string $sentence
-     * @return Words
-     */
-    protected function __cut(string $sentence): Words
-    {
-        $words = new Words();
-
-        $viterbi = $this->viterbi($sentence);
-
-        $begin = 0;
-        $next  = 0;
-        $len   = mb_strlen($sentence);
-
-        for ($i = 0; $i < $len; $i++) {
-            $char = mb_substr($sentence, $i, 1);
-            switch ($viterbi->getPositionAt($i)) {
-                case JiebaConstant::B:
-                    $begin = $i;
-                    break;
-                case JiebaConstant::E:
-                    $words->addWord(
-                        new Word(mb_substr($sentence, $begin, (($i + 1) - $begin)), $viterbi->getTagAt($i))
-                    );
-                    $next = $i + 1;
-                    break;
-                case JiebaConstant::S:
-                    $words->addWord(new Word($char, $viterbi->getTagAt($i)));
-                    $next = $i + 1;
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        if ($next < $len) {
-            $words->addWord(new Word(mb_substr($sentence, $next), $viterbi->getTagAt($next)));
-        }
-
-        return $words;
-    }
-
-    /**
      * @param string $sentence # input sentence
      * @return Words
+     * @todo make code easier to understand.
      */
     public function __cutDetail(string $sentence): Words
     {
         return $this->cutSentence(
             $sentence,
-            function (string $blk) {
-                return $this->__cut($blk);
+            function (string $block) {
+                return DictHelper::cutSentence(
+                    $block,
+                    function (string $sentence) {
+                        // here \Jieba\Data\Viterbi::$positions is an array of combined characters (e.g, "('S', 'g')").
+                        return $this->viterbi($sentence);
+                    }
+                );
             }
         );
     }
@@ -320,8 +285,8 @@ class Posseg
     {
         return $this->cutSentence(
             $sentence,
-            function (string $blk) {
-                return $this->__cutDAG($blk);
+            function (string $block) {
+                return $this->__cutDAG($block);
             }
         );
     }

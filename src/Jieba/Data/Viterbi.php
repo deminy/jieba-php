@@ -63,7 +63,7 @@ class Viterbi
 
     /**
      * @param int $index
-     * @return string
+     * @return string Return an empty string if no tag included. In this case tag information is useless.
      * @throws Exception
      */
     public function getTagAt(int $index)
@@ -72,7 +72,7 @@ class Viterbi
             throw new Exception("no position found at location '{$index}'");
         }
 
-        return substr($this->positions[$index], 7, -2);
+        return ((strlen($this->positions[$index]) == 1) ? '' : substr($this->positions[$index], 7, -2));
     }
 
     /**

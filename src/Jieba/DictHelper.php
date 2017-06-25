@@ -2,8 +2,13 @@
 
 namespace Jieba;
 
+use Closure;
+use Jieba\Constants\JiebaConstant;
 use Jieba\Data\MultiArray;
 use Jieba\Data\MultiByteString;
+use Jieba\Data\Word;
+use Jieba\Data\Words;
+use Jieba\Data\Viterbi;
 use League\Csv\Reader;
 
 /**
@@ -106,6 +111,50 @@ class DictHelper
                     }
                 }
             );
+    }
+
+    /**
+     * @param string $sentence
+     * @param Closure $callback
+     * @return Words
+     */
+    public static function cutSentence(string $sentence, Closure $callback): Words
+    {
+        $words = new Words();
+        $begin = 0;
+        $next  = 0;
+
+        /** @var Viterbi $viterbi */
+        $viterbi = $callback($sentence);
+        $length  = mb_strlen($sentence);
+
+        for ($i = 0; $i < $length; $i++) {
+            $char = mb_substr($sentence, $i, 1);
+            switch ($viterbi->getPositionAt($i)) {
+                case JiebaConstant::B:
+                    $begin = $i;
+                    break;
+                case JiebaConstant::E:
+                    $words->addWord(
+                        new Word(mb_substr($sentence, $begin, (($i + 1) - $begin)), $viterbi->getTagAt($i))
+                    );
+                    $next = $i + 1;
+                    break;
+                case JiebaConstant::S:
+                    $words->addWord(new Word($char, $viterbi->getTagAt($i)));
+                    $next = $i + 1;
+                    break;
+                case JiebaConstant::M:
+                default:
+                    break;
+            }
+        }
+
+        if ($next < $length) {
+            $words->addWord(new Word(mb_substr($sentence, $next), $viterbi->getTagAt($next)));
+        }
+
+        return $words;
     }
 
     /**

@@ -5,8 +5,10 @@ namespace Jieba;
 use Cache\Adapter\Common\AbstractCachePool;
 use Jieba\Constants\JiebaConstant;
 use Jieba\Data\MultiByteString;
+use Jieba\Data\SimpleWord;
 use Jieba\Data\TopArrayElement;
 use Jieba\Data\Viterbi;
+use Jieba\Data\Word;
 use Jieba\Factory\CacheFactory;
 use Jieba\Traits\CachePoolTrait;
 use Jieba\Traits\SingletonTrait;
@@ -50,12 +52,24 @@ class Finalseg
      * Cut given sentence to an array of individual Chinese and non-Chinese characters.
      * @param string $sentence
      * @return array
+     * @todo make code easier to understand.
      */
     public function cut(string $sentence): array
     {
         return (new MultiByteString($sentence))->cut(
-            function (string $blk) {
-                return $this->__cut($blk);
+            function (string $block) {
+                return array_map(
+                    function (Word $word) {
+                        return $word->getWord();
+                    },
+                    DictHelper::cutSentence(
+                        $block,
+                        function (string $sentence) {
+                            // here \Jieba\Data\Viterbi::$positions is an array of single characters (BMES characters).
+                            return $this->viterbi($sentence);
+                        }
+                    )->getWords()
+                );
             }
         );
     }
@@ -115,45 +129,6 @@ class Finalseg
         $this->probEmit = $probEmit;
 
         return $this;
-    }
-
-    /**
-     * @param string $sentence
-     * @return array
-     */
-    protected function __cut(string $sentence): array
-    {
-        $viterbi = $this->viterbi($sentence);
-
-        $begin = 0;
-        $next  = 0;
-        $len   = mb_strlen($sentence);
-        $words = [];
-        for ($i = 0; $i < $len; $i++) {
-            $char = mb_substr($sentence, $i, 1);
-            switch ($viterbi->getPositionAt($i)) {
-                case JiebaConstant::B:
-                    $begin = $i;
-                    break;
-                case JiebaConstant::E:
-                    $words[] = mb_substr($sentence, $begin, (($i + 1) - $begin));
-                    $next    = $i + 1;
-                    break;
-                case JiebaConstant::S:
-                    $words[] = $char;
-                    $next    = $i + 1;
-                    break;
-                case JiebaConstant::M:
-                default:
-                    break;
-            }
-        }
-
-        if ($next < $len) {
-            $words[] = mb_substr($sentence, $next);
-        }
-
-        return $words;
     }
 
     /**
