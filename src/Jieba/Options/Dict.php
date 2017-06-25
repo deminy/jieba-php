@@ -60,7 +60,7 @@ class Dict extends AbstractOption
                     );
                 }
 
-                return SerializerFactory::getSerializer()->decode(file_get_contents($file), true);
+                return SerializerFactory::getSerializer()->decode(file_get_contents($file));
                 break;
             case self::DEFAULT:
             default:

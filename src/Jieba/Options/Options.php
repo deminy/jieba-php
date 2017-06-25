@@ -2,8 +2,6 @@
 
 namespace Jieba\Options;
 
-use Jieba\Exception;
-
 /**
  * Class Options
  *
@@ -29,22 +27,6 @@ class Options
     }
 
     /**
-     * @param array $options
-     * @return array
-     * @throws Exception
-     */
-    public function getOptions(array $options = []): array
-    {
-        $options += self::DEFAULT_OPTIONS;
-
-        if (!$this->isDictionaryValid($options[self::DICT])) {
-            throw new Exception("invalid dictionary '{$options[self::DICT]}' specified");
-        }
-
-        return $options;
-    }
-
-    /**
      * @return Dict
      */
     public function getDict(): Dict
@@ -54,7 +36,7 @@ class Options
 
     /**
      * @param Dict $dict
-     * @return $this
+     * @return Options
      */
     public function setDict(Dict $dict): Options
     {

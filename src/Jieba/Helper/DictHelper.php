@@ -187,7 +187,7 @@ class DictHelper
 
     /**
      * @param string $filename
-     * @return void
+     * @return array
      */
     public static function getPosTagReadable(string $filename)
     {

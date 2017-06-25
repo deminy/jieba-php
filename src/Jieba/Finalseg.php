@@ -5,7 +5,6 @@ namespace Jieba;
 use Cache\Adapter\Common\AbstractCachePool;
 use Jieba\Constants\JiebaConstant;
 use Jieba\Data\MultiByteString;
-use Jieba\Data\SimpleWord;
 use Jieba\Data\TopArrayElement;
 use Jieba\Data\Viterbi;
 use Jieba\Data\Word;
@@ -85,7 +84,7 @@ class Finalseg
 
     /**
      * @param array $probStart
-     * @return $this
+     * @return Finalseg
      */
     public function setProbStart(array $probStart): Finalseg
     {
@@ -104,7 +103,7 @@ class Finalseg
 
     /**
      * @param array $probTrans
-     * @return $this
+     * @return Finalseg
      */
     public function setProbTrans(array $probTrans): Finalseg
     {
@@ -123,7 +122,7 @@ class Finalseg
 
     /**
      * @param array $probEmit
-     * @return $this
+     * @return Finalseg
      */
     public function setProbEmit(array $probEmit): Finalseg
     {

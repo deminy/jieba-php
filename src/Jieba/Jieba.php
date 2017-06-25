@@ -108,7 +108,7 @@ class Jieba
             $candidates = [];
             foreach ($DAG[$i] as $x) {
                 $w_c            = mb_substr($sentence, $i, (($x + 1) - $i));
-                $previous_freq  = current($this->route[$x+1]);
+                $previous_freq  = current($this->route[$x + 1]);
                 $current_freq   = (float) $previous_freq + ($this->FREQ[$w_c] ?? $this->min_freq);
                 $candidates[$x] = $current_freq;
             }
