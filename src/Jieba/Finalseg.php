@@ -2,15 +2,13 @@
 
 namespace Jieba;
 
-use Cache\Adapter\Common\AbstractCachePool;
 use Jieba\Constants\JiebaConstant;
 use Jieba\Data\MultiByteString;
 use Jieba\Data\TopArrayElement;
 use Jieba\Data\Viterbi;
 use Jieba\Data\Word;
-use Jieba\Factory\CacheFactory;
 use Jieba\Helper\DictHelper;
-use Jieba\Traits\CachePoolTrait;
+use Jieba\Helper\ModelSingleton;
 use Jieba\Traits\SingletonTrait;
 
 /**
@@ -20,33 +18,7 @@ use Jieba\Traits\SingletonTrait;
  */
 class Finalseg
 {
-    use CachePoolTrait, SingletonTrait;
-
-    /**
-     * @var array
-     */
-    protected $probStart = [];
-    /**
-     * @var array
-     */
-    protected $probTrans = [];
-    /**
-     * @var array
-     */
-    protected $probEmit  = [];
-
-    /**
-     * Finalseg constructor.
-     * @param AbstractCachePool|null $cachePool
-     */
-    protected function __construct(AbstractCachePool $cachePool = null)
-    {
-        $this
-            ->setCachePool($cachePool ?: CacheFactory::getCachePool())
-            ->setProbStart(CacheFactory::getModel($this->getCachePool(), CacheFactory::MODEL_PROB_START))
-            ->setProbTrans(CacheFactory::getModel($this->getCachePool(), CacheFactory::MODEL_PROB_TRANS))
-            ->setProbEmit(CacheFactory::getModel($this->getCachePool(), CacheFactory::MODEL_PROB_EMIT));
-    }
+    use SingletonTrait;
 
     /**
      * Cut given sentence to an array of individual Chinese and non-Chinese characters.
@@ -64,6 +36,7 @@ class Finalseg
                     },
                     DictHelper::cutSentence(
                         $block,
+                        Word::class,
                         function (string $sentence) {
                             // here \Jieba\Data\Viterbi::$positions is an array of single characters (BMES characters).
                             return $this->viterbi($sentence);
@@ -75,68 +48,15 @@ class Finalseg
     }
 
     /**
-     * @return array
-     */
-    public function getProbStart(): array
-    {
-        return $this->probStart;
-    }
-
-    /**
-     * @param array $probStart
-     * @return Finalseg
-     */
-    public function setProbStart(array $probStart): Finalseg
-    {
-        $this->probStart = $probStart;
-
-        return $this;
-    }
-
-    /**
-     * @return array
-     */
-    public function getProbTrans(): array
-    {
-        return $this->probTrans;
-    }
-
-    /**
-     * @param array $probTrans
-     * @return Finalseg
-     */
-    public function setProbTrans(array $probTrans): Finalseg
-    {
-        $this->probTrans = $probTrans;
-
-        return $this;
-    }
-
-    /**
-     * @return array
-     */
-    public function getProbEmit(): array
-    {
-        return $this->probEmit;
-    }
-
-    /**
-     * @param array $probEmit
-     * @return Finalseg
-     */
-    public function setProbEmit(array $probEmit): Finalseg
-    {
-        $this->probEmit = $probEmit;
-
-        return $this;
-    }
-
-    /**
      * @param string $sentence
      * @return Viterbi
      */
     protected function viterbi(string $sentence): Viterbi
     {
+        $probEmit  = ModelSingleton::singleton()->getProbEmit();
+        $probStart = ModelSingleton::singleton()->getProbStart();
+        $probTrans = ModelSingleton::singleton()->getProbTrans();
+
         $obs  = $sentence;
         $V    = [];
         $V[0] = [];
@@ -144,8 +64,8 @@ class Finalseg
 
         foreach (JiebaConstant::BMES as $state) {
             $c            = mb_substr($obs, 0, 1);
-            $prob_emit    = ($this->probEmit[$state][$c] ?? JiebaConstant::MIN_FLOAT);
-            $V[0][$state] = $this->probStart[$state] + $prob_emit;
+            $prob_emit    = ($probEmit[$state][$c] ?? JiebaConstant::MIN_FLOAT);
+            $V[0][$state] = $probStart[$state] + $prob_emit;
             $path[$state] = $state;
         }
 
@@ -156,8 +76,8 @@ class Finalseg
             foreach (JiebaConstant::BMES as $state) {
                 $temp_prob_array = [];
                 foreach (JiebaConstant::BMES as $state0) {
-                    $prob_trans = ($this->probTrans[$state0][$state] ?? JiebaConstant::MIN_FLOAT);
-                    $prob_emit  = ($this->probEmit[$state][$c] ?? JiebaConstant::MIN_FLOAT);
+                    $prob_trans = ($probTrans[$state0][$state] ?? JiebaConstant::MIN_FLOAT);
+                    $prob_emit  = ($probEmit[$state][$c] ?? JiebaConstant::MIN_FLOAT);
                     $temp_prob_array[$state0] = $V[$t-1][$state0] + $prob_trans + $prob_emit;
                 }
                 $top               = new TopArrayElement($temp_prob_array);

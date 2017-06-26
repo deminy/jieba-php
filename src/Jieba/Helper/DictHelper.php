@@ -6,9 +6,11 @@ use Closure;
 use Jieba\Constants\JiebaConstant;
 use Jieba\Data\MultiArray;
 use Jieba\Data\MultiByteString;
+use Jieba\Data\TaggedWord;
 use Jieba\Data\Word;
 use Jieba\Data\Words;
 use Jieba\Data\Viterbi;
+use Jieba\Exception;
 use League\Csv\Reader;
 
 /**
@@ -115,11 +117,26 @@ class DictHelper
 
     /**
      * @param string $sentence
+     * @param string $wordClass
      * @param Closure $callback
      * @return Words
      */
-    public static function cutSentence(string $sentence, Closure $callback): Words
+    public static function cutSentence(string $sentence, string $wordClass, Closure $callback): Words
     {
+        $getWord = function (string $word, string $tag) use ($wordClass) {
+            switch ($wordClass) {
+                case TaggedWord::class:
+                    return new TaggedWord($word, $tag);
+                    break;
+                case Word::class:
+                    return new Word($word);
+                    break;
+                default:
+                    throw new Exception("invalid \Jieba\Data\Word class '{$wordClass}'");
+                    break;
+            }
+        };
+
         $words = new Words();
         $begin = 0;
         $next  = 0;
@@ -136,12 +153,12 @@ class DictHelper
                     break;
                 case JiebaConstant::E:
                     $words->addWord(
-                        new Word(mb_substr($sentence, $begin, (($i + 1) - $begin)), $viterbi->getTagAt($i))
+                        $getWord(mb_substr($sentence, $begin, (($i + 1) - $begin)), $viterbi->getTagAt($i))
                     );
                     $next = $i + 1;
                     break;
                 case JiebaConstant::S:
-                    $words->addWord(new Word($char, $viterbi->getTagAt($i)));
+                    $words->addWord($getWord($char, $viterbi->getTagAt($i)));
                     $next = $i + 1;
                     break;
                 case JiebaConstant::M:
@@ -151,7 +168,7 @@ class DictHelper
         }
 
         if ($next < $length) {
-            $words->addWord(new Word(mb_substr($sentence, $next), $viterbi->getTagAt($next)));
+            $words->addWord($getWord(mb_substr($sentence, $next), $viterbi->getTagAt($next)));
         }
 
         return $words;

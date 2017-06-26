@@ -8,11 +8,12 @@ use Jieba\Constants\JiebaConstant;
 use Jieba\Constants\PosTagConstant;
 use Jieba\Data\TopArrayElement;
 use Jieba\Data\Viterbi;
-use Jieba\Data\Word;
+use Jieba\Data\TaggedWord;
 use Jieba\Data\Words;
 use Jieba\Factory\CacheFactory;
 use Jieba\Helper\DictHelper;
 use Jieba\Helper\Helper;
+use Jieba\Helper\ModelSingleton;
 use Jieba\Traits\CachePoolTrait;
 use Jieba\Traits\LoggerTrait;
 
@@ -26,30 +27,14 @@ class Posseg
     use CachePoolTrait, LoggerTrait;
 
     /**
-     * @var array
-     */
-    public $prob_start = [];
-    /**
-     * @var array
-     */
-    public $prob_trans = [];
-    /**
-     * @var array
-     */
-    public $prob_emit  = [];
-    /**
-     * @var array
-     */
-    public $char_state = [];
-    /**
-     * @var array
-     */
-    public $word_tag   = [];
-
-    /**
      * @var Jieba
      */
     protected $jieba;
+
+    /**
+     * @var array
+     */
+    public $word_tag = [];
 
     /**
      * Posseg constructor.
@@ -71,11 +56,6 @@ class Posseg
      */
     protected function init(): Posseg
     {
-        $this->prob_start = CacheFactory::getModel($this->getCachePool(), CacheFactory::MODEL_POS_PROB_START);
-        $this->prob_trans = CacheFactory::getModel($this->getCachePool(), CacheFactory::MODEL_POS_PROB_TRANS);
-        $this->prob_emit  = CacheFactory::getModel($this->getCachePool(), CacheFactory::MODEL_POS_PROB_EMIT);
-        $this->char_state = CacheFactory::getModel($this->getCachePool(), CacheFactory::MODEL_POS_CHAR_STATE);
-
         // TODO: Here property \Jieba::$dictname was used.
         // TODO: performance improvement with cache
         // @see \Jieba::$dictname
@@ -99,13 +79,17 @@ class Posseg
      */
     protected function viterbi(string $sentence): Viterbi
     {
+        $probEmit  = ModelSingleton::singleton()->getPosProbEmit();
+        $probStart = ModelSingleton::singleton()->getPosProbStart();
+        $probTrans = ModelSingleton::singleton()->getPosProbTrans();
+        $states    = ModelSingleton::singleton()->getPosCharState();
+
         $obs = $sentence;
-        $states = $this->char_state;
         $V = [];
         $V[0] = [];
         $mem_path = [];
         $mem_path[0] = [];
-        $all_states = array_keys($this->prob_trans);
+        $all_states = array_keys($probTrans);
 
         $c = mb_substr($obs, 0, 1);
         $c_states = (!empty($states[$c]) ? $states[$c] : $all_states);
@@ -113,12 +97,12 @@ class Posseg
         foreach ($c_states as $state) {
             $y = $state;
             $c = mb_substr($obs, 0, 1);
-            if (isset($this->prob_emit[$y][$c])) {
-                $prob_emit = $this->prob_emit[$y][$c];
+            if (isset($probEmit[$y][$c])) {
+                $prob_emit = $probEmit[$y][$c];
             } else {
                 $prob_emit = JiebaConstant::MIN_FLOAT;
             }
-            $V[0][$y] = $this->prob_start[$y] + $prob_emit;
+            $V[0][$y] = $probStart[$y] + $prob_emit;
             $mem_path[0][$y] = '';
         }
 
@@ -132,7 +116,7 @@ class Posseg
             $prev_states = [];
 
             foreach ($prev_mem_path as $mem_path_state) {
-                if (count($this->prob_trans[$mem_path_state])>0) {
+                if (count($probTrans[$mem_path_state])>0) {
                     array_push($prev_states, $mem_path_state);
                 }
             }
@@ -144,7 +128,7 @@ class Posseg
                     = array_unique(
                         array_merge(
                             $prev_states_expect_next,
-                            array_keys($this->prob_trans[$prev_state])
+                            array_keys($probTrans[$prev_state])
                         )
                     );
             }
@@ -165,8 +149,8 @@ class Posseg
             foreach ($obs_states as $y) {
                 $temp_prob_array = [];
                 foreach ($prev_states as $y0) {
-                    $prob_trans = ($this->prob_trans[$y0][$y] ?? JiebaConstant::MIN_FLOAT);
-                    $prob_emit  = ($this->prob_emit[$y][$c] ?? JiebaConstant::MIN_FLOAT);
+                    $prob_trans = ($probTrans[$y0][$y] ?? JiebaConstant::MIN_FLOAT);
+                    $prob_emit  = ($probEmit[$y][$c] ?? JiebaConstant::MIN_FLOAT);
                     $temp_prob_array[$y0] = $V[$t-1][$y0] + $prob_trans + $prob_emit;
                 }
                 $top              = new TopArrayElement($temp_prob_array);
@@ -210,13 +194,14 @@ class Posseg
      * @return Words
      * @todo make code easier to understand.
      */
-    public function __cutDetail(string $sentence): Words
+    protected function __cutDetail(string $sentence): Words
     {
         return $this->cutSentence(
             $sentence,
             function (string $block) {
                 return DictHelper::cutSentence(
                     $block,
+                    TaggedWord::class,
                     function (string $sentence) {
                         // here \Jieba\Data\Viterbi::$positions is an array of combined characters (e.g, "('S', 'g')").
                         return $this->viterbi($sentence);
@@ -250,7 +235,7 @@ class Posseg
             } else {
                 if (!empty($buf)) {
                     if (mb_strlen($buf) == 1) {
-                        $words->addWord(new Word($buf, ($this->word_tag[$buf] ?? PosTagConstant::X)));
+                        $words->addWord(new TaggedWord($buf, ($this->word_tag[$buf] ?? PosTagConstant::X)));
                         $buf = '';
                     } else {
                         $regognized = $this->__cutDetail($buf);
@@ -261,14 +246,14 @@ class Posseg
                     }
                 }
 
-                $words->addWord(new Word($l_word, ($this->word_tag[$l_word] ?? PosTagConstant::X)));
+                $words->addWord(new TaggedWord($l_word, ($this->word_tag[$l_word] ?? PosTagConstant::X)));
             }
             $x = $y;
         }
 
         if (!empty($buf)) {
             if (mb_strlen($buf) == 1) {
-                $words->addWord(new Word($buf, ($this->word_tag[$buf] ?? PosTagConstant::X)));
+                $words->addWord(new TaggedWord($buf, ($this->word_tag[$buf] ?? PosTagConstant::X)));
             } else {
                 $regognized = $this->__cutDetail($buf);
                 foreach ($regognized->getWords() as $word) {
@@ -311,21 +296,21 @@ class Posseg
         $blocks = $matches[0];
 
         $seg_list = new Words();
-        foreach ($blocks as $blk) {
-            if (preg_match('/' . JiebaConstant::REGEX_HAN . '/u', $blk)) {
+        foreach ($blocks as $block) {
+            if (preg_match('/' . JiebaConstant::REGEX_HAN . '/u', $block)) {
                 /** @var Words $words */
-                $words = $callback($blk);
+                $words = $callback($block);
                 foreach ($words->getWords() as $word) {
                     $seg_list->addWord($word);
                 }
-            } elseif (preg_match('/' . JiebaConstant::REGEX_SKIP . '/u', $blk)) {
-                if (preg_match('/' . JiebaConstant::REGEX_NUMBER . '/u', $blk)) {
-                    $seg_list->addWord(new Word($blk, PosTagConstant::M));
-                } elseif (preg_match('/' . JiebaConstant::REGEX_ENG . '/u', $blk)) {
-                    $seg_list->addWord(new Word($blk, PosTagConstant::ENG));
+            } elseif (preg_match('/' . JiebaConstant::REGEX_SKIP . '/u', $block)) {
+                if (preg_match('/' . JiebaConstant::REGEX_NUMBER . '/u', $block)) {
+                    $seg_list->addWord(new TaggedWord($block, PosTagConstant::M));
+                } elseif (preg_match('/' . JiebaConstant::REGEX_ENG . '/u', $block)) {
+                    $seg_list->addWord(new TaggedWord($block, PosTagConstant::ENG));
                 }
-            } elseif (preg_match('/' . JiebaConstant::REGEX_PUNCTUATION . '/u', $blk)) {
-                $seg_list->addWord(new Word($blk, PosTagConstant::W));
+            } elseif (preg_match('/' . JiebaConstant::REGEX_PUNCTUATION . '/u', $block)) {
+                $seg_list->addWord(new TaggedWord($block, PosTagConstant::W));
             } else {
                 throw new Exception('unreachable case executed');
             }

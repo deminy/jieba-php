@@ -7,7 +7,6 @@ use Cache\Adapter\PHPArray\ArrayCachePool;
 use Closure;
 use Jieba\Exception;
 use Jieba\Helper\Helper;
-use Jieba\Options\Dict;
 
 class CacheFactory
 {
@@ -33,25 +32,6 @@ class CacheFactory
      * @var AbstractCachePool
      */
     protected static $cachePool;
-
-    /**
-     * @param AbstractCachePool $cachePool
-     * @param Dict $dict
-     * @param string|null $fileType
-     * @return mixed
-     * @throws Exception
-     * @todo use more meaningful cache key instead of md5 values.
-     */
-    public static function getDict(AbstractCachePool $cachePool, Dict $dict, $fileType = null)
-    {
-        return self::get(
-            $cachePool,
-            md5($dict->getDictBaseName($fileType)),
-            function () use ($dict, $fileType) {
-                return $dict->getDictFileContent($fileType);
-            }
-        );
-    }
 
     /**
      * @param AbstractCachePool $cachePool

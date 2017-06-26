@@ -50,14 +50,14 @@ class MultiByteString
         $blocks = $matches[0];
 
         $segmentList = [];
-        foreach ($blocks as $blk) {
-            if (preg_match('/' . JiebaConstant::REGEX_HAN . '/u', $blk)) {
-                $words = $callback($blk);
+        foreach ($blocks as $block) {
+            if (preg_match('/' . JiebaConstant::REGEX_HAN . '/u', $block)) {
+                $words = $callback($block);
                 foreach ($words as $word) {
                     $segmentList[] = $word;
                 }
             } else {
-                $segmentList[] = $blk;
+                $segmentList[] = $block;
             }
         }
 

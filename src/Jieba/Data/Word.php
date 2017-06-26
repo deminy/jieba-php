@@ -15,19 +15,13 @@ class Word
     protected $word;
 
     /**
-     * @var string
-     */
-    protected $tag;
-
-    /**
      * Word constructor.
      *
      * @param string $word
-     * @param string $tag
      */
-    public function __construct(string $word, string $tag)
+    public function __construct(string $word)
     {
-        $this->setWord($word)->setTag($tag);
+        $this->setWord($word);
     }
 
     /**
@@ -50,32 +44,10 @@ class Word
     }
 
     /**
-     * @return string
-     */
-    public function getTag(): string
-    {
-        return $this->tag;
-    }
-
-    /**
-     * @param string $tag
-     * @return Word
-     */
-    public function setTag(string $tag): Word
-    {
-        $this->tag = $tag;
-
-        return $this;
-    }
-
-    /**
      * @return array
      */
     public function toArray(): array
     {
-        return [
-            'word' => $this->getWord(),
-            'tag'  => $this->getTag(),
-        ];
+        return ['word' => $this->getWord()];
     }
 }

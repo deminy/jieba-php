@@ -9,6 +9,7 @@ use Jieba\Data\TopArrayElement;
 use Jieba\Factory\CacheFactory;
 use Jieba\Factory\LoggerFactory;
 use Jieba\Helper\DictHelper;
+use Jieba\Helper\DictSingleton;
 use Jieba\Helper\Helper;
 use Jieba\Options\Dict;
 use Jieba\Options\Options;
@@ -125,10 +126,8 @@ class Jieba
      */
     public function genTrie(Dict $dict): MultiArray
     {
-        $this->trie        = new MultiArray(CacheFactory::getDict($this->getCachePool(), $dict, Dict::SERIALIZED));
-        $this->trie->cache = new MultiArray(
-            CacheFactory::getDict($this->getCachePool(), $dict, Dict::SERIALIZED_AND_CACHED)
-        );
+        $this->trie        = new MultiArray(DictSingleton::singleton()->getDict($dict, Dict::SERIALIZED));
+        $this->trie->cache = new MultiArray(DictSingleton::singleton()->getDict($dict, Dict::SERIALIZED_AND_CACHED));
 
         Helper::readFile(
             $dict->getDictFilePath(),

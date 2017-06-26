@@ -9,14 +9,6 @@ use PHPUnit\Framework\TestCase;
 class PossegTest extends TestCase
 {
     /**
-     * @covers \Jieba\Posseg::__construct()
-     */
-    public function testConstruct()
-    {
-        $this->assertCount(256, (new Posseg(new Jieba()))->prob_start);
-    }
-
-    /**
      * @covers \Jieba\Posseg::cut()
      */
     public function testCut()

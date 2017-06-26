@@ -3,7 +3,6 @@
 [![Build Status](https://travis-ci.org/deminy/jieba-php.svg?branch=master)](https://travis-ci.org/deminy/jieba-php)
 [![Latest Stable Version](https://poser.pugx.org/deminy/jieba-php/v/stable.png)](https://packagist.org/packages/deminy/jieba-php)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/26534521d345458a998eecd3b3008620)](https://www.codacy.com/app/deminy/jieba-php)
-[![codecov.io](http://codecov.io/github/deminy/jieba-php/coverage.svg?branch=master)](http://codecov.io/github/deminy/jieba-php?branch=master)
 [![Coding Standards](https://img.shields.io/badge/cs-PSR--2--R-yellow.svg)](https://github.com/php-fig-rectified/fig-rectified-standards)
 [![PSR-4](https://img.shields.io/badge/cs-PSR--4-yellow.svg)](http://www.php-fig.org/psr/psr-4/)
 [![License](https://poser.pugx.org/deminy/jieba-php/license.svg)](https://packagist.org/packages/deminy/jieba-php)

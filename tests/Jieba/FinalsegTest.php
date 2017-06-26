@@ -8,14 +8,6 @@ use PHPUnit\Framework\TestCase;
 class FinalsegTest extends TestCase
 {
     /**
-     * @covers \Jieba\Finalseg::__construct()
-     */
-    public function testConstruct()
-    {
-        $this->assertCount(4, Finalseg::singleton()->getProbStart());
-    }
-
-    /**
      * @covers \Jieba\Finalseg::cut()
      */
     public function testCut()
