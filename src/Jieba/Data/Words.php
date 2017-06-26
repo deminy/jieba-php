@@ -7,7 +7,7 @@ namespace Jieba\Data;
  *
  * @package Jieba
  */
-class Words
+class Words implements ArrayableInterface
 {
     /**
      * @var Word[]
