@@ -4,12 +4,12 @@
  * Generate dictionary files.
  *
  * Usage:
- *     ./bin/gen_dict_json.php                   # generate dictionary files in first available format only.
- *     ./bin/gen_dict_json.php bson              # generate dictionary files in BSON format only.
- *     ./bin/gen_dict_json.php json              # generate dictionary files in JSON format only.
- *     ./bin/gen_dict_json.php msgpack           # generate dictionary files in Msgpack format only.
- *     ./bin/gen_dict_json.php bson json msgpack # generate dictionary files in BSON, JSON and Msgpack formats.
- *     ./bin/gen_dict_json.php all               # generate dictionary files in all available formats.
+ *     ./bin/generateDictFiles.php                   # generate dictionary files in first available format only.
+ *     ./bin/generateDictFiles.php bson              # generate dictionary files in BSON format only.
+ *     ./bin/generateDictFiles.php json              # generate dictionary files in JSON format only.
+ *     ./bin/generateDictFiles.php msgpack           # generate dictionary files in Msgpack format only.
+ *     ./bin/generateDictFiles.php bson json msgpack # generate dictionary files in BSON, JSON and Msgpack formats.
+ *     ./bin/generateDictFiles.php all               # generate dictionary files in all available formats.
  */
 
 require_once dirname(__DIR__) . '/vendor/autoload.php';

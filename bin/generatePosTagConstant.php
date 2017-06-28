@@ -15,10 +15,10 @@ $template = <<<EOC
 namespace Jieba\Constants;
 
 /**
- * Class PosTagConstant. This file is generated with script /bin/genPosTagConstant.php.
+ * Class PosTagConstant. This file is generated with script /bin/generatePosTagConstant.php.
  *
  * @package Jieba
- * @see https://github.com/deminy/jieba-php/blob/master/bin/genPosTagConstant.php
+ * @see https://github.com/deminy/jieba-php/blob/master/bin/generatePosTagConstant.php
  */
 class PosTagConstant
 {
