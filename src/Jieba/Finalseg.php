@@ -30,18 +30,13 @@ class Finalseg
     {
         return (new MultiByteString($sentence))->cut(
             function (string $block) {
-                return array_map(
-                    function (Word $word) {
-                        return $word->getWord();
-                    },
-                    DictHelper::cutSentence(
-                        $block,
-                        Word::class,
-                        function (string $sentence) {
-                            // here \Jieba\Data\Viterbi::$positions is an array of single characters (BMES characters).
-                            return $this->viterbi($sentence);
-                        }
-                    )->getWords()
+                return DictHelper::cutSentence(
+                    $block,
+                    Word::class,
+                    function (string $sentence) {
+                        // here \Jieba\Data\Viterbi::$positions is an array of single characters (BMES characters).
+                        return $this->viterbi($sentence);
+                    }
                 );
             }
         );

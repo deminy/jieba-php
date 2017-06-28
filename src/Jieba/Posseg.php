@@ -84,40 +84,30 @@ class Posseg
         $probTrans = ModelSingleton::singleton()->getPosProbTrans();
         $states    = ModelSingleton::singleton()->getPosCharState();
 
-        $obs = $sentence;
-        $V = [];
-        $V[0] = [];
-        $mem_path = [];
-        $mem_path[0] = [];
-        $all_states = array_keys($probTrans);
+        $obs         = $sentence;
+        $V           = [[]];
+        $mem_path    = [[]];
+        $all_states  = array_keys($probTrans);
 
-        $c = mb_substr($obs, 0, 1);
+        $c        = mb_substr($obs, 0, 1);
         $c_states = (!empty($states[$c]) ? $states[$c] : $all_states);
 
         foreach ($c_states as $state) {
-            $y = $state;
-            $c = mb_substr($obs, 0, 1);
-            if (isset($probEmit[$y][$c])) {
-                $prob_emit = $probEmit[$y][$c];
-            } else {
-                $prob_emit = JiebaConstant::MIN_FLOAT;
-            }
-            $V[0][$y] = $probStart[$y] + $prob_emit;
-            $mem_path[0][$y] = '';
+            $c                   = mb_substr($obs, 0, 1);
+            $prob_emit           = $probEmit[$state][$c] ?? JiebaConstant::MIN_FLOAT;
+            $V[0][$state]        = $probStart[$state] + $prob_emit;
+            $mem_path[0][$state] = '';
         }
 
-        for ($t=1; $t<mb_strlen($obs); $t++) {
-            $c = mb_substr($obs, $t, 1);
-            $V[$t] = [];
+        for ($t = 1; $t < mb_strlen($obs); $t++) {
+            $c            = mb_substr($obs, $t, 1);
+            $V[$t]        = [];
             $mem_path[$t] = [];
 
-            $prev_mem_path = array_keys($mem_path[$t-1]);
-
             $prev_states = [];
-
-            foreach ($prev_mem_path as $mem_path_state) {
-                if (count($probTrans[$mem_path_state])>0) {
-                    array_push($prev_states, $mem_path_state);
+            foreach (array_keys($mem_path[$t - 1]) as $mem_path_state) {
+                if (!empty($probTrans[$mem_path_state])) {
+                    $prev_states[] = $mem_path_state;
                 }
             }
 
@@ -133,18 +123,9 @@ class Posseg
                     );
             }
 
-            if (isset($states[$c])) {
-                $obs_states = $states[$c];
-            } else {
-                $obs_states = $all_states;
-            }
-
+            $obs_states = $states[$c] ?? $all_states;
             $obs_states = array_intersect($obs_states, $prev_states_expect_next);
-
-            if (count($obs_states)==0) {
-                $obs_states = $all_states;
-            }
-
+            $obs_states = $obs_states ?: $all_states;
 
             foreach ($obs_states as $y) {
                 $temp_prob_array = [];
@@ -164,26 +145,18 @@ class Posseg
 
         foreach ($mem_path_end_keys as $y) {
             $end_array = end($V);
-            $last[$y] = $end_array[$y];
+            $last[$y]  = $end_array[$y];
         }
 
         $top             = new TopArrayElement($last);
         $return_prob_key = $top->getKey();
         $return_prob     = $top->getValue();
 
-        $obs_length = mb_strlen($obs);
+        $route = array_fill(0, mb_strlen($obs), 'None');
 
-        $route = [];
-        for ($t=0; $t<$obs_length; $t++) {
-            array_push($route, 'None');
-        }
-
-        $i = $obs_length-1;
-
-        while ($i >= 0) {
-            $route[$i] = $return_prob_key;
+        for ($i = count($route) - 1; $i >= 0; $i--) {
+            $route[$i]       = $return_prob_key;
             $return_prob_key = $mem_path[$i][$return_prob_key];
-            $i -= 1;
         }
 
         return new Viterbi($return_prob, $route);
@@ -227,23 +200,22 @@ class Posseg
 
         while ($x < $N) {
             $current_route_keys = array_keys($this->getJieba()->getRouteByKey($x));
-            $y = $current_route_keys[0]+1;
-            $l_word = mb_substr($sentence, $x, ($y-$x));
+            $y                  = $current_route_keys[0] + 1;
+            $l_word             = mb_substr($sentence, $x, ($y - $x));
 
-            if (($y-$x)==1) {
-                $buf = $buf.$l_word;
+            if (($y - $x) == 1) {
+                $buf .= $l_word;
             } else {
                 if (!empty($buf)) {
                     if (mb_strlen($buf) == 1) {
                         $words->addWord(new TaggedWord($buf, ($this->word_tag[$buf] ?? PosTagConstant::X)));
-                        $buf = '';
                     } else {
                         $regognized = $this->__cutDetail($buf);
                         foreach ($regognized->getWords() as $word) {
                             $words->addWord($word);
                         }
-                        $buf = '';
                     }
+                    $buf = '';
                 }
 
                 $words->addWord(new TaggedWord($l_word, ($this->word_tag[$l_word] ?? PosTagConstant::X)));

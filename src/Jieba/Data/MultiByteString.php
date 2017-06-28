@@ -36,7 +36,7 @@ class MultiByteString
     }
 
     /**
-     * @param Closure $callback
+     * @param Closure $callback Callback function that returns a \Jieba\Data\Words object back.
      * @return array
      */
     public function cut(Closure $callback): array
@@ -52,9 +52,10 @@ class MultiByteString
         $segmentList = [];
         foreach ($blocks as $block) {
             if (preg_match('/' . JiebaConstant::REGEX_HAN . '/u', $block)) {
+                /** @var Words $words */
                 $words = $callback($block);
-                foreach ($words as $word) {
-                    $segmentList[] = $word;
+                foreach ($words->getWords() as $word) {
+                    $segmentList[] = $word->getWord();
                 }
             } else {
                 $segmentList[] = $block;

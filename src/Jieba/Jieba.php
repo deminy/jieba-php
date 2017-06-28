@@ -6,6 +6,8 @@ use Cache\Adapter\Common\AbstractCachePool;
 use Jieba\Data\MultiArray;
 use Jieba\Data\MultiByteString;
 use Jieba\Data\TopArrayElement;
+use Jieba\Data\Word;
+use Jieba\Data\Words;
 use Jieba\Factory\CacheFactory;
 use Jieba\Factory\LoggerFactory;
 use Jieba\Helper\DictHelper;
@@ -169,25 +171,20 @@ class Jieba
 
     /**
      * @param string $sentence
-     * @return array
+     * @return Words
      */
-    protected function __cutAll(string $sentence): array
+    protected function __cutAll(string $sentence): Words
     {
-        $words = [];
-
-        $DAG = $this->getDAG($sentence);
         $old_j = -1;
-
-        foreach ($DAG as $k => $L) {
+        $words = new Words();
+        foreach ($this->getDAG($sentence) as $k => $L) {
             if (count($L) == 1 && $k > $old_j) {
-                $word = mb_substr($sentence, $k, (($L[0]-$k)+1));
-                array_push($words, $word);
+                $words->addWord(new Word(mb_substr($sentence, $k, (($L[0] - $k) + 1))));
                 $old_j = $L[0];
             } else {
                 foreach ($L as $j) {
                     if ($j > $k) {
-                        $word = mb_substr($sentence, $k, ($j-$k)+1);
-                        array_push($words, $word);
+                        $words->addWord(new Word(mb_substr($sentence, $k, ($j - $k) + 1)));
                         $old_j = $j;
                     }
                 }
@@ -210,12 +207,8 @@ class Jieba
         $word_c = [];
 
         while ($i < $N) {
-            $c = mb_substr($sentence, $j, 1);
-            if (count($word_c)==0) {
-                $next_word_key = $c;
-            } else {
-                $next_word_key = implode('.', $word_c) . '.' . $c;
-            }
+            $c             = mb_substr($sentence, $j, 1);
+            $next_word_key = ($word_c ? (implode('.', $word_c) . '.' . $c) : $c);
 
             if ($this->trie->exists($next_word_key)) {
                 array_push($word_c, $c);
@@ -224,28 +217,22 @@ class Jieba
                  || isset($next_word_key_value['end'])
                  || isset($next_word_key_value[0]['end'])
                 ) {
-                    if (!isset($DAG[$i])) {
-                        $DAG[$i] = [];
-                    }
-                    array_push($DAG[$i], $j);
+                    $DAG[$i]   = $DAG[$i] ?? [];
+                    $DAG[$i][] = $j;
                 }
-                $j += 1;
+                $j++;
                 if ($j >= $N) {
                     $word_c = [];
-                    $i += 1;
-                    $j = $i;
+                    $j      = ++$i;
                 }
             } else {
                 $word_c = [];
-                $i += 1;
-                $j = $i;
+                $j      = ++$i;
             }
         }
 
-        for ($i=0; $i<$N; $i++) {
-            if (!isset($DAG[$i])) {
-                $DAG[$i] = [$i];
-            }
+        for ($i = 0; $i < $N; $i++) {
+            $DAG[$i] = $DAG[$i] ?? [$i];
         }
 
         return $DAG;
@@ -253,52 +240,48 @@ class Jieba
 
     /**
      * @param string $sentence
-     * @return array
+     * @return Words
      */
-    protected function __cutDAG(string $sentence): array
+    protected function __cutDAG(string $sentence): Words
     {
-        $words = [];
-
         $N = mb_strlen($sentence);
         $DAG = $this->getDAG($sentence);
 
         $this->calc($sentence, $DAG);
 
-        $x = 0;
+        $x   = 0;
         $buf = '';
 
+        $words = new Words();
         while ($x < $N) {
             $current_route_keys = array_keys($this->route[$x]);
             $y = $current_route_keys[0] + 1;
             $l_word = mb_substr($sentence, $x, ($y - $x));
 
             if (($y - $x) == 1) {
-                $buf = $buf . $l_word;
+                $buf .= $l_word;
             } else {
                 if (!empty($buf)) {
                     if (mb_strlen($buf) == 1) {
-                        array_push($words, $buf);
-                        $buf = '';
+                        $words->addWord(new Word($buf));
                     } else {
-                        $regognized = Finalseg::singleton()->cut($buf);
-                        foreach ($regognized as $key => $word) {
-                            array_push($words, $word);
+                        foreach (Finalseg::singleton()->cut($buf) as $word) {
+                            $words->addWord(new Word($word));
                         }
-                        $buf = '';
                     }
+                    $buf = '';
                 }
-                array_push($words, $l_word);
+                $words->addWord(new Word($l_word));
             }
             $x = $y;
         }
 
         if (!empty($buf)) {
             if (mb_strlen($buf) == 1) {
-                array_push($words, $buf);
+                $words->addWord(new Word($buf));
             } else {
-                $regognized = Finalseg::singleton()->cut($buf);
-                foreach ($regognized as $key => $word) {
-                    array_push($words, $word);
+                foreach (Finalseg::singleton()->cut($buf) as $word) {
+                    $words->addWord(new Word($word));
                 }
             }
         }
