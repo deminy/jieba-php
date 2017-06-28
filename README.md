@@ -42,7 +42,7 @@ var_dump((new Jieba())->cut("怜香惜玉也得要看对象啊！"));
 
 本库默认假设用户使用的字符编码为UTF-8。如果运行环境非UTF-8，你可以参考下面的代码文件解决相关编码问题：
 
-> ./examples/demo_encoding.php
+> ./examples/encoding.php
 
 # 用法介绍
 
@@ -56,19 +56,19 @@ var_dump((new Jieba())->cut("怜香惜玉也得要看对象啊！"));
 
 开发者可以指定自己自定义的词典，以便包含jieba词库裡没有的词。虽然jieba有新词识别能力，但是自行添加新词可以保证更高的正确率。请参考下面的代码文件：
 
-> ./examples/demo_user_dict.php
+> ./examples/useUserDict.php
 
 ## 关键词提取
 
 请参考下面的代码文件：
 
-> ./examples/demo_extract_tags.php
+> ./examples/extractTags.php
 
 ## 词性分词
 
 有关词性说明，请参考《[词性标记](https://gist.github.com/luw2007/6016931)》这篇文档。下面的代码文件可以提供更多的理解：
 
-> ./examples/demo_posseg.php
+> ./examples/posseg.php
 
 ## 切换成繁体字典
 
@@ -80,7 +80,7 @@ var_dump((new Jieba())->cut("怜香惜玉也得要看对象啊！"));
 
 请参考下面的代码文件：
 
-> ./examples/demo_use_different_serializers.php
+> ./examples/useDifferentSerializers.php
 
 # 常见问题
 

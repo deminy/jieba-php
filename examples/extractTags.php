@@ -14,6 +14,6 @@ foreach ([Dict::BIG, Dict::SMALL] as $dict) {
         (new Jieba((new Options())->setDict(new Dict(Dict::BIG))))->cut($sentence),
         10
     );
-    echo "\n cut sentence with dictionary '{$dict}':\n";
+    echo "\ncut sentence with dictionary '{$dict}':\n";
     print_r($tags);
 }
