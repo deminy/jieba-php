@@ -190,14 +190,13 @@ class Posseg
      */
     protected function __cutDAG(string $sentence): Words
     {
-        $words = new Words();
-
         $N = mb_strlen($sentence);
         $this->getJieba()->calc($sentence, $this->getJieba()->getDAG($sentence));
 
-        $x = 0;
+        $x   = 0;
         $buf = '';
 
+        $words = new Words();
         while ($x < $N) {
             $current_route_keys = array_keys($this->getJieba()->getRouteByKey($x));
             $y                  = $current_route_keys[0] + 1;
@@ -210,8 +209,7 @@ class Posseg
                     if (mb_strlen($buf) == 1) {
                         $words->addWord(new TaggedWord($buf, ($this->word_tag[$buf] ?? PosTagConstant::X)));
                     } else {
-                        $regognized = $this->__cutDetail($buf);
-                        foreach ($regognized->getWords() as $word) {
+                        foreach ($this->__cutDetail($buf)->getWords() as $word) {
                             $words->addWord($word);
                         }
                     }
@@ -227,8 +225,7 @@ class Posseg
             if (mb_strlen($buf) == 1) {
                 $words->addWord(new TaggedWord($buf, ($this->word_tag[$buf] ?? PosTagConstant::X)));
             } else {
-                $regognized = $this->__cutDetail($buf);
-                foreach ($regognized->getWords() as $word) {
+                foreach ($this->__cutDetail($buf)->getWords() as $word) {
                     $words->addWord($word);
                 }
             }

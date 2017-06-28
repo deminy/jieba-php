@@ -80,6 +80,7 @@ class ViterbiTest extends TestCase
     {
         $this->assertSame($expected, (new Viterbi(0.0, $positions))->getPositionAt($index), $message);
     }
+
     /**
      * @return array
      */

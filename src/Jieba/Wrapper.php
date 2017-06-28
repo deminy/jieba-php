@@ -18,7 +18,7 @@ class Wrapper
         $encoding = mb_internal_encoding();
 
         if (JiebaConstant::UTF8 != $encoding) {
-            mb_internal_encoding('UTF-8');
+            mb_internal_encoding(JiebaConstant::UTF8);
         }
 
         $result = $callback(...$params);

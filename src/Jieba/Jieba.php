@@ -153,14 +153,7 @@ class Jieba
             $userDictName,
             function (string $line) {
                 DictHelper::readDictLine($line, $word, $this->original_freq, $this->total);
-
-                $l = mb_strlen($word);
-                $word_c = [];
-                for ($i = 0; $i < $l; $i++) {
-                    $word_c[] = mb_substr($word, $i, 1);
-                }
-                $word_c_key = implode('.', $word_c);
-                $this->trie->set($word_c_key, ['end' => '']);
+                $this->trie->set((new MultiByteString($word))->buildMultiArrayKey(), ['end' => '']);
             }
         );
 
