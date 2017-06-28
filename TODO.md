@@ -1,9 +1,11 @@
 # TODOs for Next Stable Release
 
 * Create BSON/JSON/Msgpack files for ./dict/idf.txt and ./dict/pos_tag_readable.txt.
+* move method \Jieba\Helper\DictHelper::DictHelper() into class \Jieba\Data\TopArrayElement, and rename class \Jieba\Data\TopArrayElement if needed.
 
 # TODOs
 
+* There are two different types of method cutSentence(). Rename them properly.
 * Each Travis CI build should finish in around 3 minutes.
 * Comments in demo scripts.
 * Upgrade from 0.25 to latest version 0.36 of https://github.com/fxsjy/jieba

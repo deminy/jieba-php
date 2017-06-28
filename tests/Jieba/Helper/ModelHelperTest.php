@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 class ModelHelperTest extends TestCase
 {
     /**
-     * @covers \Jieba\Helper\ModelSingleton::__construct()
      * @covers \Jieba\Helper\ModelSingleton::getProbStart()
      */
     public function testGetProbStart()
@@ -17,11 +16,10 @@ class ModelHelperTest extends TestCase
     }
 
     /**
-     * @covers \Jieba\Helper\ModelSingleton::__construct()
-     * @covers \Jieba\Helper\ModelSingleton::getProbStart()
+     * @covers \Jieba\Helper\ModelSingleton::getPosProbStart()
      */
-    public function getProbStart2()
+    public function testGetPosProbStart()
     {
-        $this->assertCount(256, ModelSingleton::singleton()->getProbStart());
+        $this->assertCount(256, ModelSingleton::singleton()->getPosProbStart());
     }
 }

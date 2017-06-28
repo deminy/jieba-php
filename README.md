@@ -7,7 +7,7 @@
 [![PSR-4](https://img.shields.io/badge/cs-PSR--4-yellow.svg)](http://www.php-fig.org/psr/psr-4/)
 [![License](https://poser.pugx.org/deminy/jieba-php/license.svg)](https://packagist.org/packages/deminy/jieba-php)
 
-"[结巴中文分词](https://github.com/fxsjy/jieba)"PHP版本：基于[fukuball](https://github.com/fukuball/jieba-php)的PHP实现而作的各种更新和改进，包括使用PHP 7的新功能重构代码、使用PSR-4管理autoloading、使用依赖注射等设计模式、更新单元测试的实现、以及更多的性能优化和代码更新等等。
+"结巴中文分词"PHP版本："[结巴中文分词](https://github.com/fxsjy/jieba)"是Sun Junyi开发的Python版的中文分词组件，后来衍生了多种语言实现，包括C++、Java、.NET、Go等等。这份PHP版本基于[fukuball](https://github.com/fukuball/jieba-php)之前做的PHP实现（v0.25）而作了各种更新和改进，包括使用PHP 7的新功能重构代码、使用PSR-4管理autoloading、使用依赖注射等设计模式、更新单元测试的实现、代码升级、以及更多的性能优化和代码更新等等。如果你需要相应的PHP扩展的版本，可考虑jonnywang写的[结巴中文分词之PHP扩展](https://github.com/jonnywang/phpjieba)。
 
 有关算法、词典生成等方面的问题，请参考[结巴中文分词](https://github.com/fxsjy/jieba)相关文档。
 
@@ -19,11 +19,10 @@
     * 搜索引擎模式，在精确模式的基础上，对长词再次切分，提高召回率，适合用于搜索引擎分词。
 * 支持繁体分词。
 * 支持自定义词典。
-* MIT 授权协议。
 
 # 安装使用
 
-使用本库你需要至少给PHP分配1G内存限制(memory_limit >= 1G)或更多。随着进一步的优化（包括缓存方面的优化），内存消耗将会降低。
+使用本库你需要至少给PHP分配1G内存限制或更多，主要是用来存储词典信息。随着进一步的优化（包括缓存方面的优化），内存消耗将会降低。
 
 ```bash
 composer require deminy/jieba-php:dev-master

@@ -16,8 +16,18 @@ class LoggerFactory
     protected static $logger;
 
     /**
+     * @param LoggerInterface $logger
      * @return LoggerInterface
-     * @todo refactor it to support customized logger.
+     */
+    public static function setLogger(LoggerInterface $logger):  LoggerInterface
+    {
+        self::$logger = $logger;
+
+        return self::$logger;
+    }
+
+    /**
+     * @return LoggerInterface
      */
     public static function getLogger(): LoggerInterface
     {
@@ -26,9 +36,9 @@ class LoggerFactory
                 $handler = new StreamHandler(self::getLogFile('jieba.log'), Logger::DEBUG);
                 $handler->setFormatter(new LineFormatter(null, null, true, true));
 
-                self::$logger = new Logger('jieba', [$handler]);
+                self::setLogger(new Logger('jieba', [$handler]));
             } else {
-                self::$logger = new NullLogger();
+                self::setLogger(new NullLogger());
             }
         }
 
