@@ -11,6 +11,8 @@ use Jieba\Data\Word;
 use Jieba\Data\Words;
 use Jieba\Data\Viterbi;
 use Jieba\Exception;
+use Jieba\Options\Dict;
+use Jieba\Serializer\SerializerFactory;
 use League\Csv\Reader;
 
 /**
@@ -67,28 +69,15 @@ class DictHelper
     /**
      * Go through words in given dictionary and return word frequency back.
      *
-     * @param string $basename
      * @return array
      */
-    public static function getIdfFreq(string $basename)
+    public static function getIdfFreq()
     {
-        $idfFreq = [];
+        $type = SerializerFactory::EXTENSIONS[SerializerFactory::getSerializer()->getType()];
 
-        Reader::createFromPath(Helper::getDictFilePath($basename))
-            ->setDelimiter(' ')
-            ->fetchAll(
-                function (array $row) use (&$idfFreq) {
-                    if (!empty($row)) {
-                        $word   = $row[0];
-                        $freq   = (float) $row[1];
-                        // $tag = $row[2];
-
-                        $idfFreq[$word] = $freq;
-                    }
-                }
-            );
-
-        return $idfFreq;
+        return SerializerFactory::getSerializer()->decode(
+            file_get_contents(Helper::getDictBasePath(Dict::SERIALIZED) . 'idf.' . $type)
+        );
     }
 
     /**

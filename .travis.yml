@@ -9,7 +9,8 @@ before_script:
   - mkdir -p build/logs
 
 script:
-  - ./vendor/bin/phpunit --coverage-text --coverage-clover ./clover.xml
+  - ./vendor/bin/phpunit
+  # - ./vendor/bin/phpunit --coverage-text --coverage-clover ./clover.xml
   - ./vendor/bin/phpcs --standard=PSR2  --extensions=php ./src ./tests
 
 after_script:

@@ -39,7 +39,7 @@ class JiebaAnalyse
             $this->getCachePool(),
             ('idf_' . md5(__CLASS__)),
             function () {
-                return DictHelper::getIdfFreq('idf.txt');
+                return DictHelper::getIdfFreq();
             }
         );
 

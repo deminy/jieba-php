@@ -18,6 +18,11 @@ class MultiByteString
     protected $string;
 
     /**
+     * @var int
+     */
+    protected $strlen;
+
+    /**
      * MultiByteString constructor.
      *
      * @param string $string a UTF-8 string
@@ -25,14 +30,6 @@ class MultiByteString
     public function __construct(string $string = '')
     {
         $this->setString($string);
-    }
-
-    /**
-     * @return int
-     */
-    public function strlen(): int
-    {
-        return ($this->getString() ? mb_strlen($this->getString()) : 0);
     }
 
     /**
@@ -86,6 +83,23 @@ class MultiByteString
     }
 
     /**
+     * @param int $index
+     * @return string
+     */
+    public function get(int $index): string
+    {
+        return mb_substr($this->string, $index, 1);
+    }
+
+    /**
+     * @return int
+     */
+    public function strlen(): int
+    {
+        return $this->strlen;
+    }
+
+    /**
      * @return string
      */
     public function getString(): string
@@ -100,6 +114,7 @@ class MultiByteString
     public function setString(string $string): MultiByteString
     {
         $this->string = $string;
+        $this->strlen = ($string ? mb_strlen($string) : 0);
 
         return $this;
     }

@@ -91,4 +91,31 @@ class SerializerFactory
 
         return $serializers;
     }
+
+    /**
+     * Sample calls:
+     *     self::getAvailableTypes();                            # return first available format only.
+     *     self::getAvailableTypes(['bson']);                    # return BSON format only.
+     *     self::getAvailableTypes(['json']);                    # return JSON format only.
+     *     self::getAvailableTypes(['msgpack']);                 # return Msgpack format only.
+     *     self::getAvailableTypes(['bson', 'json', 'msgpack']); # return BSON, JSON and Msgpack formats.
+     *     self::getAvailableTypes(['all']);                     # return all available formats.
+     *
+     * @param array $types
+     * @return array
+     */
+    public static function getAvailableTypes(array $types = []): array
+    {
+        $allTypes = SerializerFactory::getAllAvailableTypes();
+        if (!empty($types)) {
+            foreach ($types as &$type) {
+                $type = strtolower(trim($type));
+            }
+            unset($type);
+
+            return (in_array('all', $types) ? $allTypes : array_intersect($allTypes, $types));
+        } else {
+            return [$allTypes[0]];
+        }
+    }
 }

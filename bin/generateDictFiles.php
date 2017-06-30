@@ -20,21 +20,8 @@ use Jieba\Helper\Helper;
 use Jieba\Options\Dict;
 use Jieba\Serializer\SerializerFactory;
 
-$allTypes = SerializerFactory::getAllAvailableTypes();
-$types    = $argv;
-array_shift($types);
-if (!empty($types)) {
-    foreach ($types as &$type) {
-        $type = strtolower(trim($type));
-    }
-    unset($type);
-
-    $types = (in_array('all', $types) ? $allTypes : array_intersect($allTypes, $types));
-} else {
-    $types = [$allTypes[0]];
-}
-
-$dict = new Dict();
+$types = SerializerFactory::getAvailableTypes(array_slice($argv, 1));
+$dict  = new Dict();
 foreach (Dict::VALID_DICTIONARIES as $dictName) {
     $trie = new MultiArray();
 

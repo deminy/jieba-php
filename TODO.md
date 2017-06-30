@@ -1,6 +1,5 @@
 # TODOs for Next Stable Release
 
-* Create BSON/JSON/Msgpack files for ./dict/idf.txt and ./dict/pos_tag_readable.txt.
 * move method \Jieba\Helper\DictHelper::DictHelper() into class \Jieba\Data\TopArrayElement, and rename class \Jieba\Data\TopArrayElement if needed.
 
 # TODOs
@@ -19,6 +18,7 @@
 * Unit test for different serializer:
     * JSON
     * MessagePack
+* Optimize model files.
 
 # DONE
 
@@ -29,6 +29,7 @@
     * dict/lyric.txt
     * dict/user_dict.txt
 * Don't hardcode internal encoding.
+* Create BSON/JSON/Msgpack files for ./dict/idf.txt.
 
 # POSTPONED
 

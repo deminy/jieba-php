@@ -23,10 +23,12 @@
     },
     "scripts": {
         "post-install-cmd": [
-            "./bin/generateDictFiles.php"
+            "./bin/generateDictFiles.php",
+            "./bin/generateIdfFile.php"
         ],
         "post-update-cmd": [
-            "./bin/generateDictFiles.php"
+            "./bin/generateDictFiles.php",
+            "./bin/generateIdfFile.php"
         ]
     },
     "suggest": {

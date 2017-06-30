@@ -7,8 +7,9 @@ use Closure;
 use Jieba\Constants\JiebaConstant;
 use Jieba\Constants\PosTagConstant;
 use Jieba\Data\TopArrayElement;
-use Jieba\Data\Viterbi;
+use Jieba\Data\MultiByteString;
 use Jieba\Data\TaggedWord;
+use Jieba\Data\Viterbi;
 use Jieba\Data\Words;
 use Jieba\Factory\CacheFactory;
 use Jieba\Helper\DictHelper;
@@ -84,23 +85,23 @@ class Posseg
         $probTrans = ModelSingleton::singleton()->getPosProbTrans();
         $states    = ModelSingleton::singleton()->getPosCharState();
 
-        $obs         = $sentence;
+        $string      = new MultiByteString($sentence);
         $V           = [[]];
         $mem_path    = [[]];
         $all_states  = array_keys($probTrans);
 
-        $c        = mb_substr($obs, 0, 1);
+        $c        = $string->get(0);
         $c_states = (!empty($states[$c]) ? $states[$c] : $all_states);
 
         foreach ($c_states as $state) {
-            $c                   = mb_substr($obs, 0, 1);
+            $c                   = $string->get(0);
             $prob_emit           = $probEmit[$state][$c] ?? JiebaConstant::MIN_FLOAT;
             $V[0][$state]        = $probStart[$state] + $prob_emit;
             $mem_path[0][$state] = '';
         }
 
-        for ($t = 1; $t < mb_strlen($obs); $t++) {
-            $c            = mb_substr($obs, $t, 1);
+        for ($t = 1; $t < $string->strlen(); $t++) {
+            $c            = $string->get($t);
             $V[$t]        = [];
             $mem_path[$t] = [];
 
@@ -130,8 +131,8 @@ class Posseg
             foreach ($obs_states as $y) {
                 $temp_prob_array = [];
                 foreach ($prev_states as $y0) {
-                    $prob_trans = ($probTrans[$y0][$y] ?? JiebaConstant::MIN_FLOAT);
-                    $prob_emit  = ($probEmit[$y][$c] ?? JiebaConstant::MIN_FLOAT);
+                    $prob_trans           = ($probTrans[$y0][$y] ?? JiebaConstant::MIN_FLOAT);
+                    $prob_emit            = ($probEmit[$y][$c] ?? JiebaConstant::MIN_FLOAT);
                     $temp_prob_array[$y0] = $V[$t-1][$y0] + $prob_trans + $prob_emit;
                 }
                 $top              = new TopArrayElement($temp_prob_array);
@@ -140,11 +141,9 @@ class Posseg
             }
         }
 
-        $last = [];
-        $mem_path_end_keys = array_keys(end($mem_path));
-
-        foreach ($mem_path_end_keys as $y) {
-            $end_array = end($V);
+        $end_array = end($V);
+        $last      = [];
+        foreach (array_keys(end($mem_path)) as $y) {
             $last[$y]  = $end_array[$y];
         }
 
@@ -152,8 +151,7 @@ class Posseg
         $return_prob_key = $top->getKey();
         $return_prob     = $top->getValue();
 
-        $route = array_fill(0, mb_strlen($obs), 'None');
-
+        $route = array_fill(0, $string->strlen(), 'None');
         for ($i = count($route) - 1; $i >= 0; $i--) {
             $route[$i]       = $return_prob_key;
             $return_prob_key = $mem_path[$i][$return_prob_key];

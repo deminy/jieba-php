@@ -71,8 +71,8 @@ class Finalseg
             foreach (JiebaConstant::BMES as $state) {
                 $temp_prob_array = [];
                 foreach (JiebaConstant::BMES as $state0) {
-                    $prob_trans = ($probTrans[$state0][$state] ?? JiebaConstant::MIN_FLOAT);
-                    $prob_emit  = ($probEmit[$state][$c] ?? JiebaConstant::MIN_FLOAT);
+                    $prob_trans               = ($probTrans[$state0][$state] ?? JiebaConstant::MIN_FLOAT);
+                    $prob_emit                = ($probEmit[$state][$c] ?? JiebaConstant::MIN_FLOAT);
                     $temp_prob_array[$state0] = $V[$t-1][$state0] + $prob_trans + $prob_emit;
                 }
                 $top               = new TopArrayElement($temp_prob_array);
