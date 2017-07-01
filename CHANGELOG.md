@@ -1,5 +1,5 @@
-0.25.3 / TBD
-============
+0.25.3 / 2017-06-30
+===================
 
   * New class \Jieba\PosTagConstant from text file /dict/pos_tag_readable.txt.
   * Standardize data structure with new class \Jieba\Word and \Jieba\Words.
