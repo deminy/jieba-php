@@ -1,6 +1,6 @@
 <?php
 
-namespace Jieba;
+namespace Jieba\Analyse;
 
 use Cache\Adapter\Common\AbstractCachePool;
 use Jieba\Factory\CacheFactory;
@@ -9,11 +9,11 @@ use Jieba\Traits\CachePoolTrait;
 use Jieba\Traits\SingletonTrait;
 
 /**
- * Class JiebaAnalyse
+ * Class Analyse
  *
- * @package Jieba
+ * @package Jieba\Analyse
  */
-class JiebaAnalyse
+class Analyse
 {
     use CachePoolTrait, SingletonTrait;
 
@@ -28,7 +28,7 @@ class JiebaAnalyse
     protected $maxIdf  = 0;
 
     /**
-     * JiebaAnalyse constructor.
+     * Analyse constructor.
      * @param AbstractCachePool|null $cachePool
      */
     protected function __construct(AbstractCachePool $cachePool = null)
@@ -88,9 +88,9 @@ class JiebaAnalyse
 
     /**
      * @param array $idfFreq
-     * @return JiebaAnalyse
+     * @return Analyse
      */
-    public function setIdfFreq(array $idfFreq): JiebaAnalyse
+    public function setIdfFreq(array $idfFreq): Analyse
     {
         $this->idfFreq = $idfFreq;
 
@@ -107,9 +107,9 @@ class JiebaAnalyse
 
     /**
      * @param int $maxIdf
-     * @return JiebaAnalyse
+     * @return Analyse
      */
-    public function setMaxIdf(int $maxIdf): JiebaAnalyse
+    public function setMaxIdf(int $maxIdf): Analyse
     {
         $this->maxIdf = $maxIdf;
 

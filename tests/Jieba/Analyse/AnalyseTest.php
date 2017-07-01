@@ -2,20 +2,20 @@
 
 namespace Jieba\Tests\Jieba;
 
+use Jieba\Analyse\Analyse;
 use Jieba\Jieba;
-use Jieba\JiebaAnalyse;
 use Jieba\Options\Options;
 use Jieba\Options\Dict;
 use PHPUnit\Framework\TestCase;
 
-class JiebaAnalyseTest extends TestCase
+class AnalyseTest extends TestCase
 {
     /**
-     * @covers \Jieba\JiebaAnalyse::__construct()
+     * @covers \Jieba\Analyse\Analyse::__construct()
      */
     public function testConstruct()
     {
-        $this->assertGreaterThan(0, JiebaAnalyse::singleton()->getMaxIdf());
+        $this->assertGreaterThan(0, Analyse::singleton()->getMaxIdf());
     }
 
     /**
@@ -60,7 +60,7 @@ class JiebaAnalyseTest extends TestCase
 
     /**
      * @dataProvider arrayExtractTags
-     * @covers \Jieba\JiebaAnalyse::extractTags()
+     * @covers \Jieba\Analyse\Analyse::extractTags()
      * @param string $dict
      * @param int $topK
      * @param array $expected
@@ -70,7 +70,7 @@ class JiebaAnalyseTest extends TestCase
         $jieba = new Jieba((new Options())->setDict(new Dict($dict)));
         $this->assertEquals(
             $expected,
-            JiebaAnalyse::singleton()->extractTags(
+            Analyse::singleton()->extractTags(
                 $jieba->cut(file_get_contents(dirname(__DIR__) . '/dict/lyric.txt')),
                 $topK
             )
