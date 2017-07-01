@@ -13,6 +13,8 @@ class JiebaConstant
 
     const UTF8 = 'UTF-8';
 
+    const NONE = 'None';
+
     const REGEX_HAN         = '([\x{4E00}-\x{9FA5}]+)';
     const REGEX_SKIP        = '([a-zA-Z0-9+#\r\n]+)';
     const REGEX_PUNCTUATION = '([\x{ff5e}\x{ff01}\x{ff08}\x{ff09}\x{300e}\x{300c}' .

@@ -85,3 +85,7 @@ var_dump((new Jieba())->cut("怜香惜玉也得要看对象啊！"));
 # 常见问题
 
 1. [模型的数据是如何生成的？](https://github.com/fxsjy/jieba/issues/7)
+
+2. 术语说明
+
+* [tf–idf](https://zh.wikipedia.org/wiki/Tf–idf)

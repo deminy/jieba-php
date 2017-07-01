@@ -144,14 +144,14 @@ class Posseg
         $end_array = end($V);
         $last      = [];
         foreach (array_keys(end($mem_path)) as $y) {
-            $last[$y]  = $end_array[$y];
+            $last[$y] = $end_array[$y];
         }
 
         $top             = new TopArrayElement($last);
         $return_prob_key = $top->getKey();
         $return_prob     = $top->getValue();
 
-        $route = array_fill(0, $string->strlen(), 'None');
+        $route = array_fill(0, $string->strlen(), JiebaConstant::NONE);
         for ($i = count($route) - 1; $i >= 0; $i--) {
             $route[$i]       = $return_prob_key;
             $return_prob_key = $mem_path[$i][$return_prob_key];

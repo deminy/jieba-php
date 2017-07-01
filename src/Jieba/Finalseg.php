@@ -52,20 +52,19 @@ class Finalseg
         $probStart = ModelSingleton::singleton()->getProbStart();
         $probTrans = ModelSingleton::singleton()->getProbTrans();
 
-        $obs  = $sentence;
-        $V    = [];
-        $V[0] = [];
-        $path = [];
+        $string = new MultiByteString($sentence);
+        $V      = [[]];
+        $path   = [];
 
         foreach (JiebaConstant::BMES as $state) {
-            $c            = mb_substr($obs, 0, 1);
+            $c            = $string->get(0);
             $prob_emit    = ($probEmit[$state][$c] ?? JiebaConstant::MIN_FLOAT);
             $V[0][$state] = $probStart[$state] + $prob_emit;
-            $path[$state] = $state;
+            $path[$state] = [$state];
         }
 
-        for ($t = 1; $t < mb_strlen($obs); $t++) {
-            $c       = mb_substr($obs, $t, 1);
+        for ($t = 1; $t < $string->strlen(); $t++) {
+            $c       = $string->get($t);
             $V[$t]   = [];
             $newPath = [];
             foreach (JiebaConstant::BMES as $state) {
@@ -75,21 +74,21 @@ class Finalseg
                     $prob_emit                = ($probEmit[$state][$c] ?? JiebaConstant::MIN_FLOAT);
                     $temp_prob_array[$state0] = $V[$t-1][$state0] + $prob_trans + $prob_emit;
                 }
-                $top               = new TopArrayElement($temp_prob_array);
-                $maxKey            = $top->getKey();
-                $V[$t][$state]     = $top->getValue(); // maximum probability
-                $newPath[$state]   = (is_array($path[$maxKey]) ? array_values($path[$maxKey]) : [$path[$maxKey]]);
-                $newPath[$state][] = $state;
+                $top             = new TopArrayElement($temp_prob_array);
+                $maxKey          = $top->getKey();
+                $V[$t][$state]   = $top->getValue(); // maximum probability
+                $newPath[$state] = array_merge($path[$maxKey], [$state]);
             }
             $path = $newPath;
         }
 
-        if ($V[mb_strlen($obs) - 1][JiebaConstant::E] >= $V[mb_strlen($obs) - 1][JiebaConstant::S]) {
+        $lastIndex = $string->strlen() - 1;
+        if ($V[$lastIndex][JiebaConstant::E] >= $V[$lastIndex][JiebaConstant::S]) {
             $state = JiebaConstant::E;
         } else {
             $state = JiebaConstant::S;
         }
 
-        return new Viterbi($V[mb_strlen($obs) - 1][$state], $path[$state]);
+        return new Viterbi($V[$lastIndex][$state], $path[$state]);
     }
 }
