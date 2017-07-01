@@ -94,7 +94,7 @@ class Dict extends AbstractOption
             $fileType = self::DEFAULT;
         }
 
-        return ('dict' . ((self::NORMAL == $dict) ? '' : ".{$dict}") . '.' . $this->getFileExtension($fileType));
+        return ('dict' . '.' . $this->getFileExtension($fileType) . ((self::NORMAL == $dict) ? '' : ".{$dict}"));
     }
 
     /**

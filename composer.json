@@ -6,6 +6,7 @@
     "license": "MIT",
     "require": {
         "php": ">=7.0",
+        "fxsjy/jieba": "0.36",
         "cache/cache": "~0.4",
         "league/csv": "~8.2",
         "psr/log": "~1.0"
@@ -16,6 +17,20 @@
         "phpunit/phpunit": "~6.0",
         "squizlabs/php_codesniffer": "~3.0"
     },
+    "repositories": {
+        "fxsjy/jieba": {
+            "type": "package",
+            "package": {
+                "name": "fxsjy/jieba",
+                "version": "0.36",
+                "source": {
+                    "url": "https://github.com/fxsjy/jieba.git",
+                    "type": "git",
+                    "reference": "885417a"
+                }
+            }
+        }
+    },
     "autoload": {
         "psr-4": {
             "Jieba\\": "src/Jieba/"
@@ -23,10 +38,12 @@
     },
     "scripts": {
         "post-install-cmd": [
+            "./bin/copyDictFiles.sh",
             "./bin/generateDictFiles.php",
             "./bin/generateIdfFile.php"
         ],
         "post-update-cmd": [
+            "./bin/copyDictFiles.sh",
             "./bin/generateDictFiles.php",
             "./bin/generateIdfFile.php"
         ]

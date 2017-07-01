@@ -99,7 +99,7 @@ class Helper
         switch ($fileType) {
             case Dict::SERIALIZED:
             case Dict::SERIALIZED_AND_CACHED:
-                $dir = dirname(__DIR__, 3) . '/temp/dict/' . SerializerFactory::getSerializer()->getType() . '/';
+                $dir = dirname(__DIR__, 3) . '/dict/' . SerializerFactory::getSerializer()->getType() . '/';
                 break;
             case Dict::DEFAULT:
             default:
