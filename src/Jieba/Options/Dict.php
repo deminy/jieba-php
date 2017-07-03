@@ -136,14 +136,12 @@ class Dict extends AbstractOption
      */
     protected function getFileExtension(int $fileType): string
     {
-        $serializerType = SerializerFactory::getSerializer()->getType();
-
         switch ($fileType) {
             case self::SERIALIZED:
-                return SerializerFactory::EXTENSIONS[$serializerType];
+                return SerializerFactory::getExtension();
                 break;
             case self::SERIALIZED_AND_CACHED:
-                return 'cache.' . SerializerFactory::EXTENSIONS[$serializerType];
+                return 'cache.' . SerializerFactory::getExtension();
                 break;
             case self::DEFAULT:
                 return 'txt';

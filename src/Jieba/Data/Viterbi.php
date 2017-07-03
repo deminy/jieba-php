@@ -28,8 +28,8 @@ class Viterbi
      *      );
      *      OR
      *      array(
-     *          "('S', 'g')",
-     *          "('S', 'r')",
+     *          "Sg",  // TODO: describe data format here
+     *          "Bmq", // TODO: describe data format here
      *          //...
      *      );
      * @see ./model/pos/prob_trans.json
@@ -49,7 +49,8 @@ class Viterbi
 
     /**
      * @param int $index
-     * @return string
+     * @return string Return first character back. So: if position is "M" it returns "M" back; if position is "Bmq" it
+     * returns "B" back.
      * @throws Exception
      */
     public function getPositionAt(int $index)
@@ -58,12 +59,14 @@ class Viterbi
             throw new Exception("no position found at location '{$index}'");
         }
 
-        return ((strlen($this->positions[$index]) == 1) ? $this->positions[$index] : $this->positions[$index][2]);
+        return $this->positions[$index][0];
     }
 
     /**
      * @param int $index
-     * @return string Return an empty string if no tag included. In this case tag information is useless.
+     * @return string Return an empty string if no tag included. In this case tag information is useless. So: if
+     * position is "M" it returns "" back; if position is "Bmq" it returns "mq" back.
+     * returns "B" back.
      * @throws Exception
      */
     public function getTagAt(int $index)
@@ -72,7 +75,7 @@ class Viterbi
             throw new Exception("no position found at location '{$index}'");
         }
 
-        return ((strlen($this->positions[$index]) == 1) ? '' : substr($this->positions[$index], 7, -2));
+        return ((strlen($this->positions[$index]) == 1) ? '' : substr($this->positions[$index], 1));
     }
 
     /**

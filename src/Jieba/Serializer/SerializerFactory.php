@@ -118,4 +118,17 @@ class SerializerFactory
             return [$allTypes[0]];
         }
     }
+
+    /**
+     * @param SerializerInterface|null $serializer
+     * @return string
+     */
+    public static function getExtension(SerializerInterface $serializer = null): string
+    {
+        if (empty($serializer)) {
+            $serializer = self::getSerializer();
+        }
+
+        return self::EXTENSIONS[$serializer->getType()];
+    }
 }

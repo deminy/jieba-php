@@ -40,11 +40,13 @@
         "post-install-cmd": [
             "./bin/copyDictFiles.sh",
             "./bin/generateDictFiles.php",
+            "./bin/generateModelFiles.php",
             "./bin/generateIdfFile.php"
         ],
         "post-update-cmd": [
             "./bin/copyDictFiles.sh",
             "./bin/generateDictFiles.php",
+            "./bin/generateModelFiles.php",
             "./bin/generateIdfFile.php"
         ]
     },

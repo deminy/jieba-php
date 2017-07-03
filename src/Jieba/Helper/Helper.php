@@ -69,7 +69,19 @@ class Helper
      */
     public static function getModelFilePath(string $basename, string $basePath = null): string
     {
-        return (($basePath ?: self::getModelBasePath()) . $basename);
+        $path = (($basePath ?: self::getDataBasePath()) . $basename . '.' . SerializerFactory::getExtension());
+        self::createDirIfNeeded(pathinfo($path, PATHINFO_DIRNAME));
+
+        return $path;
+    }
+
+    /**
+     * @return string
+     * @throws Exception
+     */
+    public static function getDataBasePath(): string
+    {
+        return self::createDirIfNeeded(dirname(__DIR__, 3) . '/data/');
     }
 
     /**
@@ -83,14 +95,6 @@ class Helper
     }
 
     /**
-     * @return string
-     */
-    public static function getModelBasePath(): string
-    {
-        return dirname(__DIR__, 3) . '/model/';
-    }
-
-    /**
      * @param string $fileType
      * @return string
      */
@@ -99,19 +103,15 @@ class Helper
         switch ($fileType) {
             case Dict::SERIALIZED:
             case Dict::SERIALIZED_AND_CACHED:
-                $dir = dirname(__DIR__, 3) . '/dict/' . SerializerFactory::getSerializer()->getType() . '/';
+                $dir = dirname(__DIR__, 3) . '/data/dict/' . SerializerFactory::getSerializer()->getType() . '/';
                 break;
             case Dict::DEFAULT:
             default:
-                $dir = dirname(__DIR__, 3) . '/dict/';
+                $dir = dirname(__DIR__, 3) . '/data/dict/';
                 break;
         }
 
-        if (!file_exists($dir)) {
-            mkdir($dir, 0755, true);
-        }
-
-        return $dir;
+        return self::createDirIfNeeded($dir);
     }
 
     /**
@@ -139,5 +139,18 @@ class Helper
         array_push(self::$userDictNames, $userDictName);
 
         return self::$userDictNames;
+    }
+
+    /**
+     * @param string $dir
+     * @return string
+     */
+    protected static function createDirIfNeeded(string $dir): string
+    {
+        if (!file_exists($dir)) {
+            mkdir($dir, 0755, true);
+        }
+
+        return $dir;
     }
 }

@@ -73,10 +73,8 @@ class DictHelper
      */
     public static function getIdfFreq()
     {
-        $type = SerializerFactory::EXTENSIONS[SerializerFactory::getSerializer()->getType()];
-
         return SerializerFactory::getSerializer()->decode(
-            file_get_contents(Helper::getDictBasePath(Dict::SERIALIZED) . 'idf.' . $type)
+            file_get_contents(Helper::getDictBasePath(Dict::SERIALIZED) . 'idf.' . SerializerFactory::getExtension())
         );
     }
 

@@ -37,7 +37,7 @@ $dict     = new Dict();
 $fileType = Dict::SERIALIZED;
 foreach (SerializerFactory::getAvailableTypes(array_slice($argv, 1)) as $type) {
     $serializer = SerializerFactory::setSerializer(SerializerFactory::getSerializer($type));
-    $file       = Helper::getDictBasePath($fileType) . 'idf.' . SerializerFactory::EXTENSIONS[$type];
+    $file       = Helper::getDictBasePath($fileType) . 'idf.' . SerializerFactory::getExtension($serializer);
     file_put_contents($file, $serializer->encode($idfFreq));
     echo "    file generated: {$file}\n";
 }

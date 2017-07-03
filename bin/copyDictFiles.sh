@@ -11,9 +11,9 @@ fi
 if [ -d "${CURRENT_SCRIPT_PATH}/../vendor/fxsjy/jieba" ] ; then
     cd  "${CURRENT_SCRIPT_PATH}/../vendor/fxsjy/jieba"
 
-    cp extra_dict/*          "${CURRENT_SCRIPT_PATH}/../dict/."
-    cp jieba/analyse/idf.txt "${CURRENT_SCRIPT_PATH}/../dict/."
-    cp jieba/dict.txt        "${CURRENT_SCRIPT_PATH}/../dict/."
+    cp extra_dict/*          "${CURRENT_SCRIPT_PATH}/../data/dict/."
+    cp jieba/analyse/idf.txt "${CURRENT_SCRIPT_PATH}/../data/dict/."
+    cp jieba/dict.txt        "${CURRENT_SCRIPT_PATH}/../data/dict/."
 
     echo "Dictionary files copied to under folder dict/."
 else

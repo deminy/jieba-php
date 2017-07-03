@@ -61,7 +61,7 @@ class ModelSingleton
     public function getPosCharState(): array
     {
         if (empty($this->posCharState)) {
-            $this->setPosCharState(CacheFactory::getModel($this->getCachePool(), CacheFactory::MODEL_POS_CHAR_STATE));
+            $this->setPosCharState(CacheFactory::getModel($this->getCachePool(), CacheFactory::POSSEG_CHAR_STATE));
         }
 
         return $this->posCharState;
@@ -84,7 +84,7 @@ class ModelSingleton
     public function getPosProbEmit(): array
     {
         if (empty($this->posProbEmit)) {
-            $this->setPosProbEmit(CacheFactory::getModel($this->getCachePool(), CacheFactory::MODEL_POS_PROB_EMIT));
+            $this->setPosProbEmit(CacheFactory::getModel($this->getCachePool(), CacheFactory::POSSEG_PROB_EMIT));
         }
 
         return $this->posProbEmit;
@@ -107,7 +107,7 @@ class ModelSingleton
     public function getPosProbStart(): array
     {
         if (empty($this->posProbStart)) {
-            $this->setPosProbStart(CacheFactory::getModel($this->getCachePool(), CacheFactory::MODEL_POS_PROB_START));
+            $this->setPosProbStart(CacheFactory::getModel($this->getCachePool(), CacheFactory::POSSEG_PROB_START));
         }
 
         return $this->posProbStart;
@@ -130,7 +130,7 @@ class ModelSingleton
     public function getPosProbTrans(): array
     {
         if (empty($this->posProbTrans)) {
-            $this->setPosProbTrans(CacheFactory::getModel($this->getCachePool(), CacheFactory::MODEL_POS_PROB_TRANS));
+            $this->setPosProbTrans(CacheFactory::getModel($this->getCachePool(), CacheFactory::POSSEG_PROB_TRANS));
         }
 
         return $this->posProbTrans;
@@ -153,7 +153,7 @@ class ModelSingleton
     public function getProbEmit(): array
     {
         if (empty($this->probEmit)) {
-            $this->setProbEmit(CacheFactory::getModel($this->getCachePool(), CacheFactory::MODEL_PROB_EMIT));
+            $this->setProbEmit(CacheFactory::getModel($this->getCachePool(), CacheFactory::FINALSEG_PROB_EMIT));
         }
 
         return $this->probEmit;
@@ -176,7 +176,7 @@ class ModelSingleton
     public function getProbStart(): array
     {
         if (empty($this->probStart)) {
-            $this->setProbStart(CacheFactory::getModel($this->getCachePool(), CacheFactory::MODEL_PROB_START));
+            $this->setProbStart(CacheFactory::getModel($this->getCachePool(), CacheFactory::FINALSEG_PROB_START));
         }
 
         return $this->probStart;
@@ -199,7 +199,7 @@ class ModelSingleton
     public function getProbTrans(): array
     {
         if (empty($this->probTrans)) {
-            $this->setProbTrans(CacheFactory::getModel($this->getCachePool(), CacheFactory::MODEL_PROB_TRANS));
+            $this->setProbTrans(CacheFactory::getModel($this->getCachePool(), CacheFactory::FINALSEG_PROB_TRANS));
         }
 
         return $this->probTrans;

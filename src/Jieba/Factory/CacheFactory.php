@@ -10,22 +10,35 @@ use Jieba\Helper\Helper;
 
 class CacheFactory
 {
-    const MODEL_PROB_START     = 'prob_start.json';
-    const MODEL_PROB_TRANS     = 'prob_trans.json';
-    const MODEL_PROB_EMIT      = 'prob_emit.json';
-    const MODEL_POS_PROB_START = 'pos/prob_start.json';
-    const MODEL_POS_PROB_TRANS = 'pos/prob_trans.json';
-    const MODEL_POS_PROB_EMIT  = 'pos/prob_emit.json';
-    const MODEL_POS_CHAR_STATE = 'pos/char_state.json';
+    const FINALSEG_PROB_START = 'finalseg/prob_start';
+    const FINALSEG_PROB_TRANS = 'finalseg/prob_trans';
+    const FINALSEG_PROB_EMIT  = 'finalseg/prob_emit';
+    const POSSEG_PROB_START   = 'posseg/prob_start';
+    const POSSEG_PROB_TRANS   = 'posseg/prob_trans';
+    const POSSEG_PROB_EMIT    = 'posseg/prob_emit';
+    const POSSEG_CHAR_STATE   = 'posseg/char_state_tab';
+
+    const FINALSEG_FILES = [
+        self::FINALSEG_PROB_START => self::FINALSEG_PROB_START,
+        self::FINALSEG_PROB_TRANS => self::FINALSEG_PROB_TRANS,
+        self::FINALSEG_PROB_EMIT  => self::FINALSEG_PROB_EMIT,
+    ];
+
+    const POSSEG_FILES = [
+        self::POSSEG_PROB_START   => self::POSSEG_PROB_START,
+        self::POSSEG_PROB_TRANS   => self::POSSEG_PROB_TRANS,
+        self::POSSEG_PROB_EMIT    => self::POSSEG_PROB_EMIT,
+        self::POSSEG_CHAR_STATE   => self::POSSEG_CHAR_STATE,
+    ];
 
     const MODEL_FILES = [
-        self::MODEL_PROB_START     => self::MODEL_PROB_START,
-        self::MODEL_PROB_TRANS     => self::MODEL_PROB_TRANS,
-        self::MODEL_PROB_EMIT      => self::MODEL_PROB_EMIT,
-        self::MODEL_POS_PROB_START => self::MODEL_POS_PROB_START,
-        self::MODEL_POS_PROB_TRANS => self::MODEL_POS_PROB_TRANS,
-        self::MODEL_POS_PROB_EMIT  => self::MODEL_POS_PROB_EMIT,
-        self::MODEL_POS_CHAR_STATE => self::MODEL_POS_CHAR_STATE,
+        self::FINALSEG_PROB_START => self::FINALSEG_PROB_START,
+        self::FINALSEG_PROB_TRANS => self::FINALSEG_PROB_TRANS,
+        self::FINALSEG_PROB_EMIT  => self::FINALSEG_PROB_EMIT,
+        self::POSSEG_PROB_START   => self::POSSEG_PROB_START,
+        self::POSSEG_PROB_TRANS   => self::POSSEG_PROB_TRANS,
+        self::POSSEG_PROB_EMIT    => self::POSSEG_PROB_EMIT,
+        self::POSSEG_CHAR_STATE   => self::POSSEG_CHAR_STATE,
     ];
 
     /**

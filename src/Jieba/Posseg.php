@@ -233,7 +233,7 @@ class Posseg
     }
     /**
      * @param string $sentence
-     * @return Words
+     * @return Words List of \Jieba\Data\TaggedWord objects.
      */
     public function cut(string $sentence): Words
     {

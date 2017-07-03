@@ -42,25 +42,25 @@ class ViterbiTest extends TestCase
             // set 2: complex cases
             [
                 'B',
-                ["('B', 'nrt')", "('M', 'e')", "('E', 'df')", "('S', 'g')"],
+                ['Bnrt', 'Me', 'Edf', 'Sg'],
                 0,
                 'get first position (complex case)',
             ],
             [
                 'M',
-                ["('B', 'nrt')", "('M', 'e')", "('E', 'df')", "('S', 'g')"],
+                ['Bnrt', 'Me', 'Edf', 'Sg'],
                 1,
                 'get second position (complex case)',
             ],
             [
                 'E',
-                ["('B', 'nrt')", "('M', 'e')", "('E', 'df')", "('S', 'g')"],
+                ['Bnrt', 'Me', 'Edf', 'Sg'],
                 2,
                 'get third position (complex case)',
             ],
             [
                 'S',
-                ["('B', 'nrt')", "('M', 'e')", "('E', 'df')", "('S', 'g')"],
+                ['Bnrt', 'Me', 'Edf', 'Sg'],
                 3,
                 'get last position (complex case)',
             ],
@@ -89,25 +89,25 @@ class ViterbiTest extends TestCase
         return [
             [
                 'nrt',
-                ["('B', 'nrt')", "('M', 'e')", "('E', 'df')", "('S', 'g')"],
+                ['Bnrt', 'Me', 'Edf', 'Sg'],
                 0,
                 'get first tag',
             ],
             [
                 'e',
-                ["('B', 'nrt')", "('M', 'e')", "('E', 'df')", "('S', 'g')"],
+                ['Bnrt', 'Me', 'Edf', 'Sg'],
                 1,
                 'get second tag',
             ],
             [
                 'df',
-                ["('B', 'nrt')", "('M', 'e')", "('E', 'df')", "('S', 'g')"],
+                ['Bnrt', 'Me', 'Edf', 'Sg'],
                 2,
                 'get third tag',
             ],
             [
                 'g',
-                ["('B', 'nrt')", "('M', 'e')", "('E', 'df')", "('S', 'g')"],
+                ['Bnrt', 'Me', 'Edf', 'Sg'],
                 3,
                 'get last tag',
             ],
