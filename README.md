@@ -7,7 +7,7 @@
 [![PSR-4](https://img.shields.io/badge/cs-PSR--4-yellow.svg)](http://www.php-fig.org/psr/psr-4/)
 [![License](https://poser.pugx.org/deminy/jieba-php/license.svg)](https://packagist.org/packages/deminy/jieba-php)
 
-"结巴中文分词"PHP版本："[结巴中文分词](https://github.com/fxsjy/jieba)"是Sun Junyi开发的Python版的中文分词组件，后来衍生了多种语言实现，包括C++、Java、.NET、Go等等。这份PHP版本基于[fukuball](https://github.com/fukuball/jieba-php)之前做的PHP实现（v0.25）而作了各种更新和改进，包括使用PHP 7的新功能重构代码、使用PSR-4管理autoloading、使用依赖注射等设计模式、更新单元测试的实现、代码升级、以及更多的性能优化和代码更新等等。如果你需要相应的PHP扩展的版本，可考虑jonnywang写的[结巴中文分词之PHP扩展](https://github.com/jonnywang/phpjieba)。
+"结巴中文分词"PHP版本："[结巴中文分词](https://github.com/fxsjy/jieba)"是Sun Junyi开发的Python版的中文分词组件，后来衍生了多种语言实现，包括C++、Java、.NET、Go等等。这份PHP版本起始于[fukuball](https://github.com/fukuball/jieba-php)之前做的PHP实现（v0.25），随后对其整体重写并作了各种更新和改进，包括代码升级、使用PHP 7的新功能重构代码、使用PSR-4管理autoloading、使用依赖注射等设计模式、更新单元测试的实现、以及更多的性能优化和代码更新等等。如果你需要相应的PHP扩展的版本，可考虑jonnywang写的[结巴中文分词之PHP扩展](https://github.com/jonnywang/phpjieba)。
 
 有关算法、词典生成等方面的问题，请参考[结巴中文分词](https://github.com/fxsjy/jieba)相关文档。
 

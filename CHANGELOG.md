@@ -1,3 +1,10 @@
+0.36 / TBD
+==========
+
+  * Include changes up to version 0.36 from package fxsjy/jieba.
+  * Use dictionary files from package fxsjy/jieba.
+  * Add model converter classes to convert model data from Python files to JSON format.
+
 0.25.3 / 2017-06-30
 ===================
 

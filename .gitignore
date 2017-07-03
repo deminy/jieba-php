@@ -17,8 +17,8 @@
 # Ignore PHPUnit report files
 /clover.xml
 
-# Ignore folder /dict
-/dict/*
+# Ignore folder /data
+/data/*
 
 # Ignore folder /temp
 /temp/*
