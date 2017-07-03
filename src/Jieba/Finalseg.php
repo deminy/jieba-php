@@ -20,6 +20,13 @@ class Finalseg
 {
     use SingletonTrait;
 
+    const PREVIOUS_STATUS = [
+        JiebaConstant::B => [JiebaConstant::E, JiebaConstant::S],
+        JiebaConstant::M => [JiebaConstant::M, JiebaConstant::B],
+        JiebaConstant::S => [JiebaConstant::S, JiebaConstant::E],
+        JiebaConstant::E => [JiebaConstant::B, JiebaConstant::M],
+    ];
+
     /**
      * Cut given sentence to an array of individual Chinese and non-Chinese characters.
      * @param string $sentence
@@ -56,10 +63,9 @@ class Finalseg
         $V      = [[]];
         $path   = [];
 
+        $c = $string->get(0);
         foreach (JiebaConstant::BMES as $state) {
-            $c            = $string->get(0);
-            $prob_emit    = ($probEmit[$state][$c] ?? JiebaConstant::MIN_FLOAT);
-            $V[0][$state] = $probStart[$state] + $prob_emit;
+            $V[0][$state] = $probStart[$state] + ($probEmit[$state][$c] ?? JiebaConstant::MIN_FLOAT);
             $path[$state] = [$state];
         }
 
@@ -68,16 +74,19 @@ class Finalseg
             $V[$t]   = [];
             $newPath = [];
             foreach (JiebaConstant::BMES as $state) {
-                $temp_prob_array = [];
-                foreach (JiebaConstant::BMES as $state0) {
-                    $prob_trans               = ($probTrans[$state0][$state] ?? JiebaConstant::MIN_FLOAT);
-                    $prob_emit                = ($probEmit[$state][$c] ?? JiebaConstant::MIN_FLOAT);
-                    $temp_prob_array[$state0] = $V[$t-1][$state0] + $prob_trans + $prob_emit;
+                $prob_emit = ($probEmit[$state][$c] ?? JiebaConstant::MIN_FLOAT);
+
+                $array = [];
+                foreach (self::PREVIOUS_STATUS[$state] as $previousState) {
+                    $array[$previousState] =
+                        $V[$t - 1][$previousState] +
+                        ($probTrans[$previousState][$state] ?? JiebaConstant::MIN_FLOAT) +
+                        $prob_emit;
                 }
-                $top             = new TopArrayElement($temp_prob_array);
-                $maxKey          = $top->getKey();
+                $top = new TopArrayElement($array);
+
                 $V[$t][$state]   = $top->getValue(); // maximum probability
-                $newPath[$state] = array_merge($path[$maxKey], [$state]);
+                $newPath[$state] = array_merge($path[$top->getKey()], [$state]);
             }
             $path = $newPath;
         }
