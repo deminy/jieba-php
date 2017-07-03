@@ -71,7 +71,7 @@ class AnalyseTest extends TestCase
         $this->assertEquals(
             $expected,
             Analyse::singleton()->extractTags(
-                $jieba->cut(file_get_contents(dirname(__DIR__) . '/dict/lyric.txt')),
+                $jieba->cut(file_get_contents(dirname(__DIR__, 2) . '/dict/lyric.txt')),
                 $topK
             )
         );
